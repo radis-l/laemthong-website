@@ -52,8 +52,14 @@ export function ImageUpload({
         return;
       }
 
+      const currentUrls: string[] = Array.isArray(value)
+        ? value.filter(Boolean)
+        : value
+          ? [value]
+          : [];
+
       const fileArray = Array.from(files);
-      if (multiple && urls.length + fileArray.length > maxFiles) {
+      if (multiple && currentUrls.length + fileArray.length > maxFiles) {
         toast.error(`Maximum ${maxFiles} images allowed.`);
         return;
       }
@@ -79,30 +85,35 @@ export function ImageUpload({
       ) as string[];
 
       if (multiple) {
-        onChange([...urls, ...newUrls]);
+        onChange([...currentUrls, ...newUrls]);
       } else if (newUrls.length > 0) {
         // Single mode: replace existing
-        if (urls[0]) {
-          deleteImageAction(urls[0]).catch(() => {});
+        if (currentUrls[0]) {
+          deleteImageAction(currentUrls[0]).catch(() => {});
         }
         onChange(newUrls[0]);
       }
 
       setIsUploading(false);
     },
-    [canUpload, folder, entitySlug, multiple, urls, onChange, maxFiles]
+    [canUpload, folder, entitySlug, multiple, value, onChange, maxFiles]
   );
 
   const handleRemove = useCallback(
     async (urlToRemove: string) => {
       deleteImageAction(urlToRemove).catch(() => {});
       if (multiple) {
-        onChange(urls.filter((u) => u !== urlToRemove));
+        const currentUrls: string[] = Array.isArray(value)
+          ? value.filter(Boolean)
+          : value
+            ? [value]
+            : [];
+        onChange(currentUrls.filter((u) => u !== urlToRemove));
       } else {
         onChange("");
       }
     },
-    [multiple, urls, onChange]
+    [multiple, value, onChange]
   );
 
   const handleDrop = useCallback(

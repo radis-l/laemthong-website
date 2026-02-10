@@ -105,7 +105,7 @@ export async function deleteCategoryAction(
 ): Promise<CategoryFormState> {
   try {
     await adminDeleteCategory(slug);
-    deleteImageFolder("categories", slug).catch(() => {});
+    deleteImageFolder("categories", slug).catch(console.error);
   } catch {
     return {
       message: "Failed to delete category. It may have associated products.",

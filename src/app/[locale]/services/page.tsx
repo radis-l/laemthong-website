@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import { SectionHeading } from "@/components/shared/section-heading";
 import { getAllServices } from "@/lib/db";
 import { CheckCircle2, Wrench, MessageSquare, GraduationCap, Headphones } from "lucide-react";
 import {

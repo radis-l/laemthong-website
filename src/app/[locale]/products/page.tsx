@@ -3,7 +3,6 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { getAllProducts, getAllCategories, getAllBrands } from "@/lib/db";
 import { ProductCard } from "@/components/products/product-card";
 import { Link } from "@/i18n/navigation";
-import { Badge } from "@/components/ui/badge";
 import {
   getPageUrl,
   getAlternateLanguages,

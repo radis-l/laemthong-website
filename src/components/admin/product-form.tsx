@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/select";
 import { BilingualInput } from "./bilingual-input";
 import { BilingualTextarea } from "./bilingual-textarea";
-import { DynamicList } from "./dynamic-list";
 import { ImageUpload } from "./image-upload";
 import {
   createProductAction,

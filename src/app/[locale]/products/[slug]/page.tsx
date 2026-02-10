@@ -6,7 +6,6 @@ import { getProductBySlug, getProductsByCategory, getCategoryBySlug, getBrandByS
 import { ProductCard } from "@/components/products/product-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import {
   Breadcrumb,
   BreadcrumbItem,

@@ -167,7 +167,7 @@ export async function deleteProductAction(
 ): Promise<ProductFormState> {
   try {
     await adminDeleteProduct(slug);
-    deleteImageFolder("products", slug).catch(() => {});
+    deleteImageFolder("products", slug).catch(console.error);
   } catch {
     return { message: "Failed to delete product." };
   }

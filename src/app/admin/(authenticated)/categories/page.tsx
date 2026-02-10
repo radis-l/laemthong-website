@@ -86,7 +86,7 @@ export default async function AdminCategoriesPage() {
                       <DeleteDialog
                         title={`Delete "${cat.name.en}"?`}
                         description="This action cannot be undone. Products in this category will need to be reassigned."
-                        onDelete={() => deleteCategoryAction(cat.slug)}
+                        onDelete={deleteCategoryAction.bind(null, cat.slug)}
                       />
                     </div>
                   </TableCell>

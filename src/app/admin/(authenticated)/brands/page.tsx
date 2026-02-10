@@ -77,7 +77,7 @@ export default async function AdminBrandsPage() {
                       <DeleteDialog
                         title={`Delete "${brand.name}"?`}
                         description="This action cannot be undone. Products associated with this brand will need to be reassigned."
-                        onDelete={() => deleteBrandAction(brand.slug)}
+                        onDelete={deleteBrandAction.bind(null, brand.slug)}
                       />
                     </div>
                   </TableCell>

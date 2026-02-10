@@ -105,7 +105,7 @@ export default async function AdminProductsPage() {
                       <DeleteDialog
                         title={`Delete "${product.name.en}"?`}
                         description="This action cannot be undone."
-                        onDelete={() => deleteProductAction(product.slug)}
+                        onDelete={deleteProductAction.bind(null, product.slug)}
                       />
                     </div>
                   </TableCell>

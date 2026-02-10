@@ -30,7 +30,7 @@ async function getSupabaseUser(request: NextRequest, response: NextResponse) {
   return user;
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Admin routes — protect with Supabase Auth

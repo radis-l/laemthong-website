@@ -99,6 +99,13 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
           <AlertDescription>{state.message}</AlertDescription>
         </Alert>
       )}
+      {state.errors && Object.keys(state.errors).length > 0 && (
+        <Alert variant="destructive">
+          <AlertDescription>
+            Please fix the highlighted errors and try again.
+          </AlertDescription>
+        </Alert>
+      )}
 
       <Tabs defaultValue="basic">
         <TabsList>

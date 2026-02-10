@@ -51,6 +51,13 @@ export function CategoryForm({ category }: CategoryFormProps) {
           <AlertDescription>{state.message}</AlertDescription>
         </Alert>
       )}
+      {state.errors && Object.keys(state.errors).length > 0 && (
+        <Alert variant="destructive">
+          <AlertDescription>
+            Please fix the highlighted errors and try again.
+          </AlertDescription>
+        </Alert>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">

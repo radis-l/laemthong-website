@@ -11,6 +11,13 @@ type Props = {
   products: Product[];
 };
 
+function formatBrandSlug(slug: string): string {
+  return slug
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
 export function FeaturedProducts({ products }: Props) {
   const t = useTranslations("home");
   const tCommon = useTranslations("common");
@@ -60,11 +67,7 @@ export function FeaturedProducts({ products }: Props) {
                 <div className="p-5">
                   <div className="mb-2 flex items-center gap-2">
                     <Badge variant="secondary" className="text-xs">
-                      {product.brandSlug === "lincoln-electric"
-                        ? "Lincoln Electric"
-                        : product.brandSlug === "harris"
-                          ? "Harris"
-                          : "CEA"}
+                      {formatBrandSlug(product.brandSlug)}
                     </Badge>
                   </div>
                   <h3 className="font-semibold text-foreground group-hover:text-primary">

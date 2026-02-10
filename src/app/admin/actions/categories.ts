@@ -52,8 +52,7 @@ export async function createCategoryAction(
   }
 
   revalidatePath("/admin/categories");
-  revalidatePath("/categories", "layout");
-  revalidatePath("/products", "layout");
+  revalidatePath("/", "layout");
   redirect("/admin/categories");
 }
 
@@ -95,8 +94,7 @@ export async function updateCategoryAction(
   }
 
   revalidatePath("/admin/categories");
-  revalidatePath("/categories", "layout");
-  revalidatePath("/products", "layout");
+  revalidatePath("/", "layout");
   redirect("/admin/categories");
 }
 
@@ -113,6 +111,6 @@ export async function deleteCategoryAction(
   }
 
   revalidatePath("/admin/categories");
-  revalidatePath("/categories", "layout");
+  revalidatePath("/", "layout");
   return { success: true };
 }

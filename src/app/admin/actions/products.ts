@@ -90,7 +90,7 @@ export async function createProductAction(
   }
 
   revalidatePath("/admin/products");
-  revalidatePath("/products", "layout");
+  revalidatePath("/", "layout");
   redirect("/admin/products");
 }
 
@@ -158,7 +158,7 @@ export async function updateProductAction(
   }
 
   revalidatePath("/admin/products");
-  revalidatePath("/products", "layout");
+  revalidatePath("/", "layout");
   redirect("/admin/products");
 }
 
@@ -173,6 +173,6 @@ export async function deleteProductAction(
   }
 
   revalidatePath("/admin/products");
-  revalidatePath("/products", "layout");
+  revalidatePath("/", "layout");
   return { success: true };
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import Image from "next/image";
 import { getAllBrands, getProductsByBrand } from "@/lib/db";
 import { ArrowRight } from "lucide-react";
 import {
@@ -75,9 +76,19 @@ export default async function BrandsPage({ params }: Props) {
                 >
                   <div className="grid gap-6 p-8 md:grid-cols-[200px_1fr]">
                     <div className="flex items-center justify-center rounded-xl bg-muted p-6">
-                      <span className="text-2xl font-bold text-primary">
-                        {brand.name}
-                      </span>
+                      {brand.logo?.startsWith("http") ? (
+                        <Image
+                          src={brand.logo}
+                          alt={brand.name}
+                          width={120}
+                          height={120}
+                          className="object-contain"
+                        />
+                      ) : (
+                        <span className="text-2xl font-bold text-primary">
+                          {brand.name.charAt(0)}
+                        </span>
+                      )}
                     </div>
                     <div>
                       <div className="flex items-center gap-3">

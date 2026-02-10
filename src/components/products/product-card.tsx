@@ -8,13 +8,15 @@ type Props = {
   locale: Locale;
 };
 
+function formatBrandSlug(slug: string): string {
+  return slug
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
 export function ProductCard({ product, locale }: Props) {
-  const brandLabel =
-    product.brandSlug === "lincoln-electric"
-      ? "Lincoln Electric"
-      : product.brandSlug === "harris"
-        ? "Harris"
-        : "CEA";
+  const brandLabel = formatBrandSlug(product.brandSlug);
 
   return (
     <Link href={`/products/${product.slug}`} className="group">

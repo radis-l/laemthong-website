@@ -53,7 +53,7 @@ export async function createBrandAction(
   }
 
   revalidatePath("/admin/brands");
-  revalidatePath("/brands", "layout");
+  revalidatePath("/", "layout");
   redirect("/admin/brands");
 }
 
@@ -96,7 +96,7 @@ export async function updateBrandAction(
   }
 
   revalidatePath("/admin/brands");
-  revalidatePath("/brands", "layout");
+  revalidatePath("/", "layout");
   redirect("/admin/brands");
 }
 
@@ -109,6 +109,6 @@ export async function deleteBrandAction(slug: string): Promise<BrandFormState> {
   }
 
   revalidatePath("/admin/brands");
-  revalidatePath("/brands", "layout");
+  revalidatePath("/", "layout");
   return { success: true };
 }

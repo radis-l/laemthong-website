@@ -91,14 +91,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
       {state.errors && Object.keys(state.errors).length > 0 && (
         <Alert variant="destructive">
           <AlertDescription>
-            <p className="font-medium">Please fix the following errors:</p>
-            <ul className="mt-1 list-disc pl-4 text-sm">
-              {Object.entries(state.errors).map(([field, msgs]) => (
-                <li key={field}>
-                  <strong>{field}</strong>: {msgs.join(", ")}
-                </li>
-              ))}
-            </ul>
+            Please fix the highlighted errors and try again.
           </AlertDescription>
         </Alert>
       )}
@@ -111,7 +104,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
         </TabsList>
 
         {/* Tab 1: Basic Info */}
-        <TabsContent value="basic" className="space-y-6 pt-4">
+        <TabsContent value="basic" forceMount className="data-[state=inactive]:hidden space-y-6 pt-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="slug">Slug *</Label>
@@ -236,7 +229,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
         </TabsContent>
 
         {/* Tab 2: Images */}
-        <TabsContent value="images" className="space-y-6 pt-4">
+        <TabsContent value="images" forceMount className="data-[state=inactive]:hidden space-y-6 pt-4">
           <ImageUpload
             label="Main Image"
             value={mainImage}
@@ -257,7 +250,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
         </TabsContent>
 
         {/* Tab 3: Details */}
-        <TabsContent value="details" className="space-y-8 pt-4">
+        <TabsContent value="details" forceMount className="data-[state=inactive]:hidden space-y-8 pt-4">
           {/* Specifications */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">

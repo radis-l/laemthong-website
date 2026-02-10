@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState, useRef } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -56,9 +56,8 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
   );
   const [featured, setFeatured] = useState(product?.featured ?? false);
 
-  // Refs for hidden select inputs
-  const categoryRef = useRef<HTMLInputElement>(null);
-  const brandRef = useRef<HTMLInputElement>(null);
+  const [categorySlug, setCategorySlug] = useState(product?.category_slug ?? "");
+  const [brandSlug, setBrandSlug] = useState(product?.brand_slug ?? "");
 
   useEffect(() => {
     if (state.success) {
@@ -81,18 +80,8 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
       <input type="hidden" name="features" value={JSON.stringify(features)} />
       <input type="hidden" name="documents" value={JSON.stringify(documents)} />
       {featured && <input type="hidden" name="featured" value="on" />}
-      <input
-        ref={categoryRef}
-        type="hidden"
-        name="categorySlug"
-        defaultValue={product?.category_slug ?? ""}
-      />
-      <input
-        ref={brandRef}
-        type="hidden"
-        name="brandSlug"
-        defaultValue={product?.brand_slug ?? ""}
-      />
+      <input type="hidden" name="categorySlug" value={categorySlug} />
+      <input type="hidden" name="brandSlug" value={brandSlug} />
 
       {state.message && (
         <Alert variant="destructive">
@@ -184,10 +173,8 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
             <div className="space-y-2">
               <Label>Category *</Label>
               <Select
-                defaultValue={product?.category_slug}
-                onValueChange={(v) => {
-                  if (categoryRef.current) categoryRef.current.value = v;
-                }}
+                value={categorySlug}
+                onValueChange={setCategorySlug}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
@@ -209,10 +196,8 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
             <div className="space-y-2">
               <Label>Brand *</Label>
               <Select
-                defaultValue={product?.brand_slug}
-                onValueChange={(v) => {
-                  if (brandRef.current) brandRef.current.value = v;
-                }}
+                value={brandSlug}
+                onValueChange={setBrandSlug}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select brand" />

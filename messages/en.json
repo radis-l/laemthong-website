@@ -1,0 +1,126 @@
+{
+  "common": {
+    "companyName": "Laemthong Syndicate",
+    "companyFullName": "Laemthong Syndicate Co., Ltd.",
+    "requestQuote": "Request a Quote",
+    "contactUs": "Contact Us",
+    "learnMore": "Learn More",
+    "viewAll": "View All",
+    "viewProducts": "View Products",
+    "backTo": "Back to",
+    "home": "Home",
+    "phone": "Phone",
+    "email": "Email",
+    "address": "Address",
+    "yearsExperience": "60+ Years of Experience"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About Us",
+    "products": "Products",
+    "brands": "Brands",
+    "services": "Services",
+    "contact": "Contact"
+  },
+  "hero": {
+    "title": "Thailand's Leading Industrial Welding Equipment Supplier",
+    "subtitle": "Importing and distributing high-quality welding and cutting equipment from world-class brands for over 60 years",
+    "cta": "Browse All Products",
+    "ctaSecondary": "Contact Sales Team"
+  },
+  "usp": {
+    "experience": "60+ Years",
+    "experienceDesc": "Industry Experience",
+    "directImporter": "Direct Importer",
+    "directImporterDesc": "Competitive pricing from direct importing",
+    "serviceTeam": "Service Team",
+    "serviceTeamDesc": "Dedicated technicians for after-sales support",
+    "authorized": "Authorized Dealer",
+    "authorizedDesc": "Official authorized distributor"
+  },
+  "home": {
+    "featuredProducts": "Featured Products",
+    "featuredProductsDesc": "High-quality welding and cutting equipment from leading brands",
+    "ourBrands": "Brands We Carry",
+    "ourBrandsDesc": "Official authorized distributor for world-class manufacturers",
+    "aboutPreview": "About Us",
+    "aboutPreviewDesc": "Laemthong Syndicate Co., Ltd. is Thailand's leading importer and distributor of industrial welding and cutting equipment. With over 60 years of experience, we are committed to delivering high-quality products at competitive prices, backed by excellent after-sales service.",
+    "ctaTitle": "Ready to Get a Quote?",
+    "ctaDesc": "Our expert team is ready to help you choose the right equipment for your needs",
+    "ctaButton": "Contact Sales Team"
+  },
+  "products": {
+    "title": "All Products",
+    "description": "High-quality industrial welding and cutting equipment",
+    "categories": "Categories",
+    "allCategories": "All Categories",
+    "allBrands": "All Brands",
+    "specifications": "Specifications",
+    "features": "Features",
+    "documents": "Documents",
+    "relatedProducts": "Related Products",
+    "noProducts": "No products found",
+    "filterByCategory": "Filter by Category",
+    "filterByBrand": "Filter by Brand"
+  },
+  "brands": {
+    "title": "Brands We Carry",
+    "description": "Official authorized distributor for world-class manufacturers",
+    "visitWebsite": "Visit Website",
+    "productsFrom": "Products from"
+  },
+  "about": {
+    "title": "About Us",
+    "subtitle": "Over 60 years of expertise in the welding and cutting industry",
+    "historyTitle": "Our History",
+    "historyText": "Laemthong Syndicate Co., Ltd. was established over 60 years ago with a vision to become Thailand's leading importer and distributor of high-quality welding and cutting equipment. Over the decades, we have built strong partnerships with world-class manufacturers and developed an extensive dealer network nationwide.",
+    "missionTitle": "Our Mission",
+    "missionText": "To deliver high-quality products at competitive prices, backed by excellent after-sales service, supporting the growth of Thai industry.",
+    "whyChooseUs": "Why Choose Us",
+    "reason1Title": "Direct Importer",
+    "reason1Desc": "As a direct importer from manufacturers, we offer the most competitive pricing in the market.",
+    "reason2Title": "Technical Service Team",
+    "reason2Desc": "Our experienced technicians provide maintenance, repair, and consultation services.",
+    "reason3Title": "Quality Products",
+    "reason3Desc": "We exclusively carry products from internationally certified leading brands.",
+    "reason4Title": "Nationwide Network",
+    "reason4Desc": "Our dealer and service center network covers the entire country."
+  },
+  "services": {
+    "title": "Our Services",
+    "description": "Comprehensive services for industrial welding and cutting equipment"
+  },
+  "contact": {
+    "title": "Contact Us",
+    "description": "Ready to provide consultation and quotes for all types of welding and cutting equipment",
+    "formTitle": "Send Us a Message",
+    "name": "Full Name",
+    "namePlaceholder": "Enter your name",
+    "email": "Email",
+    "emailPlaceholder": "example@company.com",
+    "company": "Company / Organization",
+    "companyPlaceholder": "Your company name",
+    "phone": "Phone Number",
+    "phonePlaceholder": "0XX-XXX-XXXX",
+    "productInterest": "Product Interest",
+    "productInterestPlaceholder": "Select a product category",
+    "message": "Message",
+    "messagePlaceholder": "Please describe the products or services you need",
+    "submit": "Send Message",
+    "submitting": "Sending...",
+    "successTitle": "Message Sent Successfully",
+    "successMessage": "Thank you for contacting us. Our team will get back to you within 1 business day.",
+    "errorMessage": "An error occurred. Please try again.",
+    "companyInfo": "Company Information",
+    "businessHours": "Business Hours",
+    "businessHoursValue": "Monday - Saturday 8:00 AM - 5:00 PM"
+  },
+  "footer": {
+    "description": "Thailand's leading importer and distributor of industrial welding and cutting equipment",
+    "quickLinks": "Quick Links",
+    "productCategories": "Product Categories",
+    "contactInfo": "Contact Info",
+    "copyright": "Copyright",
+    "allRightsReserved": "All rights reserved"
+  }
+}

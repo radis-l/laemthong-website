@@ -1,0 +1,154 @@
+import type { Metadata } from "next";
+import { setRequestLocale, getTranslations } from "next-intl/server";
+import { ContactForm } from "@/components/contact/contact-form";
+import { Phone, Mail, MapPin, Clock } from "lucide-react";
+import { JsonLd } from "@/components/shared/json-ld";
+import { getCompanyInfo } from "@/lib/db";
+import {
+  getPageUrl,
+  getAlternateLanguages,
+  getOgLocale,
+  getOgAlternateLocale,
+  buildLocalBusinessSchema,
+} from "@/lib/seo";
+import type { Locale } from "@/data/types";
+
+type Props = {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ product?: string }>;
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const loc = locale as Locale;
+  const t = await getTranslations({ locale, namespace: "contact" });
+  const title = t("title");
+  const description = t("description");
+  const pageUrl = getPageUrl(loc, "/contact");
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: pageUrl,
+      languages: getAlternateLanguages("/contact"),
+    },
+    openGraph: {
+      title,
+      description,
+      url: pageUrl,
+      locale: getOgLocale(loc),
+      alternateLocale: getOgAlternateLocale(loc),
+      type: "website",
+    },
+    twitter: { title, description },
+  };
+}
+
+export default async function ContactPage({ params, searchParams }: Props) {
+  const { locale } = await params;
+  const { product } = await searchParams;
+  setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: "contact" });
+  const company = await getCompanyInfo();
+
+  return (
+    <>
+      {company && <JsonLd data={buildLocalBusinessSchema(company, locale as Locale)} />}
+      <section className="bg-gradient-to-b from-primary/5 to-background py-16 md:py-20">
+        <div className="mx-auto max-w-7xl px-6 text-center">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+            {t("title")}
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+            {t("description")}
+          </p>
+        </div>
+      </section>
+
+      <section className="py-12 md:py-16">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="grid gap-10 lg:grid-cols-[1fr_380px]">
+            {/* Form */}
+            <div className="rounded-xl border bg-card p-8 shadow-sm">
+              <h2 className="mb-6 text-xl font-semibold text-foreground">
+                {t("formTitle")}
+              </h2>
+              <ContactForm locale={locale} defaultProduct={product} />
+            </div>
+
+            {/* Company info sidebar */}
+            <div className="space-y-6">
+              <div className="rounded-xl border bg-card p-6 shadow-sm">
+                <h3 className="mb-4 font-semibold text-foreground">
+                  {t("companyInfo")}
+                </h3>
+                <ul className="space-y-4">
+                  <li className="flex items-start gap-3">
+                    <Phone className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                    <div>
+                      <p className="text-sm font-medium text-foreground">
+                        {t("phone" as never) || "Phone"}
+                      </p>
+                      <a
+                        href="tel:+6622345678"
+                        className="text-sm text-muted-foreground hover:text-foreground"
+                      >
+                        +66-2-234-5678
+                      </a>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Mail className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                    <div>
+                      <p className="text-sm font-medium text-foreground">
+                        {t("email" as never) || "Email"}
+                      </p>
+                      <a
+                        href="mailto:sales@laemthong-syndicate.com"
+                        className="text-sm text-muted-foreground hover:text-foreground"
+                      >
+                        sales@laemthong-syndicate.com
+                      </a>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                    <div>
+                      <p className="text-sm font-medium text-foreground">
+                        {locale === "th" ? "ที่อยู่" : "Address"}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {locale === "th"
+                          ? "123 ถนนเจริญกรุง แขวงสี่พระยา เขตบางรัก กรุงเทพฯ 10500"
+                          : "123 Charoen Krung Road, Si Phraya, Bang Rak, Bangkok 10500"}
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Clock className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                    <div>
+                      <p className="text-sm font-medium text-foreground">
+                        {t("businessHours")}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {t("businessHoursValue")}
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Map placeholder */}
+              <div className="overflow-hidden rounded-xl border">
+                <div className="flex h-64 items-center justify-center bg-muted text-sm text-muted-foreground">
+                  <MapPin className="mr-2 h-5 w-5" />
+                  {locale === "th" ? "แผนที่" : "Map"}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}

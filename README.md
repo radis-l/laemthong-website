@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Laemthong Syndicate Website
+
+Corporate website for **Laemthong Syndicate** - Thailand's leading importer and distributor of industrial welding and cutting equipment since 1963.
+
+## Tech Stack
+
+- **Framework**: Next.js 16 + React 19 + TypeScript (strict)
+- **Styling**: Tailwind CSS 4 + shadcn/ui (new-york)
+- **Database**: Supabase (PostgreSQL)
+- **i18n**: next-intl (Thai default, English)
+- **Deployment**: Vercel
+
+## Features
+
+- Bilingual public site (Thai/English) with SEO metadata + JSON-LD structured data
+- Product catalog with categories and brand filtering
+- Brand showcase with detail pages
+- Services listing
+- Contact form with Zod validation (saves to database)
+- Admin panel with full CRUD for Products, Brands, and Categories
+- Dynamic sitemap generation
+- Dark/light theme support
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js 18+
+- Supabase project with tables created (see `supabase/migration.sql`)
+
+### Setup
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Copy environment variables:
+   ```bash
+   cp .env.example .env.local
+   ```
+4. Fill in your Supabase credentials in `.env.local`
+5. Run the database migration (`supabase/migration.sql`) and seed data (`supabase/seed.sql`)
+6. Start the dev server:
+   ```bash
+   npm run dev
+   ```
+
+### Admin Panel
+
+The admin panel is at `/admin` and requires:
+
+1. `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` (Supabase Dashboard > Settings > API)
+2. A user created in Supabase Auth (Dashboard > Authentication > Users > Add User)
+3. Navigate to `/admin` and log in with your credentials
+
+## Project Structure
+
+```
+src/
+  app/
+    [locale]/          # Public pages (i18n routed)
+    admin/             # Admin panel (English only)
+  components/          # React components
+  lib/db/              # Data access layer
+  i18n/                # Internationalization config
+  data/types.ts        # TypeScript interfaces
+messages/              # Translation files (th.json, en.json)
+supabase/              # Database migration + seed SQL
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run dev     # Development server
+npm run build   # Production build
+npm run start   # Start production server
+npm run lint    # ESLint
+```

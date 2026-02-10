@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { SectionHeading } from "@/components/shared/section-heading";
@@ -31,20 +32,30 @@ export function FeaturedProducts({ products }: Props) {
               className="group"
             >
               <div className="overflow-hidden rounded-xl border bg-card shadow-sm transition-all hover:shadow-md">
-                <div className="aspect-[4/3] bg-muted">
-                  <div className="flex h-full items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-                    <div className="text-4xl text-muted-foreground/30">
-                      {product.categorySlug === "welding-machines"
-                        ? "⚡"
-                        : product.categorySlug === "cutting-equipment"
-                          ? "✂️"
-                          : product.categorySlug === "welding-wire-rods"
-                            ? "🔗"
-                            : product.categorySlug === "gas-regulators"
-                              ? "⚙️"
-                              : "🔧"}
+                <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                  {product.image ? (
+                    <Image
+                      src={product.image}
+                      alt={product.name[locale]}
+                      fill
+                      className="object-cover transition-transform group-hover:scale-105"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+                      <div className="text-4xl text-muted-foreground/30">
+                        {product.categorySlug === "welding-machines"
+                          ? "⚡"
+                          : product.categorySlug === "cutting-equipment"
+                            ? "✂️"
+                            : product.categorySlug === "welding-wire-rods"
+                              ? "🔗"
+                              : product.categorySlug === "gas-regulators"
+                                ? "⚙️"
+                                : "🔧"}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
                 <div className="p-5">
                   <div className="mb-2 flex items-center gap-2">

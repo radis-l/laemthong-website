@@ -17,6 +17,7 @@ import {
 import { BilingualInput } from "./bilingual-input";
 import { BilingualTextarea } from "./bilingual-textarea";
 import { DynamicList } from "./dynamic-list";
+import { ImageUpload } from "./image-upload";
 import {
   createProductAction,
   updateProductAction,
@@ -43,6 +44,8 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
 
   // Complex state for JSON fields
   const [gallery, setGallery] = useState<string[]>(product?.gallery ?? []);
+  const [mainImage, setMainImage] = useState<string>(product?.image ?? "");
+  const [currentSlug, setCurrentSlug] = useState(product?.slug ?? "");
   const [specifications, setSpecifications] = useState<
     { label: LocalizedString; value: LocalizedString }[]
   >(product?.specifications ?? []);
@@ -69,6 +72,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
       {isEditing && (
         <input type="hidden" name="originalSlug" value={product.slug} />
       )}
+      <input type="hidden" name="image" value={mainImage} />
       <input type="hidden" name="gallery" value={JSON.stringify(gallery)} />
       <input
         type="hidden"
@@ -115,6 +119,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
                 defaultValue={product?.slug}
                 placeholder="product-name"
                 required
+                onChange={(e) => setCurrentSlug(e.target.value)}
               />
               {state.errors?.slug && (
                 <p className="text-xs text-destructive">
@@ -234,21 +239,22 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
 
         {/* Tab 2: Images */}
         <TabsContent value="images" className="space-y-6 pt-4">
-          <div className="space-y-2">
-            <Label htmlFor="image">Main Image URL</Label>
-            <Input
-              id="image"
-              name="image"
-              defaultValue={product?.image}
-              placeholder="/images/products/main.jpg"
-            />
-          </div>
+          <ImageUpload
+            label="Main Image"
+            value={mainImage}
+            onChange={(url) => setMainImage(url as string)}
+            folder="products"
+            entitySlug={currentSlug}
+          />
 
-          <DynamicList
+          <ImageUpload
             label="Gallery Images"
-            items={gallery}
-            onChange={setGallery}
-            placeholder="Image URL"
+            value={gallery}
+            onChange={(urls) => setGallery(urls as string[])}
+            folder="products"
+            entitySlug={currentSlug}
+            multiple
+            maxFiles={10}
           />
         </TabsContent>
 

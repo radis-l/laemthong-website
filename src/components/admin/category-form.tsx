@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { BilingualInput } from "./bilingual-input";
 import { BilingualTextarea } from "./bilingual-textarea";
+import { ImageUpload } from "./image-upload";
 import {
   createCategoryAction,
   updateCategoryAction,
@@ -29,6 +30,9 @@ export function CategoryForm({ category }: CategoryFormProps) {
     FormData
   >(action, {});
 
+  const [image, setImage] = useState<string>(category?.image ?? "");
+  const [currentSlug, setCurrentSlug] = useState(category?.slug ?? "");
+
   useEffect(() => {
     if (state.success) {
       toast.success(isEditing ? "Category updated" : "Category created");
@@ -40,6 +44,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
       {isEditing && (
         <input type="hidden" name="originalSlug" value={category.slug} />
       )}
+      <input type="hidden" name="image" value={image} />
 
       {state.message && (
         <Alert variant="destructive">
@@ -56,6 +61,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
             defaultValue={category?.slug}
             placeholder="category-name"
             required
+            onChange={(e) => setCurrentSlug(e.target.value)}
           />
           {state.errors?.slug && (
             <p className="text-xs text-destructive">{state.errors.slug[0]}</p>
@@ -98,26 +104,23 @@ export function CategoryForm({ category }: CategoryFormProps) {
         errorEn={state.errors?.descriptionEn?.[0]}
       />
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="image">Image URL</Label>
-          <Input
-            id="image"
-            name="image"
-            defaultValue={category?.image}
-            placeholder="/images/categories/image.jpg"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="sortOrder">Sort Order</Label>
-          <Input
-            id="sortOrder"
-            name="sortOrder"
-            type="number"
-            defaultValue={category?.sort_order ?? 0}
-            min={0}
-          />
-        </div>
+      <ImageUpload
+        label="Category Image"
+        value={image}
+        onChange={(url) => setImage(url as string)}
+        folder="categories"
+        entitySlug={currentSlug}
+      />
+
+      <div className="space-y-2">
+        <Label htmlFor="sortOrder">Sort Order</Label>
+        <Input
+          id="sortOrder"
+          name="sortOrder"
+          type="number"
+          defaultValue={category?.sort_order ?? 0}
+          min={0}
+        />
       </div>
 
       <div className="flex gap-3">

@@ -1,11 +1,12 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { BilingualTextarea } from "./bilingual-textarea";
+import { ImageUpload } from "./image-upload";
 import {
   createBrandAction,
   updateBrandAction,
@@ -28,6 +29,9 @@ export function BrandForm({ brand }: BrandFormProps) {
     {}
   );
 
+  const [logo, setLogo] = useState<string>(brand?.logo ?? "");
+  const [currentSlug, setCurrentSlug] = useState(brand?.slug ?? "");
+
   useEffect(() => {
     if (state.success) {
       toast.success(isEditing ? "Brand updated" : "Brand created");
@@ -37,6 +41,7 @@ export function BrandForm({ brand }: BrandFormProps) {
   return (
     <form action={formAction} className="space-y-6">
       {isEditing && <input type="hidden" name="originalSlug" value={brand.slug} />}
+      <input type="hidden" name="logo" value={logo} />
 
       {state.message && (
         <Alert variant="destructive">
@@ -53,6 +58,7 @@ export function BrandForm({ brand }: BrandFormProps) {
             defaultValue={brand?.slug}
             placeholder="brand-name"
             required
+            onChange={(e) => setCurrentSlug(e.target.value)}
           />
           {state.errors?.slug && (
             <p className="text-xs text-destructive">{state.errors.slug[0]}</p>
@@ -102,26 +108,23 @@ export function BrandForm({ brand }: BrandFormProps) {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="logo">Logo URL</Label>
-          <Input
-            id="logo"
-            name="logo"
-            defaultValue={brand?.logo}
-            placeholder="/images/brands/logo.png"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="sortOrder">Sort Order</Label>
-          <Input
-            id="sortOrder"
-            name="sortOrder"
-            type="number"
-            defaultValue={brand?.sort_order ?? 0}
-            min={0}
-          />
-        </div>
+      <ImageUpload
+        label="Logo"
+        value={logo}
+        onChange={(url) => setLogo(url as string)}
+        folder="brands"
+        entitySlug={currentSlug}
+      />
+
+      <div className="space-y-2">
+        <Label htmlFor="sortOrder">Sort Order</Label>
+        <Input
+          id="sortOrder"
+          name="sortOrder"
+          type="number"
+          defaultValue={brand?.sort_order ?? 0}
+          min={0}
+        />
       </div>
 
       <BilingualTextarea

@@ -21,6 +21,7 @@ import {
   TableCell,
   TableRow,
 } from "@/components/ui/table";
+import Image from "next/image";
 import { ArrowRight, ChevronRight, FileText } from "lucide-react";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { JsonLd } from "@/components/shared/json-ld";
@@ -156,22 +157,53 @@ export default async function ProductDetailPage({ params }: Props) {
         <div className="mx-auto max-w-7xl px-6">
           <div className="grid gap-10 lg:grid-cols-2">
             {/* Image */}
-            <div className="aspect-square overflow-hidden rounded-2xl border bg-muted">
-              <div className="flex h-full items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-                <div className="text-6xl text-muted-foreground/20">
-                  {product.categorySlug === "welding-machines"
-                    ? "⚡"
-                    : product.categorySlug === "cutting-equipment"
-                      ? "✂️"
-                      : product.categorySlug === "welding-wire-rods"
-                        ? "🔗"
-                        : product.categorySlug === "gas-regulators"
-                          ? "⚙️"
-                          : product.categorySlug === "safety-equipment"
-                            ? "🛡️"
-                            : "🔧"}
-                </div>
+            <div>
+              <div className="relative aspect-square overflow-hidden rounded-2xl border bg-muted">
+                {product.image ? (
+                  <Image
+                    src={product.image}
+                    alt={product.name[locale as Locale]}
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    priority
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+                    <div className="text-6xl text-muted-foreground/20">
+                      {product.categorySlug === "welding-machines"
+                        ? "⚡"
+                        : product.categorySlug === "cutting-equipment"
+                          ? "✂️"
+                          : product.categorySlug === "welding-wire-rods"
+                            ? "🔗"
+                            : product.categorySlug === "gas-regulators"
+                              ? "⚙️"
+                              : product.categorySlug === "safety-equipment"
+                                ? "🛡️"
+                                : "🔧"}
+                    </div>
+                  </div>
+                )}
               </div>
+              {product.gallery.length > 0 && (
+                <div className="mt-3 grid grid-cols-4 gap-2">
+                  {product.gallery.map((url, i) => (
+                    <div
+                      key={i}
+                      className="relative aspect-square overflow-hidden rounded-lg border bg-muted"
+                    >
+                      <Image
+                        src={url}
+                        alt={`${product.name[locale as Locale]} - ${i + 1}`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 1024px) 25vw, 12vw"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Info */}

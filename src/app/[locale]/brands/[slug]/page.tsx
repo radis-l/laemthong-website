@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import Image from "next/image";
 import { getBrandBySlug, getAllBrandSlugs, getProductsByBrand } from "@/lib/db";
 import { ProductCard } from "@/components/products/product-card";
 import {
@@ -110,6 +111,17 @@ export default async function BrandDetailPage({ params }: Props) {
 
       <section className="bg-gradient-to-b from-primary/5 to-background py-12 md:py-16">
         <div className="mx-auto max-w-7xl px-6">
+          {brand.logo && (
+            <div className="mb-4">
+              <Image
+                src={brand.logo}
+                alt={brand.name}
+                width={120}
+                height={60}
+                className="object-contain"
+              />
+            </div>
+          )}
           <h1 className="text-3xl font-bold text-foreground md:text-4xl">
             {brand.name}
           </h1>

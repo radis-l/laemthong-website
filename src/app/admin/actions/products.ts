@@ -8,6 +8,7 @@ import {
   adminUpdateProduct,
   adminDeleteProduct,
 } from "@/lib/db/admin";
+import { deleteImageFolder } from "@/lib/storage";
 import type { LocalizedString } from "@/data/types";
 
 export type ProductFormState = {
@@ -166,6 +167,7 @@ export async function deleteProductAction(
 ): Promise<ProductFormState> {
   try {
     await adminDeleteProduct(slug);
+    deleteImageFolder("products", slug).catch(() => {});
   } catch {
     return { message: "Failed to delete product." };
   }

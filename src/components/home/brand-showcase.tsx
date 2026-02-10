@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { SectionHeading } from "@/components/shared/section-heading";
@@ -27,10 +28,20 @@ export function BrandShowcase({ brands }: Props) {
               className="group"
             >
               <div className="flex flex-col items-center rounded-xl border bg-background p-8 text-center shadow-sm transition-all hover:shadow-md">
-                <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/5">
-                  <span className="text-xl font-bold text-primary">
-                    {brand.name.charAt(0)}
-                  </span>
+                <div className="mb-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl bg-primary/5">
+                  {brand.logo ? (
+                    <Image
+                      src={brand.logo}
+                      alt={brand.name}
+                      width={80}
+                      height={80}
+                      className="object-contain"
+                    />
+                  ) : (
+                    <span className="text-xl font-bold text-primary">
+                      {brand.name.charAt(0)}
+                    </span>
+                  )}
                 </div>
                 <h3 className="text-lg font-semibold text-foreground group-hover:text-primary">
                   {brand.name}

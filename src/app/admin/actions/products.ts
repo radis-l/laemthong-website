@@ -120,6 +120,8 @@ export async function updateProductAction(
   });
 
   if (!validated.success) {
+    console.error("[updateProduct] Validation failed:", JSON.stringify(validated.error.flatten().fieldErrors));
+    console.error("[updateProduct] FormData entries:", Object.fromEntries(formData.entries()));
     return { errors: validated.error.flatten().fieldErrors };
   }
 

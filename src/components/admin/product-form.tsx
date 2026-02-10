@@ -91,7 +91,14 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
       {state.errors && Object.keys(state.errors).length > 0 && (
         <Alert variant="destructive">
           <AlertDescription>
-            Please fix the highlighted errors and try again.
+            <p className="font-medium">Please fix the following errors:</p>
+            <ul className="mt-1 list-disc pl-4 text-sm">
+              {Object.entries(state.errors).map(([field, msgs]) => (
+                <li key={field}>
+                  <strong>{field}</strong>: {msgs.join(", ")}
+                </li>
+              ))}
+            </ul>
           </AlertDescription>
         </Alert>
       )}

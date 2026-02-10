@@ -40,6 +40,9 @@ yarn-error.log*
 # local MCP config
 .mcp.json
 
+# supabase
+supabase/.temp/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

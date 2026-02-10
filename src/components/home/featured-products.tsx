@@ -6,17 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight } from "lucide-react";
 import type { Product, Locale } from "@/data/types";
+import { formatSlug } from "@/lib/format";
 
 type Props = {
   products: Product[];
 };
-
-function formatBrandSlug(slug: string): string {
-  return slug
-    .split("-")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-}
 
 export function FeaturedProducts({ products }: Props) {
   const t = useTranslations("home");
@@ -67,7 +61,7 @@ export function FeaturedProducts({ products }: Props) {
                 <div className="p-5">
                   <div className="mb-2 flex items-center gap-2">
                     <Badge variant="secondary" className="text-xs">
-                      {formatBrandSlug(product.brandSlug)}
+                      {formatSlug(product.brandSlug)}
                     </Badge>
                   </div>
                   <h3 className="font-semibold text-foreground group-hover:text-primary">

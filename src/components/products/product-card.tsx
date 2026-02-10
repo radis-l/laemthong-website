@@ -2,21 +2,15 @@ import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import type { Product, Locale } from "@/data/types";
+import { formatSlug } from "@/lib/format";
 
 type Props = {
   product: Product;
   locale: Locale;
 };
 
-function formatBrandSlug(slug: string): string {
-  return slug
-    .split("-")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-}
-
 export function ProductCard({ product, locale }: Props) {
-  const brandLabel = formatBrandSlug(product.brandSlug);
+  const brandLabel = formatSlug(product.brandSlug);
 
   return (
     <Link href={`/products/${product.slug}`} className="group">

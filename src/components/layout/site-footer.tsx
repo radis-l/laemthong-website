@@ -11,7 +11,7 @@ export function SiteFooter() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-t bg-primary/5">
+    <footer className="border-t bg-muted/50">
       <div className="mx-auto max-w-7xl px-6 py-12">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* Company info */}
@@ -33,7 +33,7 @@ export function SiteFooter() {
                   <li key={key}>
                     <Link
                       href={`/${key}`}
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      className="text-sm text-muted-foreground transition-colors hover:text-primary"
                     >
                       {tNav(key)}
                     </Link>
@@ -60,7 +60,7 @@ export function SiteFooter() {
                 <li key={cat.slug}>
                   <Link
                     href={`/categories/${cat.slug}`}
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="text-sm text-muted-foreground transition-colors hover:text-primary"
                   >
                     {cat.en}
                   </Link>
@@ -79,7 +79,7 @@ export function SiteFooter() {
                 <Phone className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                 <a
                   href="tel:+6622345678"
-                  className="text-sm text-muted-foreground hover:text-foreground"
+                  className="text-sm text-muted-foreground hover:text-primary"
                 >
                   +66-2-234-5678
                 </a>
@@ -88,7 +88,7 @@ export function SiteFooter() {
                 <Mail className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                 <a
                   href="mailto:sales@laemthong-syndicate.com"
-                  className="text-sm text-muted-foreground hover:text-foreground"
+                  className="text-sm text-muted-foreground hover:text-primary"
                 >
                   sales@laemthong-syndicate.com
                 </a>

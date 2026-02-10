@@ -17,7 +17,7 @@ export function UspSection() {
         <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
           {usps.map(({ key, icon: Icon }) => (
             <div key={key} className="flex flex-col items-center text-center">
-              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Icon className="h-6 w-6" />
               </div>
               <div className="text-lg font-bold text-foreground">

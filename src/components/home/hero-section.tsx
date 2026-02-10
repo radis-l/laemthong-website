@@ -7,10 +7,10 @@ export function HeroSection() {
   const t = useTranslations("hero");
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-background">
+    <section className="relative overflow-hidden bg-gradient-to-br from-muted via-background to-background">
       {/* Decorative background */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute left-1/2 top-0 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-primary/5 blur-3xl" />
+        <div className="absolute left-1/2 top-0 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-muted blur-3xl" />
         <div className="absolute bottom-0 right-0 h-[300px] w-[400px] rounded-full bg-accent/5 blur-3xl" />
       </div>
 
@@ -24,7 +24,7 @@ export function HeroSection() {
             60+ Years of Excellence
           </div>
 
-          <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl lg:text-6xl">
+          <h1 className="text-4xl font-extrabold tracking-tight text-foreground md:text-5xl lg:text-6xl">
             {t("title")}
           </h1>
 
@@ -33,7 +33,7 @@ export function HeroSection() {
           </p>
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button asChild size="lg" className="gap-2">
+            <Button asChild size="lg" className="gap-2 px-8 shadow-md">
               <Link href="/products">
                 {t("cta")}
                 <ArrowRight className="h-4 w-4" />
@@ -49,7 +49,7 @@ export function HeroSection() {
         </div>
 
         {/* Stats */}
-        <div className="mt-16 grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="mt-20 grid grid-cols-2 gap-6 md:grid-cols-4">
           <StatCard value="60+" label="Years" />
           <StatCard value="3+" label="Global Brands" />
           <StatCard value="1000+" label="Products" />
@@ -62,8 +62,8 @@ export function HeroSection() {
 
 function StatCard({ value, label }: { value: string; label: string }) {
   return (
-    <div className="rounded-xl border bg-card p-5 text-center shadow-sm">
-      <div className="text-2xl font-bold text-primary md:text-3xl">{value}</div>
+    <div className="rounded-xl border border-t-2 border-t-primary bg-card p-6 text-center shadow-sm">
+      <div className="text-3xl font-extrabold text-primary md:text-4xl">{value}</div>
       <div className="mt-1 text-sm text-muted-foreground">{label}</div>
     </div>
   );

@@ -27,8 +27,8 @@ export function BrandShowcase({ brands }: Props) {
               href={`/brands/${brand.slug}`}
               className="group"
             >
-              <div className="flex flex-col items-center rounded-xl border bg-background p-8 text-center shadow-sm transition-all hover:shadow-md">
-                <div className="mb-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl bg-primary/5">
+              <div className="flex flex-col items-center rounded-xl border bg-background p-8 text-center shadow-sm transition-all hover:shadow-md hover:border-primary/30">
+                <div className="mb-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl bg-primary/5 transition-transform group-hover:scale-105">
                   {brand.logo?.startsWith("http") ? (
                     <Image
                       src={brand.logo}

@@ -27,20 +27,20 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       {/* Top bar */}
-      <div className="hidden border-b border-border/50 bg-primary/5 md:block">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-1.5 text-xs text-muted-foreground">
+      <div className="hidden border-b border-border/50 bg-muted/50 md:block">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-2 text-xs text-muted-foreground">
           <span>{tCommon("yearsExperience")}</span>
           <div className="flex items-center gap-4">
             <a
               href="tel:+6622345678"
-              className="flex items-center gap-1 hover:text-foreground"
+              className="flex items-center gap-1 hover:text-primary"
             >
               <Phone className="h-3 w-3" />
               +66-2-234-5678
             </a>
             <a
               href="mailto:sales@laemthong-syndicate.com"
-              className="hover:text-foreground"
+              className="hover:text-primary"
             >
               sales@laemthong-syndicate.com
             </a>

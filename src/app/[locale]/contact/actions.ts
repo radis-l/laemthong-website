@@ -22,6 +22,12 @@ export async function submitContactForm(
   _prevState: ContactFormState,
   formData: FormData
 ): Promise<ContactFormState> {
+  // Honeypot check — bots fill this hidden field, humans don't
+  const honeypot = formData.get("website");
+  if (honeypot) {
+    return { success: true };
+  }
+
   const validated = contactSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),

@@ -60,7 +60,7 @@ export function ContactForm({ locale, defaultProduct }: Props) {
   }
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className="relative space-y-5">
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="name">{t("name")} *</Label>
@@ -115,6 +115,12 @@ export function ContactForm({ locale, defaultProduct }: Props) {
             placeholder={t("phonePlaceholder")}
           />
         </div>
+      </div>
+
+      {/* Honeypot — hidden from humans, filled by bots */}
+      <div aria-hidden="true" className="absolute -left-[9999px] -top-[9999px]">
+        <label htmlFor="website">Website</label>
+        <input type="text" id="website" name="website" tabIndex={-1} autoComplete="off" />
       </div>
 
       <div className="space-y-2">

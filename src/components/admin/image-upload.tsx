@@ -66,35 +66,39 @@ export function ImageUpload({
 
       setIsUploading(true);
 
-      const uploadPromises = fileArray.map(async (file) => {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("folder", folder);
-        formData.append("entitySlug", entitySlug);
+      try {
+        const uploadPromises = fileArray.map(async (file) => {
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("folder", folder);
+          formData.append("entitySlug", entitySlug);
 
-        const result = await uploadImageAction(formData);
-        if (!result.success) {
-          toast.error(result.error ?? "Upload failed");
-          return null;
+          const result = await uploadImageAction(formData);
+          if (!result.success) {
+            toast.error(result.error ?? "Upload failed");
+            return null;
+          }
+          return result.url!;
+        });
+
+        const newUrls = (await Promise.all(uploadPromises)).filter(
+          Boolean
+        ) as string[];
+
+        if (multiple) {
+          onChange([...currentUrls, ...newUrls]);
+        } else if (newUrls.length > 0) {
+          // Single mode: replace existing
+          if (currentUrls[0]) {
+            deleteImageAction(currentUrls[0]).catch(() => {});
+          }
+          onChange(newUrls[0]);
         }
-        return result.url!;
-      });
-
-      const newUrls = (await Promise.all(uploadPromises)).filter(
-        Boolean
-      ) as string[];
-
-      if (multiple) {
-        onChange([...currentUrls, ...newUrls]);
-      } else if (newUrls.length > 0) {
-        // Single mode: replace existing
-        if (currentUrls[0]) {
-          deleteImageAction(currentUrls[0]).catch(() => {});
-        }
-        onChange(newUrls[0]);
+      } catch {
+        toast.error("Upload failed. Please try again.");
+      } finally {
+        setIsUploading(false);
       }
-
-      setIsUploading(false);
     },
     [canUpload, folder, entitySlug, multiple, value, onChange, maxFiles]
   );

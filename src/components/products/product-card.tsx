@@ -20,7 +20,7 @@ export function ProductCard({ product, locale }: Props) {
     <Link href={`/products/${product.slug}`} className="group">
       <div className="overflow-hidden rounded-xl border bg-card shadow-sm transition-all hover:shadow-md">
         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-          {product.image ? (
+          {product.image?.startsWith("http") ? (
             <Image
               src={product.image}
               alt={product.name[locale]}

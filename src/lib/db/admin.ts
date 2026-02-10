@@ -9,7 +9,10 @@ export async function adminGetAllBrands(): Promise<DbBrand[]> {
     .from("brands")
     .select("*")
     .order("sort_order");
-  if (error) throw error;
+  if (error) {
+    console.error("adminGetAllBrands:", error);
+    return [];
+  }
   return data as DbBrand[];
 }
 
@@ -60,7 +63,10 @@ export async function adminGetAllCategories(): Promise<DbCategory[]> {
     .from("categories")
     .select("*")
     .order("sort_order");
-  if (error) throw error;
+  if (error) {
+    console.error("adminGetAllCategories:", error);
+    return [];
+  }
   return data as DbCategory[];
 }
 
@@ -114,7 +120,10 @@ export async function adminGetAllProducts(): Promise<DbProduct[]> {
     .from("products")
     .select("*")
     .order("sort_order");
-  if (error) throw error;
+  if (error) {
+    console.error("adminGetAllProducts:", error);
+    return [];
+  }
   return data as DbProduct[];
 }
 

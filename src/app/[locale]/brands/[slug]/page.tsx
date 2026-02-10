@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       locale: getOgLocale(loc),
       alternateLocale: getOgAlternateLocale(loc),
       type: "website",
-      images: brand.logo ? [{ url: brand.logo, alt: brand.name }] : undefined,
+      images: brand.logo?.startsWith("http") ? [{ url: brand.logo, alt: brand.name }] : undefined,
     },
     twitter: {
       card: "summary_large_image",
@@ -111,7 +111,7 @@ export default async function BrandDetailPage({ params }: Props) {
 
       <section className="bg-gradient-to-b from-primary/5 to-background py-12 md:py-16">
         <div className="mx-auto max-w-7xl px-6">
-          {brand.logo && (
+          {brand.logo?.startsWith("http") && (
             <div className="mb-4">
               <Image
                 src={brand.logo}

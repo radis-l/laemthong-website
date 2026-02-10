@@ -61,13 +61,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       locale: getOgLocale(loc),
       alternateLocale: getOgAlternateLocale(loc),
       type: "website",
-      images: product.image ? [{ url: product.image, alt: title }] : undefined,
+      images: product.image?.startsWith("http") ? [{ url: product.image, alt: title }] : undefined,
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: product.image ? [product.image] : undefined,
+      images: product.image?.startsWith("http") ? [product.image] : undefined,
     },
   };
 }
@@ -159,7 +159,7 @@ export default async function ProductDetailPage({ params }: Props) {
             {/* Image */}
             <div>
               <div className="relative aspect-square overflow-hidden rounded-2xl border bg-muted">
-                {product.image ? (
+                {product.image?.startsWith("http") ? (
                   <Image
                     src={product.image}
                     alt={product.name[locale as Locale]}
@@ -186,9 +186,9 @@ export default async function ProductDetailPage({ params }: Props) {
                   </div>
                 )}
               </div>
-              {product.gallery.length > 0 && (
+              {product.gallery.filter((u) => u.startsWith("http")).length > 0 && (
                 <div className="mt-3 grid grid-cols-4 gap-2">
-                  {product.gallery.map((url, i) => (
+                  {product.gallery.filter((u) => u.startsWith("http")).map((url, i) => (
                     <div
                       key={i}
                       className="relative aspect-square overflow-hidden rounded-lg border bg-muted"

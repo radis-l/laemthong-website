@@ -121,6 +121,7 @@ export function BrandForm({ brand }: BrandFormProps) {
         onChange={(url) => setLogo(url as string)}
         folder="brands"
         entitySlug={currentSlug}
+        aspectRatio={1}
       />
 
       <div className="space-y-2">

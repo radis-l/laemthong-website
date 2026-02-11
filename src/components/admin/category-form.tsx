@@ -117,6 +117,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
         onChange={(url) => setImage(url as string)}
         folder="categories"
         entitySlug={currentSlug}
+        aspectRatio={4 / 3}
       />
 
       <div className="space-y-2">

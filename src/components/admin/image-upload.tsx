@@ -6,6 +6,7 @@ import {
   uploadImageAction,
   deleteImageAction,
 } from "@/app/admin/actions/upload";
+import { ImageCropDialog } from "@/components/admin/image-crop-dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Loader2, Upload, X, ImagePlus } from "lucide-react";
@@ -21,6 +22,11 @@ interface ImageUploadProps {
   multiple?: boolean;
   label?: string;
   maxFiles?: number;
+  aspectRatio?: number;
+}
+
+function isSvg(file: File) {
+  return file.type === "image/svg+xml";
 }
 
 export function ImageUpload({
@@ -31,10 +37,15 @@ export function ImageUpload({
   multiple = false,
   label,
   maxFiles = 10,
+  aspectRatio = 4 / 3,
 }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Crop dialog state
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [cropQueue, setCropQueue] = useState<File[]>([]);
 
   const urls: string[] = Array.isArray(value)
     ? value.filter(Boolean)
@@ -44,6 +55,99 @@ export function ImageUpload({
 
   const canUpload = !!entitySlug;
   const atLimit = multiple && urls.length >= maxFiles;
+
+  const uploadFile = useCallback(
+    async (file: File | Blob, originalName?: string) => {
+      const formData = new FormData();
+      if (file instanceof Blob && !(file instanceof File)) {
+        formData.append(
+          "file",
+          new File([file], originalName ?? "cropped.webp", {
+            type: file.type || "image/webp",
+          })
+        );
+      } else {
+        formData.append("file", file);
+      }
+      formData.append("folder", folder);
+      formData.append("entitySlug", entitySlug);
+
+      const result = await uploadImageAction(formData);
+      if (!result.success) {
+        toast.error(result.error ?? "Upload failed");
+        return null;
+      }
+      return result.url!;
+    },
+    [folder, entitySlug]
+  );
+
+  const uploadAndUpdate = useCallback(
+    async (blob: Blob) => {
+      setIsUploading(true);
+      try {
+        const url = await uploadFile(blob);
+        if (!url) return;
+
+        const currentUrls: string[] = Array.isArray(value)
+          ? value.filter(Boolean)
+          : value
+            ? [value]
+            : [];
+
+        if (multiple) {
+          onChange([...currentUrls, url]);
+        } else {
+          if (currentUrls[0]) {
+            deleteImageAction(currentUrls[0]).catch(() => {});
+          }
+          onChange(url);
+        }
+      } catch {
+        toast.error("Upload failed. Please try again.");
+      } finally {
+        setIsUploading(false);
+      }
+    },
+    [multiple, value, onChange, uploadFile]
+  );
+
+  const processNextInQueue = useCallback(
+    (queue: File[]) => {
+      if (queue.length === 0) {
+        setCropQueue([]);
+        setCropSrc(null);
+        return;
+      }
+      const [next, ...rest] = queue;
+      setCropQueue(rest);
+      const objectUrl = URL.createObjectURL(next);
+      setCropSrc(objectUrl);
+    },
+    []
+  );
+
+  const handleCrop = useCallback(
+    async (blob: Blob) => {
+      // Clean up object URL
+      if (cropSrc) URL.revokeObjectURL(cropSrc);
+      setCropSrc(null);
+
+      await uploadAndUpdate(blob);
+
+      // Process remaining queue
+      processNextInQueue(cropQueue);
+    },
+    [cropSrc, cropQueue, uploadAndUpdate, processNextInQueue]
+  );
+
+  const handleCropCancel = useCallback(() => {
+    if (cropSrc) URL.revokeObjectURL(cropSrc);
+    setCropSrc(null);
+
+    // Process remaining queue (skip this file)
+    processNextInQueue(cropQueue);
+  }, [cropSrc, cropQueue, processNextInQueue]);
 
   const handleFiles = useCallback(
     async (files: FileList) => {
@@ -64,43 +168,43 @@ export function ImageUpload({
         return;
       }
 
-      setIsUploading(true);
+      // Separate SVGs (upload directly) from raster images (need cropping)
+      const svgFiles = fileArray.filter(isSvg);
+      const rasterFiles = fileArray.filter((f) => !isSvg(f));
 
-      try {
-        const uploadPromises = fileArray.map(async (file) => {
-          const formData = new FormData();
-          formData.append("file", file);
-          formData.append("folder", folder);
-          formData.append("entitySlug", entitySlug);
+      // Upload SVGs directly
+      if (svgFiles.length > 0) {
+        setIsUploading(true);
+        try {
+          const uploadPromises = svgFiles.map((file) => uploadFile(file));
+          const newUrls = (await Promise.all(uploadPromises)).filter(
+            Boolean
+          ) as string[];
 
-          const result = await uploadImageAction(formData);
-          if (!result.success) {
-            toast.error(result.error ?? "Upload failed");
-            return null;
+          if (multiple) {
+            onChange([...currentUrls, ...newUrls]);
+          } else if (newUrls.length > 0) {
+            if (currentUrls[0]) {
+              deleteImageAction(currentUrls[0]).catch(() => {});
+            }
+            onChange(newUrls[0]);
           }
-          return result.url!;
-        });
-
-        const newUrls = (await Promise.all(uploadPromises)).filter(
-          Boolean
-        ) as string[];
-
-        if (multiple) {
-          onChange([...currentUrls, ...newUrls]);
-        } else if (newUrls.length > 0) {
-          // Single mode: replace existing
-          if (currentUrls[0]) {
-            deleteImageAction(currentUrls[0]).catch(() => {});
-          }
-          onChange(newUrls[0]);
+        } catch {
+          toast.error("Upload failed. Please try again.");
+        } finally {
+          setIsUploading(false);
         }
-      } catch {
-        toast.error("Upload failed. Please try again.");
-      } finally {
-        setIsUploading(false);
+      }
+
+      // Queue raster files for cropping
+      if (rasterFiles.length > 0) {
+        const [first, ...rest] = rasterFiles;
+        setCropQueue(rest);
+        const objectUrl = URL.createObjectURL(first);
+        setCropSrc(objectUrl);
       }
     },
-    [canUpload, folder, entitySlug, multiple, value, onChange, maxFiles]
+    [canUpload, multiple, value, onChange, maxFiles, uploadFile]
   );
 
   const handleRemove = useCallback(
@@ -143,6 +247,9 @@ export function ImageUpload({
 
   const showDropzone = multiple ? !atLimit : urls.length === 0;
 
+  // Compute aspect class for preview (static strings for Tailwind JIT)
+  const aspectClass = aspectRatio === 1 ? "aspect-square" : "aspect-[4/3]";
+
   return (
     <div className="space-y-2">
       {label && <Label>{label}</Label>}
@@ -160,7 +267,8 @@ export function ImageUpload({
               key={url}
               className={cn(
                 "group relative overflow-hidden rounded-lg border bg-muted",
-                multiple ? "aspect-square" : "aspect-[4/3] max-w-xs"
+                multiple ? "aspect-square" : "max-w-xs",
+                !multiple && aspectClass
               )}
             >
               <Image
@@ -249,6 +357,17 @@ export function ImageUpload({
         >
           Replace image
         </Button>
+      )}
+
+      {/* Crop dialog */}
+      {cropSrc && (
+        <ImageCropDialog
+          open={!!cropSrc}
+          imageSrc={cropSrc}
+          aspectRatio={aspectRatio}
+          onCrop={handleCrop}
+          onCancel={handleCropCancel}
+        />
       )}
     </div>
   );

@@ -236,6 +236,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
             onChange={(url) => setMainImage(url as string)}
             folder="products"
             entitySlug={currentSlug}
+            aspectRatio={4 / 3}
           />
 
           <ImageUpload
@@ -246,6 +247,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
             entitySlug={currentSlug}
             multiple
             maxFiles={10}
+            aspectRatio={1}
           />
         </TabsContent>
 

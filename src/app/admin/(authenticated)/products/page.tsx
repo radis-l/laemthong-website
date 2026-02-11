@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Plus, Pencil, Star } from "lucide-react";
+import { TableThumbnail } from "@/components/admin/table-thumbnail";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
 import { deleteProductAction } from "@/app/admin/actions/products";
 
@@ -50,6 +51,7 @@ export default async function AdminProductsPage() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-12"></TableHead>
               <TableHead>Name (EN)</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Brand</TableHead>
@@ -61,7 +63,7 @@ export default async function AdminProductsPage() {
             {products.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={6}
                   className="h-24 text-center text-muted-foreground"
                 >
                   No products yet.
@@ -70,6 +72,12 @@ export default async function AdminProductsPage() {
             ) : (
               products.map((product) => (
                 <TableRow key={product.slug}>
+                  <TableCell>
+                    <TableThumbnail
+                      src={product.image}
+                      alt={product.name.en}
+                    />
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <span className="font-medium">

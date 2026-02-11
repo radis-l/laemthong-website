@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Plus, Pencil } from "lucide-react";
+import { TableThumbnail } from "@/components/admin/table-thumbnail";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
 import { deleteBrandAction } from "@/app/admin/actions/brands";
 
@@ -42,6 +43,7 @@ export default async function AdminBrandsPage() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-12"></TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Country</TableHead>
               <TableHead>Slug</TableHead>
@@ -52,13 +54,19 @@ export default async function AdminBrandsPage() {
           <TableBody>
             {brands.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                   No brands yet.
                 </TableCell>
               </TableRow>
             ) : (
               brands.map((brand) => (
                 <TableRow key={brand.slug}>
+                  <TableCell>
+                    <TableThumbnail
+                      src={brand.logo}
+                      alt={brand.name}
+                    />
+                  </TableCell>
                   <TableCell className="font-medium">{brand.name}</TableCell>
                   <TableCell>{brand.country}</TableCell>
                   <TableCell className="text-muted-foreground">

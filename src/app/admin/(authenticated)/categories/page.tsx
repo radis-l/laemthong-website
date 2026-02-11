@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Plus, Pencil } from "lucide-react";
+import { TableThumbnail } from "@/components/admin/table-thumbnail";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
 import { deleteCategoryAction } from "@/app/admin/actions/categories";
 
@@ -42,6 +43,7 @@ export default async function AdminCategoriesPage() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-12"></TableHead>
               <TableHead>Name (EN)</TableHead>
               <TableHead>Name (TH)</TableHead>
               <TableHead>Slug</TableHead>
@@ -54,7 +56,7 @@ export default async function AdminCategoriesPage() {
             {categories.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={7}
                   className="h-24 text-center text-muted-foreground"
                 >
                   No categories yet.
@@ -63,6 +65,12 @@ export default async function AdminCategoriesPage() {
             ) : (
               categories.map((cat) => (
                 <TableRow key={cat.slug}>
+                  <TableCell>
+                    <TableThumbnail
+                      src={cat.image}
+                      alt={cat.name.en}
+                    />
+                  </TableCell>
                   <TableCell className="font-medium">
                     {cat.name.en}
                   </TableCell>

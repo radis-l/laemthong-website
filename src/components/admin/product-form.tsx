@@ -59,6 +59,10 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
   const [categorySlug, setCategorySlug] = useState(product?.category_slug ?? "");
   const [brandSlug, setBrandSlug] = useState(product?.brand_slug ?? "");
 
+  const [mainImageUploading, setMainImageUploading] = useState(false);
+  const [galleryUploading, setGalleryUploading] = useState(false);
+  const isUploadingImage = mainImageUploading || galleryUploading;
+
   useEffect(() => {
     if (state.success) {
       toast.success(isEditing ? "Product updated" : "Product created");
@@ -234,6 +238,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
             label="Main Image"
             value={mainImage}
             onChange={(url) => setMainImage(url as string)}
+            onUploadStateChange={setMainImageUploading}
             folder="products"
             entitySlug={currentSlug}
             aspectRatio={4 / 3}
@@ -243,6 +248,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
             label="Gallery Images"
             value={gallery}
             onChange={(urls) => setGallery(urls as string[])}
+            onUploadStateChange={setGalleryUploading}
             folder="products"
             entitySlug={currentSlug}
             multiple
@@ -450,11 +456,16 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
       </Tabs>
 
       <div className="flex gap-3 border-t pt-6">
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" disabled={isPending || isUploadingImage}>
           {isPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Saving...
+            </>
+          ) : isUploadingImage ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Uploading images...
             </>
           ) : isEditing ? (
             "Update Product"

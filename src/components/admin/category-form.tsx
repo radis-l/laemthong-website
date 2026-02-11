@@ -32,6 +32,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
 
   const [image, setImage] = useState<string>(category?.image ?? "");
   const [currentSlug, setCurrentSlug] = useState(category?.slug ?? "");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   useEffect(() => {
     if (state.success) {
@@ -115,6 +116,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
         label="Category Image"
         value={image}
         onChange={(url) => setImage(url as string)}
+        onUploadStateChange={setIsUploadingImage}
         folder="categories"
         entitySlug={currentSlug}
         aspectRatio={4 / 3}
@@ -132,11 +134,16 @@ export function CategoryForm({ category }: CategoryFormProps) {
       </div>
 
       <div className="flex gap-3">
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" disabled={isPending || isUploadingImage}>
           {isPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Saving...
+            </>
+          ) : isUploadingImage ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Uploading image...
             </>
           ) : isEditing ? (
             "Update Category"

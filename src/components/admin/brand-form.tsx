@@ -31,6 +31,7 @@ export function BrandForm({ brand }: BrandFormProps) {
 
   const [logo, setLogo] = useState<string>(brand?.logo ?? "");
   const [currentSlug, setCurrentSlug] = useState(brand?.slug ?? "");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   useEffect(() => {
     if (state.success) {
@@ -119,6 +120,7 @@ export function BrandForm({ brand }: BrandFormProps) {
         label="Logo"
         value={logo}
         onChange={(url) => setLogo(url as string)}
+        onUploadStateChange={setIsUploadingImage}
         folder="brands"
         entitySlug={currentSlug}
         aspectRatio={1}
@@ -147,11 +149,16 @@ export function BrandForm({ brand }: BrandFormProps) {
       />
 
       <div className="flex gap-3">
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" disabled={isPending || isUploadingImage}>
           {isPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Saving...
+            </>
+          ) : isUploadingImage ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Uploading image...
             </>
           ) : isEditing ? (
             "Update Brand"

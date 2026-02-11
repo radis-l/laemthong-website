@@ -23,6 +23,7 @@ interface ImageUploadProps {
   label?: string;
   maxFiles?: number;
   aspectRatio?: number;
+  onUploadStateChange?: (isUploading: boolean) => void;
 }
 
 function isSvg(file: File) {
@@ -38,6 +39,7 @@ export function ImageUpload({
   label,
   maxFiles = 10,
   aspectRatio = 4 / 3,
+  onUploadStateChange,
 }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -46,6 +48,12 @@ export function ImageUpload({
   // Crop dialog state
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [cropQueue, setCropQueue] = useState<File[]>([]);
+
+  // Centralized upload state setter
+  const setUploadingState = useCallback((state: boolean) => {
+    setIsUploading(state);
+    onUploadStateChange?.(state);
+  }, [onUploadStateChange]);
 
   const urls: string[] = Array.isArray(value)
     ? value.filter(Boolean)
@@ -84,7 +92,7 @@ export function ImageUpload({
 
   const uploadAndUpdate = useCallback(
     async (blob: Blob) => {
-      setIsUploading(true);
+      setUploadingState(true);
       try {
         const url = await uploadFile(blob);
         if (!url) return;
@@ -106,10 +114,10 @@ export function ImageUpload({
       } catch {
         toast.error("Upload failed. Please try again.");
       } finally {
-        setIsUploading(false);
+        setUploadingState(false);
       }
     },
-    [multiple, value, onChange, uploadFile]
+    [multiple, value, onChange, uploadFile, setUploadingState]
   );
 
   const processNextInQueue = useCallback(
@@ -174,7 +182,7 @@ export function ImageUpload({
 
       // Upload SVGs directly
       if (svgFiles.length > 0) {
-        setIsUploading(true);
+        setUploadingState(true);
         try {
           const uploadPromises = svgFiles.map((file) => uploadFile(file));
           const newUrls = (await Promise.all(uploadPromises)).filter(
@@ -192,7 +200,7 @@ export function ImageUpload({
         } catch {
           toast.error("Upload failed. Please try again.");
         } finally {
-          setIsUploading(false);
+          setUploadingState(false);
         }
       }
 
@@ -204,7 +212,7 @@ export function ImageUpload({
         setCropSrc(objectUrl);
       }
     },
-    [canUpload, multiple, value, onChange, maxFiles, uploadFile]
+    [canUpload, multiple, value, onChange, maxFiles, uploadFile, setUploadingState]
   );
 
   const handleRemove = useCallback(

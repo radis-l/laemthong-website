@@ -61,7 +61,10 @@
     "relatedProducts": "Related Products",
     "noProducts": "No products found",
     "filterByCategory": "Filter by Category",
-    "filterByBrand": "Filter by Brand"
+    "filterByBrand": "Filter by Brand",
+    "searchPlaceholder": "Search products...",
+    "searchLabel": "Search",
+    "searchResultsFor": "Showing results for \"{query}\""
   },
   "brands": {
     "title": "Brands We Carry",

@@ -61,7 +61,10 @@
     "relatedProducts": "สินค้าที่เกี่ยวข้อง",
     "noProducts": "ไม่พบสินค้า",
     "filterByCategory": "กรองตามหมวดหมู่",
-    "filterByBrand": "กรองตามแบรนด์"
+    "filterByBrand": "กรองตามแบรนด์",
+    "searchPlaceholder": "ค้นหาสินค้า...",
+    "searchLabel": "ค้นหา",
+    "searchResultsFor": "แสดงผลลัพธ์สำหรับ \"{query}\""
   },
   "brands": {
     "title": "แบรนด์ที่เราจำหน่าย",

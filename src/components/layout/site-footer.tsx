@@ -1,12 +1,19 @@
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Logo } from "@/components/shared/logo";
 import { Phone, Mail, MapPin } from "lucide-react";
+import { getAllCategories } from "@/lib/db";
+import type { Locale } from "@/data/types";
 
-export function SiteFooter() {
-  const t = useTranslations("footer");
-  const tNav = useTranslations("nav");
-  const tCommon = useTranslations("common");
+export async function SiteFooter({ locale }: { locale: string }) {
+  const t = await getTranslations({ locale, namespace: "footer" });
+  const tNav = await getTranslations({ locale, namespace: "nav" });
+  const tCommon = await getTranslations({ locale, namespace: "common" });
+
+  // Fetch categories from database
+  const categories = await getAllCategories();
+  const footerCategories = categories.slice(0, 6);
+  const loc = locale as Locale;
 
   const currentYear = new Date().getFullYear();
 
@@ -44,30 +51,25 @@ export function SiteFooter() {
           </div>
 
           {/* Product categories */}
-          <div>
-            <h3 className="mb-4 text-sm font-semibold text-foreground">
-              {t("productCategories")}
-            </h3>
-            <ul className="space-y-2.5">
-              {[
-                { slug: "welding-machines", th: "เครื่องเชื่อม", en: "Welding Machines" },
-                { slug: "cutting-equipment", th: "อุปกรณ์ตัด", en: "Cutting Equipment" },
-                { slug: "welding-accessories", th: "อุปกรณ์เสริม", en: "Accessories" },
-                { slug: "welding-wire-rods", th: "ลวดเชื่อม", en: "Wires & Rods" },
-                { slug: "gas-regulators", th: "เกจ์แก๊ส", en: "Gas Regulators" },
-                { slug: "safety-equipment", th: "อุปกรณ์ความปลอดภัย", en: "Safety Equipment" },
-              ].map((cat) => (
-                <li key={cat.slug}>
-                  <Link
-                    href={`/categories/${cat.slug}`}
-                    className="text-sm text-muted-foreground transition-colors hover:text-primary"
-                  >
-                    {cat.en}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {footerCategories.length > 0 && (
+            <div>
+              <h3 className="mb-4 text-sm font-semibold text-foreground">
+                {t("productCategories")}
+              </h3>
+              <ul className="space-y-2.5">
+                {footerCategories.map((cat) => (
+                  <li key={cat.slug}>
+                    <Link
+                      href={`/categories/${cat.slug}`}
+                      className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                    >
+                      {cat.name[loc]}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Contact info */}
           <div>

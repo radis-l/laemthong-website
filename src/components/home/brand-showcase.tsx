@@ -28,14 +28,14 @@ export function BrandShowcase({ brands }: Props) {
               className="group"
             >
               <div className="flex flex-col items-center rounded-xl border bg-background p-8 text-center shadow-sm transition-all hover:shadow-md hover:border-primary/30">
-                <div className="mb-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl bg-primary/5 transition-transform group-hover:scale-105">
+                <div className="relative mb-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl bg-primary/5 transition-transform group-hover:scale-105">
                   {brand.logo?.startsWith("http") ? (
                     <Image
                       src={brand.logo}
                       alt={brand.name}
-                      width={80}
-                      height={80}
-                      className="object-contain"
+                      fill
+                      sizes="80px"
+                      className="object-cover"
                     />
                   ) : (
                     <span className="text-xl font-bold text-primary">

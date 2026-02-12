@@ -6,7 +6,7 @@ import {
   adminGetAllCategories,
 } from "@/lib/db/admin";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Upload } from "lucide-react";
 import { ProductsTable } from "@/components/admin/products-table";
 
 export const metadata: Metadata = {
@@ -35,12 +35,20 @@ export default async function AdminProductsPage() {
             Manage product catalog ({products.length})
           </p>
         </div>
-        <Button asChild>
-          <Link href="/admin/products/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Add Product
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/admin/bulk-upload">
+              <Upload className="mr-2 h-4 w-4" />
+              Bulk Upload
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link href="/admin/products/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Add Product
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <ProductsTable

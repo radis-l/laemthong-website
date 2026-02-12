@@ -5,10 +5,10 @@ import { CheckCircle2, AlertTriangle, XCircle, ChevronLeft, ChevronRight } from 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import type { ValidationResult, ValidationStats } from "@/lib/bulk-upload/types";
+import type { ClientValidationResult, ValidationStats } from "@/lib/bulk-upload/types";
 
 type PreviewTableProps = {
-  rows: ValidationResult[];
+  rows: ClientValidationResult[];
   stats: ValidationStats;
   onImport: (options: { overwriteExisting: boolean; skipErrors: boolean }) => void;
   onBack: () => void;
@@ -149,9 +149,9 @@ export function PreviewTable({ rows, stats, onImport, onBack }: PreviewTableProp
                     {row.row.data.brandSlug}
                   </td>
                   <td className="px-4 py-3 text-sm">
-                    {row.images?.main && "M"}
-                    {row.images?.gallery && row.images.gallery.length > 0
-                      ? ` + ${row.images.gallery.length}G`
+                    {row.imageInfo?.hasMain && "M"}
+                    {row.imageInfo && row.imageInfo.galleryCount > 0
+                      ? ` + ${row.imageInfo.galleryCount}G`
                       : ""}
                   </td>
                   <td className="px-4 py-3 text-sm">

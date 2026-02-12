@@ -34,6 +34,19 @@ export type ValidationResult = {
   };
 };
 
+export type ImageInfo = {
+  hasMain: boolean;
+  galleryCount: number;
+};
+
+export type ClientValidationResult = {
+  row: ParsedProductRow;
+  status: ValidationStatus;
+  errors: string[];
+  warnings: string[];
+  imageInfo?: ImageInfo;
+};
+
 export type ImageMap = Record<
   string,
   {

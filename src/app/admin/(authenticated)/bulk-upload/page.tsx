@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { UploadZone } from "@/components/admin/bulk-upload/upload-zone";
 import { PreviewTable } from "@/components/admin/bulk-upload/preview-table";
 import { ResultsSummary } from "@/components/admin/bulk-upload/results-summary";
-import { parseAndValidateAction, bulkImportProductsAction } from "./actions";
+import { parseAndValidateAction } from "./actions";
 import type {
-  ValidationResult,
+  ClientValidationResult,
   ValidationStats,
   ImportStats,
   ImportEvent,
@@ -19,7 +19,12 @@ type Step = "upload" | "preview" | "importing" | "results";
 
 export default function BulkUploadPage() {
   const [step, setStep] = useState<Step>("upload");
-  const [validatedRows, setValidatedRows] = useState<ValidationResult[]>([]);
+  const [validatedRows, setValidatedRows] = useState<ClientValidationResult[]>(
+    []
+  );
+  // Store the raw files so we can send them to the API route during import
+  const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [zipFile, setZipFile] = useState<File | null>(null);
   const [stats, setStats] = useState<ValidationStats>({
     total: 0,
     valid: 0,
@@ -45,15 +50,18 @@ export default function BulkUploadPage() {
     stats: { created: 0, updated: 0, skipped: 0, failed: 0 },
   });
 
-  const handleFilesSelected = async (csvFile: File, zipFile: File | null) => {
+  const handleFilesSelected = async (csv: File, zip: File | null) => {
     setIsLoading(true);
     setError(null);
+    // Save files for later use in import
+    setCsvFile(csv);
+    setZipFile(zip);
 
     try {
       const formData = new FormData();
-      formData.append("csv", csvFile);
-      if (zipFile) {
-        formData.append("zip", zipFile);
+      formData.append("csv", csv);
+      if (zip) {
+        formData.append("zip", zip);
       }
 
       const result = await parseAndValidateAction(formData);
@@ -77,11 +85,39 @@ export default function BulkUploadPage() {
     overwriteExisting: boolean;
     skipErrors: boolean;
   }) => {
+    if (!csvFile) {
+      setError("CSV file is missing. Please go back and re-upload.");
+      return;
+    }
+
     setStep("importing");
     setIsLoading(true);
+    setImportProgress({
+      current: 0,
+      total: 0,
+      currentSlug: "",
+      stats: { created: 0, updated: 0, skipped: 0, failed: 0 },
+    });
 
     try {
-      const response = await bulkImportProductsAction(validatedRows, options);
+      const formData = new FormData();
+      formData.append("csv", csvFile);
+      if (zipFile) {
+        formData.append("zip", zipFile);
+      }
+      formData.append("options", JSON.stringify(options));
+
+      const response = await fetch("/api/admin/bulk-import", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(
+          errorData?.error || `Import failed (${response.status})`
+        );
+      }
 
       if (!response.body) {
         throw new Error("No response body");
@@ -114,7 +150,9 @@ export default function BulkUploadPage() {
                 stats: {
                   ...prev.stats,
                   [event.action === "created" ? "created" : "updated"]:
-                    prev.stats[event.action === "created" ? "created" : "updated"] + 1,
+                    prev.stats[
+                      event.action === "created" ? "created" : "updated"
+                    ] + 1,
                 },
               }));
             } else if (event.type === "skipped") {
@@ -147,6 +185,8 @@ export default function BulkUploadPage() {
   const handleBack = () => {
     setStep("upload");
     setValidatedRows([]);
+    setCsvFile(null);
+    setZipFile(null);
     setStats({ total: 0, valid: 0, warnings: 0, errors: 0 });
     setError(null);
   };
@@ -154,6 +194,8 @@ export default function BulkUploadPage() {
   const handleUploadMore = () => {
     setStep("upload");
     setValidatedRows([]);
+    setCsvFile(null);
+    setZipFile(null);
     setStats({ total: 0, valid: 0, warnings: 0, errors: 0 });
     setImportStats({
       total: 0,
@@ -215,7 +257,9 @@ export default function BulkUploadPage() {
               <p className="text-muted-foreground">
                 {importProgress.current} of {importProgress.total} (
                 {importProgress.total > 0
-                  ? Math.round((importProgress.current / importProgress.total) * 100)
+                  ? Math.round(
+                      (importProgress.current / importProgress.total) * 100
+                    )
                   : 0}
                 %)
               </p>
@@ -264,7 +308,9 @@ export default function BulkUploadPage() {
             {importProgress.currentSlug && (
               <div className="text-center text-sm text-muted-foreground">
                 <p>Currently processing:</p>
-                <p className="font-mono font-medium">{importProgress.currentSlug}</p>
+                <p className="font-mono font-medium">
+                  {importProgress.currentSlug}
+                </p>
               </div>
             )}
           </div>

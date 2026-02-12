@@ -1,19 +1,16 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { parseProductCSV } from "@/lib/bulk-upload/csv-parser";
 import { extractImagesFromZip } from "@/lib/bulk-upload/zip-handler";
 import { validateProductRows } from "@/lib/bulk-upload/validator";
-import { importProducts } from "@/lib/bulk-upload/importer";
 import type {
-  ValidationResult,
+  ClientValidationResult,
   ValidationStats,
-  ImportOptions,
 } from "@/lib/bulk-upload/types";
 
 export async function parseAndValidateAction(formData: FormData): Promise<{
   success: boolean;
-  rows?: ValidationResult[];
+  rows?: ClientValidationResult[];
   stats?: ValidationStats;
   error?: string;
 }> {
@@ -47,7 +44,18 @@ export async function parseAndValidateAction(formData: FormData): Promise<{
       errors: validated.filter((v) => v.status === "error").length,
     };
 
-    return { success: true, rows: validated, stats };
+    // Convert to client-safe format: strip File objects, add serializable metadata
+    const clientRows: ClientValidationResult[] = validated.map((v) => ({
+      row: v.row,
+      status: v.status,
+      errors: v.errors,
+      warnings: v.warnings,
+      imageInfo: v.images
+        ? { hasMain: !!v.images.main, galleryCount: v.images.gallery.length }
+        : undefined,
+    }));
+
+    return { success: true, rows: clientRows, stats };
   } catch (error) {
     return {
       success: false,
@@ -55,38 +63,6 @@ export async function parseAndValidateAction(formData: FormData): Promise<{
         error instanceof Error ? error.message : "Failed to parse and validate",
     };
   }
-}
-
-export async function bulkImportProductsAction(
-  validatedRows: ValidationResult[],
-  options: ImportOptions
-) {
-  const encoder = new TextEncoder();
-
-  const stream = new ReadableStream({
-    async start(controller) {
-      try {
-        for await (const event of importProducts(validatedRows, options)) {
-          controller.enqueue(encoder.encode(JSON.stringify(event) + "\n"));
-        }
-        controller.close();
-      } catch (error) {
-        controller.error(error);
-      }
-    },
-  });
-
-  // Revalidate after completion
-  revalidatePath("/admin/products");
-  revalidatePath("/", "layout");
-
-  return new Response(stream, {
-    headers: {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      Connection: "keep-alive",
-    },
-  });
 }
 
 export async function generateTemplateAction(): Promise<string> {

@@ -178,7 +178,7 @@ export function UploadZone({ onFilesSelected }: UploadZoneProps) {
         <ul className="list-disc list-inside space-y-1 ml-2">
           <li>Headers: slug, category_slug, brand_slug, name_th, name_en, etc.</li>
           <li>One product per row</li>
-          <li>Slugs must be lowercase with hyphens (e.g., "product-name")</li>
+          <li>Slugs must be lowercase with hyphens (e.g., &quot;product-name&quot;)</li>
         </ul>
         <p className="font-medium mt-4">ZIP Structure:</p>
         <ul className="list-disc list-inside space-y-1 ml-2">

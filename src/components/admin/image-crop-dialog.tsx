@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Loader2, Minimize2, Maximize2 } from "lucide-react";
 
 type CroppedAreaPixels = {
   x: number;
@@ -85,7 +85,19 @@ export function ImageCropDialog({
   };
 
   const isFilled = zoom >= coverZoom - 0.01;
+  const isFit = zoom <= 1.01;
   const maxZoom = Math.max(3, Math.ceil(coverZoom * 10) / 10);
+  const showPresets = coverZoom > 1.05;
+
+  const handleFit = () => {
+    setZoom(1);
+    setCrop({ x: 0, y: 0 });
+  };
+
+  const handleFill = () => {
+    setZoom(coverZoom);
+    setCrop({ x: 0, y: 0 });
+  };
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onCancel()}>
@@ -109,9 +121,46 @@ export function ImageCropDialog({
           />
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            {showPresets ? (
+              <div className="flex gap-1">
+                <Button
+                  type="button"
+                  variant={isFit ? "default" : "outline"}
+                  size="xs"
+                  onClick={handleFit}
+                >
+                  <Minimize2 className="h-3 w-3" />
+                  Fit
+                </Button>
+                <Button
+                  type="button"
+                  variant={isFilled ? "default" : "outline"}
+                  size="xs"
+                  onClick={handleFill}
+                >
+                  <Maximize2 className="h-3 w-3" />
+                  Fill
+                </Button>
+              </div>
+            ) : (
+              <span />
+            )}
+            <p className="text-xs text-muted-foreground">
+              {isFilled ? (
+                <span className="inline-flex items-center gap-1 text-emerald-600">
+                  <Check className="h-3 w-3" />
+                  Frame filled
+                </span>
+              ) : (
+                "Zoom in to fill the frame"
+              )}
+            </p>
+          </div>
+
           <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">Zoom</span>
+            <span className="text-xs text-muted-foreground">Zoom</span>
             <Slider
               min={1}
               max={maxZoom}
@@ -121,16 +170,6 @@ export function ImageCropDialog({
               className="flex-1"
             />
           </div>
-          <p className="text-xs text-muted-foreground">
-            {isFilled ? (
-              <span className="inline-flex items-center gap-1 text-emerald-600">
-                <Check className="h-3 w-3" />
-                Frame filled
-              </span>
-            ) : (
-              "Zoom in to fill the frame"
-            )}
-          </p>
         </div>
 
         <DialogFooter>

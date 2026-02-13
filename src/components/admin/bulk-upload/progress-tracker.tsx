@@ -3,17 +3,21 @@
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import type { ImportEvent, ImportStats } from "@/lib/bulk-upload/types";
+import type {
+  ImportEvent,
+  ImportStats,
+  ValidationResult,
+} from "@/lib/bulk-upload/types";
 
 type ProgressTrackerProps = {
   onComplete: (stats: ImportStats) => void;
 };
 
-export function ProgressTracker({ onComplete }: ProgressTrackerProps) {
-  const [current, setCurrent] = useState(0);
-  const [total, setTotal] = useState(0);
-  const [currentSlug, setCurrentSlug] = useState("");
-  const [stats, setStats] = useState({
+export function ProgressTracker({ onComplete: _onComplete }: ProgressTrackerProps) {
+  const [current, _setCurrent] = useState(0);
+  const [total, _setTotal] = useState(0);
+  const [currentSlug, _setCurrentSlug] = useState("");
+  const [stats, _setStats] = useState({
     created: 0,
     updated: 0,
     skipped: 0,
@@ -69,7 +73,7 @@ export function ProgressTracker({ onComplete }: ProgressTrackerProps) {
 }
 
 export function useImportStream(
-  validatedRows: any[],
+  validatedRows: ValidationResult[],
   options: { overwriteExisting: boolean; skipErrors: boolean },
   onComplete: (stats: ImportStats) => void,
   onProgress: (event: ImportEvent) => void

@@ -59,22 +59,25 @@ export function ImageCropDialog({
 
   const onMediaLoaded = useCallback(
     (mediaSize: MediaSize) => {
-      // Measure container to compute crop area dimensions
       const cW = containerRef.current!.clientWidth;
       const cH = containerRef.current!.clientHeight;
-      const containerRatio = cW / cH;
-      let cropW: number, cropH: number;
-      if (aspectRatio >= containerRatio) {
-        cropW = cW;
-        cropH = cW / aspectRatio;
-      } else {
-        cropH = cH;
-        cropW = cH * aspectRatio;
-      }
 
       // mediaSize.width/height = displayed image size at zoom=1
       const imgW = mediaSize.width;
       const imgH = mediaSize.height;
+
+      // Replicate react-easy-crop's getCropSize algorithm:
+      // crop area fits within BOTH media and container bounds
+      const fittingWidth = Math.min(imgW, cW);
+      const fittingHeight = Math.min(imgH, cH);
+      let cropW: number, cropH: number;
+      if (fittingWidth > fittingHeight * aspectRatio) {
+        cropW = fittingHeight * aspectRatio;
+        cropH = fittingHeight;
+      } else {
+        cropW = fittingWidth;
+        cropH = fittingWidth / aspectRatio;
+      }
 
       const fit = Math.min(cropW / imgW, cropH / imgH, 1);
       const cover = Math.max(cropW / imgW, cropH / imgH, 1);
@@ -110,7 +113,7 @@ export function ImageCropDialog({
   const isFilled = mediaLoaded && zoom >= coverZoom - 0.01;
   const isFit = mediaLoaded && zoom <= fitZoom + 0.01;
   const maxZoom = Math.max(3, Math.ceil(coverZoom * 10) / 10);
-  const showPresets = mediaLoaded && coverZoom > 1.01;
+  const showPresets = mediaLoaded && coverZoom - fitZoom > 0.01;
 
   const handleFit = () => {
     setZoom(fitZoom);

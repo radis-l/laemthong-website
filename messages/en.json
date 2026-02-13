@@ -87,7 +87,11 @@
     "reason3Title": "Quality Products",
     "reason3Desc": "We exclusively carry products from internationally certified leading brands.",
     "reason4Title": "Nationwide Network",
-    "reason4Desc": "Our dealer and service center network covers the entire country."
+    "reason4Desc": "Our dealer and service center network covers the entire country.",
+    "statYearsExperience": "Years Experience",
+    "statGlobalBrands": "Global Brands",
+    "statProducts": "Products",
+    "statClients": "Clients"
   },
   "services": {
     "title": "Our Services",
@@ -115,6 +119,11 @@
     "successMessage": "Thank you for contacting us. Our team will get back to you within 1 business day.",
     "errorMessage": "An error occurred. Please try again.",
     "companyInfo": "Company Information",
+    "phoneLabel": "Phone",
+    "emailLabel": "Email",
+    "addressLabel": "Address",
+    "addressValue": "123 Charoen Krung Road, Si Phraya, Bang Rak, Bangkok 10500",
+    "mapPlaceholder": "Map",
     "businessHours": "Business Hours",
     "businessHoursValue": "Monday - Saturday 8:00 AM - 5:00 PM"
   },

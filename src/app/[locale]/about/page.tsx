@@ -84,25 +84,25 @@ export default async function AboutPage({ params }: Props) {
                 <div className="rounded-xl border bg-card p-6 text-center shadow-sm">
                   <div className="text-3xl font-bold text-primary">60+</div>
                   <div className="mt-1 text-sm text-muted-foreground">
-                    {locale === "th" ? "ปีแห่งประสบการณ์" : "Years Experience"}
+                    {t("statYearsExperience")}
                   </div>
                 </div>
                 <div className="rounded-xl border bg-card p-6 text-center shadow-sm">
                   <div className="text-3xl font-bold text-primary">3+</div>
                   <div className="mt-1 text-sm text-muted-foreground">
-                    {locale === "th" ? "แบรนด์ชั้นนำ" : "Global Brands"}
+                    {t("statGlobalBrands")}
                   </div>
                 </div>
                 <div className="rounded-xl border bg-card p-6 text-center shadow-sm">
                   <div className="text-3xl font-bold text-primary">1000+</div>
                   <div className="mt-1 text-sm text-muted-foreground">
-                    {locale === "th" ? "สินค้า" : "Products"}
+                    {t("statProducts")}
                   </div>
                 </div>
                 <div className="rounded-xl border bg-card p-6 text-center shadow-sm">
                   <div className="text-3xl font-bold text-primary">500+</div>
                   <div className="mt-1 text-sm text-muted-foreground">
-                    {locale === "th" ? "ลูกค้า" : "Clients"}
+                    {t("statClients")}
                   </div>
                 </div>
               </div>

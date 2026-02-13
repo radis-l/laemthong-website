@@ -87,7 +87,7 @@ export default async function ContactPage({ params, searchParams }: Props) {
                     <Phone className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
                     <div>
                       <p className="text-sm font-medium text-foreground">
-                        {t("phone" as never) || "Phone"}
+                        {t("phoneLabel")}
                       </p>
                       <a
                         href="tel:+6622345678"
@@ -101,7 +101,7 @@ export default async function ContactPage({ params, searchParams }: Props) {
                     <Mail className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
                     <div>
                       <p className="text-sm font-medium text-foreground">
-                        {t("email" as never) || "Email"}
+                        {t("emailLabel")}
                       </p>
                       <a
                         href="mailto:sales@laemthong-syndicate.com"
@@ -115,12 +115,10 @@ export default async function ContactPage({ params, searchParams }: Props) {
                     <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
                     <div>
                       <p className="text-sm font-medium text-foreground">
-                        {locale === "th" ? "ที่อยู่" : "Address"}
+                        {t("addressLabel")}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {locale === "th"
-                          ? "123 ถนนเจริญกรุง แขวงสี่พระยา เขตบางรัก กรุงเทพฯ 10500"
-                          : "123 Charoen Krung Road, Si Phraya, Bang Rak, Bangkok 10500"}
+                        {t("addressValue")}
                       </p>
                     </div>
                   </li>
@@ -142,7 +140,7 @@ export default async function ContactPage({ params, searchParams }: Props) {
               <div className="overflow-hidden rounded-xl border">
                 <div className="flex h-64 items-center justify-center bg-muted text-sm text-muted-foreground">
                   <MapPin className="mr-2 h-5 w-5" />
-                  {locale === "th" ? "แผนที่" : "Map"}
+                  {t("mapPlaceholder")}
                 </div>
               </div>
             </div>

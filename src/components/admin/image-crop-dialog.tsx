@@ -40,6 +40,7 @@ export function ImageCropDialog({
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [coverZoom, setCoverZoom] = useState(1);
+  const [mediaLoaded, setMediaLoaded] = useState(false);
   const [croppedAreaPixels, setCroppedAreaPixels] =
     useState<CroppedAreaPixels | null>(null);
   const [isCropping, setIsCropping] = useState(false);
@@ -49,6 +50,7 @@ export function ImageCropDialog({
     setCrop({ x: 0, y: 0 });
     setZoom(1);
     setCoverZoom(1);
+    setMediaLoaded(false);
     setCroppedAreaPixels(null);
   }, [imageSrc]);
 
@@ -60,6 +62,7 @@ export function ImageCropDialog({
         aspectRatio / imageRatio
       );
       setCoverZoom(computed);
+      setMediaLoaded(true);
     },
     [aspectRatio]
   );
@@ -84,10 +87,10 @@ export function ImageCropDialog({
     }
   };
 
-  const isFilled = zoom >= coverZoom - 0.01;
-  const isFit = zoom <= 1.01;
+  const isFilled = mediaLoaded && zoom >= coverZoom - 0.01;
+  const isFit = mediaLoaded && zoom <= 1.01;
   const maxZoom = Math.max(3, Math.ceil(coverZoom * 10) / 10);
-  const showPresets = coverZoom > 1.05;
+  const showPresets = mediaLoaded && coverZoom > 1.05;
 
   const handleFit = () => {
     setZoom(1);
@@ -106,7 +109,7 @@ export function ImageCropDialog({
           <DialogTitle>Crop Image</DialogTitle>
         </DialogHeader>
 
-        <div className="relative h-[350px] w-full overflow-hidden rounded-md bg-muted">
+        <div className="relative h-[350px] w-full overflow-hidden rounded-md">
           <Cropper
             image={imageSrc}
             crop={crop}
@@ -118,6 +121,11 @@ export function ImageCropDialog({
             onCropComplete={onCropComplete}
             onMediaLoaded={onMediaLoaded}
             maxZoom={maxZoom}
+            style={{
+              containerStyle: {
+                background: `repeating-conic-gradient(hsl(0 0% 82%) 0% 25%, hsl(0 0% 92%) 0% 50%) 50% / 16px 16px`,
+              },
+            }}
           />
         </div>
 
@@ -148,7 +156,9 @@ export function ImageCropDialog({
               <span />
             )}
             <p className="text-xs text-muted-foreground">
-              {isFilled ? (
+              {!mediaLoaded ? (
+                <span className="text-muted-foreground/50">Loading...</span>
+              ) : isFilled ? (
                 <span className="inline-flex items-center gap-1 text-emerald-600">
                   <Check className="h-3 w-3" />
                   Frame filled

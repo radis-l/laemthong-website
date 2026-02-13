@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import type {
@@ -14,10 +14,10 @@ type ProgressTrackerProps = {
 };
 
 export function ProgressTracker({ onComplete: _onComplete }: ProgressTrackerProps) {
-  const [current, _setCurrent] = useState(0);
-  const [total, _setTotal] = useState(0);
-  const [currentSlug, _setCurrentSlug] = useState("");
-  const [stats, _setStats] = useState({
+  const [current] = useState(0);
+  const [total] = useState(0);
+  const [currentSlug] = useState("");
+  const [stats] = useState({
     created: 0,
     updated: 0,
     skipped: 0,
@@ -25,11 +25,6 @@ export function ProgressTracker({ onComplete: _onComplete }: ProgressTrackerProp
   });
 
   const progress = total > 0 ? (current / total) * 100 : 0;
-
-  useEffect(() => {
-    // In the actual implementation, this will be populated by the streaming response
-    // For now, this is a placeholder structure
-  }, []);
 
   return (
     <div className="space-y-6">

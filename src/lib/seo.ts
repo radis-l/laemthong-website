@@ -8,7 +8,7 @@ import type {
 
 // ─── Constants ────────────────────────────────────────────────
 
-export const SITE_URL = "https://laemthong-syndicate.vercel.app";
+export const SITE_URL = "https://laemthong-website.vercel.app";
 export const DEFAULT_OG_IMAGE = "/images/og-default.png";
 
 export const SITE_NAME: Record<Locale, string> = {

@@ -7,7 +7,7 @@ import {
 } from "@/lib/db";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://laemthong-syndicate.vercel.app";
+  const baseUrl = "https://laemthong-website.vercel.app";
   const locales = routing.locales;
 
   const staticPages = [

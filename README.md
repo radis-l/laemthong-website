@@ -26,7 +26,7 @@ Corporate website for **Laemthong Syndicate** - Thailand's leading importer and 
 ### Prerequisites
 
 - Node.js 18+
-- Supabase project with tables created (see `supabase/migration.sql`)
+- Supabase project with tables created (see `supabase/migrations/`)
 
 ### Setup
 
@@ -40,7 +40,7 @@ Corporate website for **Laemthong Syndicate** - Thailand's leading importer and 
    cp .env.example .env.local
    ```
 4. Fill in your Supabase credentials in `.env.local`
-5. Run the database migration (`supabase/migration.sql`) and seed data (`supabase/seed.sql`)
+5. Run the database migration (`supabase/migrations/`) and seed data (`supabase/seed.sql`)
 6. Start the dev server:
    ```bash
    npm run dev

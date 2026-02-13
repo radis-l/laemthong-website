@@ -16,7 +16,7 @@ npm run lint        # ESLint check
 - **Pages**: `src/app/[locale]/` (Next.js App Router with i18n)
 - **Admin Panel**: `src/app/admin/` (outside i18n, English-only)
 - **Components**: `src/components/` (home, contact, products, admin, shared, layout, ui)
-- **UI Library**: `src/components/ui/` (shadcn/ui new-york style, 18 components)
+- **UI Library**: `src/components/ui/` (shadcn/ui new-york style, 25 components)
 - **Supabase Client**: `src/lib/supabase.ts` (4 client factories: anon, browser, server, admin)
 - **Data Access Layer**: `src/lib/db/` (products, brands, categories, services, company, contact, admin)
 - **Validations**: `src/lib/validations/` (Zod schemas: product, brand, category, auth)
@@ -27,7 +27,10 @@ npm run lint        # ESLint check
 - **Utils**: `src/lib/utils.ts` (cn class merge utility)
 - **Contact Action**: `src/app/[locale]/contact/actions.ts` (server action with zod validation)
 - **Admin Actions**: `src/app/admin/actions/` (products.ts, brands.ts, categories.ts, auth.ts)
-- **Middleware**: `src/middleware.ts` (composite: admin auth + next-intl routing)
+- **Proxy**: `src/proxy.ts` (composite: admin auth + next-intl routing, Next.js 16 convention)
+- **Image Storage**: `src/lib/storage.ts` (upload, delete, folder cleanup via Supabase Storage)
+- **Image Crop**: `src/lib/crop-image.ts` + `src/components/admin/image-crop-dialog.tsx`
+- **Bulk Upload**: `src/lib/bulk-upload/` (CSV parser, validator, importer, ZIP handler)
 
 ---
 
@@ -73,10 +76,9 @@ src/
 │   ├── products/               # ProductCard
 │   ├── shared/                 # LocaleSwitcher, Logo, SectionHeading
 │   ├── layout/                 # SiteHeader, SiteFooter
-│   └── ui/                     # shadcn/ui (18 components)
+│   └── ui/                     # shadcn/ui (25 components)
 ├── data/
 │   └── types.ts                # TypeScript interfaces (app + Db* row types)
-├── emails/                     # React Email templates (placeholder)
 ├── i18n/
 │   ├── routing.ts              # defineRouting({ locales: ["th", "en"], defaultLocale: "th" })
 │   ├── request.ts              # Server-side locale resolution
@@ -93,19 +95,24 @@ src/
 │   │   ├── contact.ts          # saveContactInquiry
 │   │   └── admin.ts            # Admin CRUD (service role, bypasses RLS)
 │   ├── validations/            # Zod schemas (product, brand, category, auth)
+│   ├── storage.ts              # Supabase Storage: upload, delete, folder cleanup
+│   ├── crop-image.ts           # Canvas-based image crop with white fill
 │   ├── seo.ts                  # JSON-LD builders, OG helpers, hreflang
+│   ├── bulk-upload/            # CSV parser, validator, importer, ZIP handler
 │   └── utils.ts                # cn() class merge (clsx + tailwind-merge)
-└── middleware.ts                # Composite: admin auth + next-intl routing
+└── proxy.ts                    # Composite: admin auth + next-intl routing (Next.js 16)
 ```
 
 ### Admin Panel Architecture
 - **Routes**: `src/app/admin/` (outside `[locale]` — English-only UI)
-- **Auth**: Supabase Auth (email/password), middleware protects `/admin/*`
+- **Auth**: Supabase Auth (email/password), proxy protects `/admin/*`
 - **Route group**: `(authenticated)` wraps shell (sidebar + header), login sits outside
 - **CRUD**: Products (tabbed form), Brands, Categories — full create/edit/delete
 - **DB layer**: `src/lib/db/admin.ts` uses `createSupabaseAdminClient()` (service role, bypasses RLS)
 - **Server actions**: `src/app/admin/actions/` — Zod validate → DB op → revalidatePath → redirect
-- **Components**: `src/components/admin/` — forms, sidebar, header, bilingual inputs, dynamic lists
+- **Components**: `src/components/admin/` — forms, tables, sidebar, header, bilingual inputs, image upload/crop, bulk upload
+- **Image storage**: `src/lib/storage.ts` — upload/delete via Supabase Storage (bucket: `images`)
+- **Bulk upload**: CSV/ZIP import with preview, validation, streaming progress (`src/lib/bulk-upload/`)
 
 ---
 
@@ -184,7 +191,7 @@ export async function actionName(_prevState: State, formData: FormData): Promise
 ### SEO
 - Dynamic sitemap at `src/app/sitemap.ts`
 - robots.txt at `src/app/robots.ts`
-- Metadata base URL: `https://laemthong-syndicate.vercel.app`
+- Metadata base URL: `https://laemthong-website.vercel.app`
 
 ---
 
@@ -207,7 +214,8 @@ This project has a `.mcp.json` that provides **Supabase MCP** at the project lev
 - All bilingual fields stored as JSONB `{"th": "...", "en": "..."}`
 - RLS: public SELECT on catalog tables, public INSERT on contact_inquiries
 - Data access layer at `src/lib/db/` maps DB rows (snake_case) to app types (camelCase)
-- SQL migrations at `supabase/migration.sql`, seed data at `supabase/seed.sql`
+- SQL migrations at `supabase/migrations/20250101000000_init.sql`, seed data at `supabase/seed.sql`
+- Storage bucket: `images` (public, 5MB limit, folders: `products/`, `brands/`, `categories/`)
 
 ---
 

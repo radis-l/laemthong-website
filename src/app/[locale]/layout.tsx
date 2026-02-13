@@ -18,7 +18,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://laemthong-syndicate.vercel.app"),
+  metadataBase: new URL("https://laemthong-website.vercel.app"),
   title: {
     template: "%s | Laemthong Syndicate",
     default: "Laemthong Syndicate - Industrial Welding Equipment Supplier",

@@ -30,7 +30,7 @@ npm run lint        # ESLint check
 - **Proxy**: `src/proxy.ts` (composite: admin auth + next-intl routing, Next.js 16 convention)
 - **Image Storage**: `src/lib/storage.ts` (upload, delete, folder cleanup via Supabase Storage)
 - **Image Crop**: `src/lib/crop-image.ts` + `src/components/admin/image-crop-dialog.tsx`
-- **Bulk Upload**: `src/lib/bulk-upload/` (CSV parser, validator, importer, ZIP handler)
+- **Bulk Upload**: `src/lib/bulk-upload/` (CSV parser, validator, importer, ZIP handler, image-only import)
 
 ---
 
@@ -112,7 +112,8 @@ src/
 - **Server actions**: `src/app/admin/actions/` — Zod validate → DB op → revalidatePath → redirect
 - **Components**: `src/components/admin/` — forms, tables, sidebar, header, bilingual inputs, image upload/crop, bulk upload
 - **Image storage**: `src/lib/storage.ts` — upload/delete via Supabase Storage (bucket: `images`)
-- **Bulk upload**: CSV/ZIP import with preview, validation, streaming progress (`src/lib/bulk-upload/`)
+- **Bulk upload**: CSV/ZIP import (either or both) with preview, validation, streaming progress (`src/lib/bulk-upload/`)
+- **Bulk operations**: Product list export as CSV, bulk delete with selection on products table
 
 ---
 

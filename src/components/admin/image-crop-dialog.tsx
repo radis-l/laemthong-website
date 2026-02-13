@@ -139,6 +139,7 @@ export function ImageCropDialog({
             zoom={zoom}
             aspect={aspectRatio}
             objectFit="contain"
+            restrictPosition={false}
             onCropChange={setCrop}
             onZoomChange={setZoom}
             onCropComplete={onCropComplete}

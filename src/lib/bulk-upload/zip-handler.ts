@@ -28,10 +28,10 @@ function isValidImageExtension(filename: string): boolean {
 }
 
 export async function extractImagesFromZip(
-  zipFile: File
+  zipFile: File | Blob
 ): Promise<ImageMap> {
   const zip = new JSZip();
-  const loaded = await zip.loadAsync(zipFile);
+  const loaded = await zip.loadAsync(await zipFile.arrayBuffer());
 
   const imageMap: ImageMap = {};
   const galleryTemp: Record<

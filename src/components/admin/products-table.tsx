@@ -5,6 +5,15 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -13,11 +22,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Pencil, Star, Search } from "lucide-react";
+import { Pencil, Star, Search, Trash2, Loader2, X } from "lucide-react";
 import { TableThumbnail } from "@/components/admin/table-thumbnail";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
-import { deleteProductAction } from "@/app/admin/actions/products";
+import {
+  deleteProductAction,
+  bulkDeleteProductsAction,
+} from "@/app/admin/actions/products";
 import { matchesSearch } from "@/lib/search";
+import { toast } from "sonner";
 import type { DbProduct } from "@/data/types";
 
 interface ProductsTableProps {
@@ -32,6 +45,9 @@ export function ProductsTable({
   categoryEntries,
 }: ProductsTableProps) {
   const [query, setQuery] = useState("");
+  const [selectedSlugs, setSelectedSlugs] = useState<Set<string>>(new Set());
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const brandMap = useMemo(() => new Map(brandEntries), [brandEntries]);
   const categoryMap = useMemo(
@@ -58,22 +74,97 @@ export function ProductsTable({
   const hasResults = filtered.length > 0;
   const isFiltering = query.trim().length > 0;
 
+  const allFilteredSelected =
+    filtered.length > 0 &&
+    filtered.every((p) => selectedSlugs.has(p.slug));
+
+  const toggleSelectAll = () => {
+    if (allFilteredSelected) {
+      const newSet = new Set(selectedSlugs);
+      for (const p of filtered) newSet.delete(p.slug);
+      setSelectedSlugs(newSet);
+    } else {
+      const newSet = new Set(selectedSlugs);
+      for (const p of filtered) newSet.add(p.slug);
+      setSelectedSlugs(newSet);
+    }
+  };
+
+  const toggleSelect = (slug: string) => {
+    const newSet = new Set(selectedSlugs);
+    if (newSet.has(slug)) {
+      newSet.delete(slug);
+    } else {
+      newSet.add(slug);
+    }
+    setSelectedSlugs(newSet);
+  };
+
+  const handleBulkDelete = async () => {
+    setIsDeleting(true);
+    const slugs = Array.from(selectedSlugs);
+    const result = await bulkDeleteProductsAction(slugs);
+    setIsDeleting(false);
+    setShowDeleteDialog(false);
+
+    if (result.message) {
+      toast.error(result.message);
+    } else {
+      toast.success(`Deleted ${result.deleted} product(s)`);
+      setSelectedSlugs(new Set());
+    }
+  };
+
   return (
     <>
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Search products..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="pl-9"
-        />
+      {/* Search + Bulk Actions Bar */}
+      <div className="flex items-center gap-4">
+        <div className="relative max-w-sm flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search products..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
+        {selectedSlugs.size > 0 && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">
+              {selectedSlugs.size} selected
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedSlugs(new Set())}
+            >
+              <X className="mr-1 h-3 w-3" />
+              Deselect
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setShowDeleteDialog(true)}
+            >
+              <Trash2 className="mr-1 h-3 w-3" />
+              Delete {selectedSlugs.size}
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="rounded-xl border">
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-10">
+                <Checkbox
+                  checked={allFilteredSelected && filtered.length > 0}
+                  onCheckedChange={toggleSelectAll}
+                  aria-label="Select all"
+                />
+              </TableHead>
               <TableHead className="w-12"></TableHead>
               <TableHead>Name (EN)</TableHead>
               <TableHead>Category</TableHead>
@@ -86,7 +177,7 @@ export function ProductsTable({
             {!hasItems ? (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={7}
                   className="h-24 text-center text-muted-foreground"
                 >
                   No products yet.
@@ -95,7 +186,7 @@ export function ProductsTable({
             ) : !hasResults ? (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={7}
                   className="h-24 text-center text-muted-foreground"
                 >
                   No products match your search.
@@ -103,7 +194,19 @@ export function ProductsTable({
               </TableRow>
             ) : (
               filtered.map((product) => (
-                <TableRow key={product.slug}>
+                <TableRow
+                  key={product.slug}
+                  className={
+                    selectedSlugs.has(product.slug) ? "bg-muted/50" : ""
+                  }
+                >
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedSlugs.has(product.slug)}
+                      onCheckedChange={() => toggleSelect(product.slug)}
+                      aria-label={`Select ${product.name.en}`}
+                    />
+                  </TableCell>
                   <TableCell>
                     <TableThumbnail
                       src={product.image}
@@ -159,6 +262,37 @@ export function ProductsTable({
           Showing {filtered.length} of {products.length} products
         </p>
       )}
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete {selectedSlugs.size} products?</DialogTitle>
+            <DialogDescription>
+              This will permanently delete {selectedSlugs.size} product(s) and
+              all their images. This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleBulkDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
+              Delete {selectedSlugs.size} Products
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

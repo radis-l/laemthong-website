@@ -176,3 +176,28 @@ export async function deleteProductAction(
   revalidatePath("/", "layout");
   return { success: true };
 }
+
+export async function bulkDeleteProductsAction(
+  slugs: string[]
+): Promise<{ success: boolean; deleted: number; message?: string }> {
+  let deleted = 0;
+
+  for (const slug of slugs) {
+    try {
+      await adminDeleteProduct(slug);
+      deleteImageFolder("products", slug).catch(() => {});
+      deleted++;
+    } catch {
+      // Continue deleting others even if one fails
+    }
+  }
+
+  revalidatePath("/admin/products");
+  revalidatePath("/", "layout");
+
+  if (deleted === 0) {
+    return { success: false, deleted: 0, message: "Failed to delete any products." };
+  }
+
+  return { success: true, deleted };
+}

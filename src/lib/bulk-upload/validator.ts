@@ -1,9 +1,14 @@
 import { productSchema } from "@/lib/validations/product";
-import { adminGetAllBrands, adminGetAllCategories } from "@/lib/db/admin";
+import {
+  adminGetAllBrands,
+  adminGetAllCategories,
+  adminGetProductBySlug,
+} from "@/lib/db/admin";
 import type {
   ParsedProductRow,
   ValidationResult,
   ImageMap,
+  ImageOnlyValidationResult,
 } from "./types";
 
 export async function validateProductRows(
@@ -121,4 +126,30 @@ export async function validateProductRows(
       images,
     };
   });
+}
+
+export async function validateImageOnlyRows(
+  imageMap: ImageMap
+): Promise<ImageOnlyValidationResult[]> {
+  const results: ImageOnlyValidationResult[] = [];
+
+  for (const slug of Object.keys(imageMap)) {
+    const product = await adminGetProductBySlug(slug);
+    const images = imageMap[slug];
+
+    results.push({
+      slug,
+      productName: product
+        ? ((product.name as { en: string; th: string }).en ||
+          (product.name as { en: string; th: string }).th)
+        : null,
+      productExists: !!product,
+      images: {
+        hasMain: !!images.main,
+        galleryCount: images.gallery.length,
+      },
+    });
+  }
+
+  return results;
 }

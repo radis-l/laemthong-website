@@ -8,7 +8,13 @@ import {
   adminUpdateProduct,
 } from "@/lib/db/admin";
 import { uploadImage } from "@/lib/storage";
-import type { ValidationResult, ImportOptions, ImportEvent } from "./types";
+import type {
+  ValidationResult,
+  ImportOptions,
+  ImportEvent,
+  ImageMap,
+  ImageOnlyValidationResult,
+} from "./types";
 
 function slugToTitle(slug: string): string {
   return slug
@@ -181,4 +187,110 @@ export async function* importProducts(
   }
 
   yield { type: "complete", stats: { ...stats, total: validatedRows.length, failures } };
+}
+
+export async function* importImagesOnly(
+  imageMap: ImageMap,
+  rows: ImageOnlyValidationResult[]
+): AsyncGenerator<ImportEvent> {
+  const stats = { created: 0, updated: 0, skipped: 0, failed: 0 };
+  const failures: { slug: string; error: string }[] = [];
+
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+
+    try {
+      const images = imageMap[row.slug];
+      if (!images) {
+        stats.skipped++;
+        yield { type: "skipped", slug: row.slug, reason: "No images found" };
+        continue;
+      }
+
+      // Upload images
+      let mainImageUrl = "";
+      const galleryUrls: string[] = [];
+
+      if (images.main) {
+        mainImageUrl = await uploadImage("products", row.slug, images.main);
+      }
+      for (const galleryImg of images.gallery) {
+        const url = await uploadImage("products", row.slug, galleryImg);
+        galleryUrls.push(url);
+      }
+
+      if (row.productExists) {
+        // Update only image fields on existing product
+        const updateData: Record<string, unknown> = {};
+        if (mainImageUrl) updateData.image = mainImageUrl;
+        if (galleryUrls.length > 0) updateData.gallery = galleryUrls;
+
+        await adminUpdateProduct(row.slug, updateData);
+        stats.updated++;
+        yield { type: "success", slug: row.slug, action: "image-updated" };
+      } else {
+        // Create dummy product — auto-create "uncategorized" and "unbranded" if needed
+        const categorySlug = "uncategorized";
+        const brandSlug = "unbranded";
+
+        if (!(await adminGetCategoryBySlug(categorySlug))) {
+          await adminCreateCategory({
+            slug: categorySlug,
+            name: { th: "ยังไม่จัดหมวดหมู่", en: "Uncategorized" },
+            description: { th: "", en: "" },
+            image: "",
+            icon: "Package",
+            sort_order: 999,
+          });
+        }
+
+        if (!(await adminGetBrandBySlug(brandSlug))) {
+          await adminCreateBrand({
+            slug: brandSlug,
+            name: "Unbranded",
+            description: { th: "", en: "" },
+            logo: "",
+            website: null,
+            country: "",
+            sort_order: 999,
+          });
+        }
+
+        await adminCreateProduct({
+          slug: row.slug,
+          category_slug: categorySlug,
+          brand_slug: brandSlug,
+          name: { th: slugToTitle(row.slug), en: slugToTitle(row.slug) },
+          short_description: { th: "", en: "" },
+          description: { th: "", en: "" },
+          image: mainImageUrl,
+          gallery: galleryUrls,
+          specifications: [],
+          features: [],
+          documents: [],
+          featured: false,
+          sort_order: 0,
+        });
+        stats.created++;
+        yield { type: "success", slug: row.slug, action: "created" };
+      }
+
+      yield {
+        type: "progress",
+        current: i + 1,
+        total: rows.length,
+        slug: row.slug,
+      };
+    } catch (error) {
+      stats.failed++;
+      const errorMsg = error instanceof Error ? error.message : "Unknown error";
+      failures.push({ slug: row.slug, error: errorMsg });
+      yield { type: "error", slug: row.slug, error: errorMsg };
+    }
+  }
+
+  yield {
+    type: "complete",
+    stats: { ...stats, total: rows.length, failures },
+  };
 }

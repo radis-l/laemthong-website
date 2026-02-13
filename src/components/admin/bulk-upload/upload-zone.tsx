@@ -3,10 +3,10 @@
 import { useCallback, useState } from "react";
 import { Upload, FileText, FolderArchive, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { generateTemplateAction } from "@/app/admin/(authenticated)/bulk-upload/actions";
+import { exportProductsAction } from "@/app/admin/(authenticated)/bulk-upload/actions";
 
 type UploadZoneProps = {
-  onFilesSelected: (csvFile: File, zipFile: File | null) => void;
+  onFilesSelected: (csvFile: File | null, zipFile: File | null) => void;
 };
 
 export function UploadZone({ onFilesSelected }: UploadZoneProps) {
@@ -49,18 +49,18 @@ export function UploadZone({ onFilesSelected }: UploadZoneProps) {
   };
 
   const handleSubmit = () => {
-    if (csvFile) {
+    if (csvFile || zipFile) {
       onFilesSelected(csvFile, zipFile);
     }
   };
 
-  const handleDownloadTemplate = async () => {
-    const template = await generateTemplateAction();
-    const blob = new Blob([template], { type: "text/csv" });
+  const handleDownloadProducts = async () => {
+    const { csv, isTemplate } = await exportProductsAction();
+    const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "products-template.csv";
+    a.download = isTemplate ? "products-template.csv" : "products-export.csv";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -78,7 +78,7 @@ export function UploadZone({ onFilesSelected }: UploadZoneProps) {
       {/* CSV Upload */}
       <div>
         <label className="block text-sm font-medium mb-2">
-          Product Data (CSV) *
+          Product Data (CSV)
         </label>
         <div
           className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
@@ -118,7 +118,7 @@ export function UploadZone({ onFilesSelected }: UploadZoneProps) {
       {/* ZIP Upload */}
       <div>
         <label className="block text-sm font-medium mb-2">
-          Product Images (ZIP) - Optional
+          Product Images (ZIP)
         </label>
         <div
           className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
@@ -159,14 +159,18 @@ export function UploadZone({ onFilesSelected }: UploadZoneProps) {
       <div className="flex items-center justify-between gap-4">
         <Button
           variant="outline"
-          onClick={handleDownloadTemplate}
+          onClick={handleDownloadProducts}
           className="gap-2"
         >
           <Download className="h-4 w-4" />
-          Download Template
+          Download Product List
         </Button>
 
-        <Button onClick={handleSubmit} disabled={!csvFile} className="gap-2">
+        <Button
+          onClick={handleSubmit}
+          disabled={!csvFile && !zipFile}
+          className="gap-2"
+        >
           <Upload className="h-4 w-4" />
           Upload & Preview
         </Button>
@@ -174,7 +178,13 @@ export function UploadZone({ onFilesSelected }: UploadZoneProps) {
 
       {/* Instructions */}
       <div className="text-sm text-muted-foreground space-y-2 border-t pt-4">
-        <p className="font-medium">CSV Format:</p>
+        <p className="font-medium">Upload Options:</p>
+        <ul className="list-disc list-inside space-y-1 ml-2">
+          <li>Upload <strong>CSV only</strong> to add/update products without images</li>
+          <li>Upload <strong>ZIP only</strong> to add images to existing products (or create new ones with placeholder data)</li>
+          <li>Upload <strong>both</strong> to add/update products with images</li>
+        </ul>
+        <p className="font-medium mt-4">CSV Format:</p>
         <ul className="list-disc list-inside space-y-1 ml-2">
           <li>Headers: slug, category_slug, brand_slug, name_th, name_en, etc.</li>
           <li>One product per row</li>
@@ -193,6 +203,7 @@ export function UploadZone({ onFilesSelected }: UploadZoneProps) {
           <li>products/[slug]/main.jpg - Main product image</li>
           <li>products/[slug]/gallery-1.jpg, gallery-2.jpg - Gallery images</li>
           <li>Supported formats: JPG, PNG, WebP, AVIF, SVG</li>
+          <li>Slug folders match products by slug (e.g., products/my-product/)</li>
         </ul>
       </div>
     </div>

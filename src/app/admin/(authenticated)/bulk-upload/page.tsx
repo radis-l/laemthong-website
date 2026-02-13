@@ -10,6 +10,8 @@ import { ResultsSummary } from "@/components/admin/bulk-upload/results-summary";
 import { parseAndValidateAction } from "./actions";
 import type {
   ClientValidationResult,
+  ImageOnlyValidationResult,
+  UploadMode,
   ValidationStats,
   ImportStats,
   ImportEvent,
@@ -19,9 +21,13 @@ type Step = "upload" | "preview" | "importing" | "results";
 
 export default function BulkUploadPage() {
   const [step, setStep] = useState<Step>("upload");
+  const [uploadMode, setUploadMode] = useState<UploadMode>("csv-only");
   const [validatedRows, setValidatedRows] = useState<ClientValidationResult[]>(
     []
   );
+  const [imageOnlyRows, setImageOnlyRows] = useState<
+    ImageOnlyValidationResult[]
+  >([]);
   // Store the raw files so we can send them to the API route during import
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [zipFile, setZipFile] = useState<File | null>(null);
@@ -50,7 +56,10 @@ export default function BulkUploadPage() {
     stats: { created: 0, updated: 0, skipped: 0, failed: 0 },
   });
 
-  const handleFilesSelected = async (csv: File, zip: File | null) => {
+  const handleFilesSelected = async (
+    csv: File | null,
+    zip: File | null
+  ) => {
     setIsLoading(true);
     setError(null);
     // Save files for later use in import
@@ -59,20 +68,29 @@ export default function BulkUploadPage() {
 
     try {
       const formData = new FormData();
-      formData.append("csv", csv);
-      if (zip) {
-        formData.append("zip", zip);
-      }
+      if (csv) formData.append("csv", csv);
+      if (zip) formData.append("zip", zip);
 
       const result = await parseAndValidateAction(formData);
 
-      if (!result.success || !result.rows || !result.stats) {
+      if (!result.success || !result.stats) {
         setError(result.error || "Failed to parse and validate");
         return;
       }
 
-      setValidatedRows(result.rows);
+      const mode = result.uploadMode || "csv-only";
+      setUploadMode(mode);
       setStats(result.stats);
+
+      if (mode === "zip-only" && result.imageOnlyRows) {
+        setImageOnlyRows(result.imageOnlyRows);
+      } else if (result.rows) {
+        setValidatedRows(result.rows);
+      } else {
+        setError("No data returned from validation");
+        return;
+      }
+
       setStep("preview");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -85,8 +103,13 @@ export default function BulkUploadPage() {
     overwriteExisting: boolean;
     skipErrors: boolean;
   }) => {
-    if (!csvFile) {
+    // For ZIP-only mode, only need zipFile; for CSV modes, need csvFile
+    if (uploadMode !== "zip-only" && !csvFile) {
       setError("CSV file is missing. Please go back and re-upload.");
+      return;
+    }
+    if (uploadMode === "zip-only" && !zipFile) {
+      setError("ZIP file is missing. Please go back and re-upload.");
       return;
     }
 
@@ -101,10 +124,8 @@ export default function BulkUploadPage() {
 
     try {
       const formData = new FormData();
-      formData.append("csv", csvFile);
-      if (zipFile) {
-        formData.append("zip", zipFile);
-      }
+      if (csvFile) formData.append("csv", csvFile);
+      if (zipFile) formData.append("zip", zipFile);
       formData.append("options", JSON.stringify(options));
 
       const response = await fetch("/api/admin/bulk-import", {
@@ -145,14 +166,13 @@ export default function BulkUploadPage() {
                 currentSlug: event.slug,
               }));
             } else if (event.type === "success") {
+              const key =
+                event.action === "created" ? "created" : "updated";
               setImportProgress((prev) => ({
                 ...prev,
                 stats: {
                   ...prev.stats,
-                  [event.action === "created" ? "created" : "updated"]:
-                    prev.stats[
-                      event.action === "created" ? "created" : "updated"
-                    ] + 1,
+                  [key]: prev.stats[key] + 1,
                 },
               }));
             } else if (event.type === "skipped") {
@@ -185,8 +205,10 @@ export default function BulkUploadPage() {
   const handleBack = () => {
     setStep("upload");
     setValidatedRows([]);
+    setImageOnlyRows([]);
     setCsvFile(null);
     setZipFile(null);
+    setUploadMode("csv-only");
     setStats({ total: 0, valid: 0, warnings: 0, errors: 0 });
     setError(null);
   };
@@ -194,8 +216,10 @@ export default function BulkUploadPage() {
   const handleUploadMore = () => {
     setStep("upload");
     setValidatedRows([]);
+    setImageOnlyRows([]);
     setCsvFile(null);
     setZipFile(null);
+    setUploadMode("csv-only");
     setStats({ total: 0, valid: 0, warnings: 0, errors: 0 });
     setImportStats({
       total: 0,
@@ -223,7 +247,7 @@ export default function BulkUploadPage() {
             Bulk Upload Products
           </h1>
           <p className="text-sm text-muted-foreground">
-            Import multiple products from CSV file with images
+            Import products from CSV, upload images from ZIP, or both
           </p>
         </div>
       </div>
@@ -242,7 +266,9 @@ export default function BulkUploadPage() {
 
         {step === "preview" && (
           <PreviewTable
+            uploadMode={uploadMode}
             rows={validatedRows}
+            imageOnlyRows={imageOnlyRows}
             stats={stats}
             onImport={handleImport}
             onBack={handleBack}
@@ -253,7 +279,11 @@ export default function BulkUploadPage() {
           <div className="space-y-6">
             <div className="text-center">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
-              <h2 className="text-2xl font-bold mb-2">Importing Products...</h2>
+              <h2 className="text-2xl font-bold mb-2">
+                {uploadMode === "zip-only"
+                  ? "Uploading Images..."
+                  : "Importing Products..."}
+              </h2>
               <p className="text-muted-foreground">
                 {importProgress.current} of {importProgress.total} (
                 {importProgress.total > 0

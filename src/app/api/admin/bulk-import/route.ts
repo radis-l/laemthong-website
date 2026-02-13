@@ -3,9 +3,15 @@ import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase";
 import { parseProductCSV } from "@/lib/bulk-upload/csv-parser";
 import { extractImagesFromZip } from "@/lib/bulk-upload/zip-handler";
-import { validateProductRows } from "@/lib/bulk-upload/validator";
-import { importProducts } from "@/lib/bulk-upload/importer";
+import { validateProductRows, validateImageOnlyRows } from "@/lib/bulk-upload/validator";
+import { importProducts, importImagesOnly } from "@/lib/bulk-upload/importer";
 import type { ImportOptions } from "@/lib/bulk-upload/types";
+
+const streamHeaders = {
+  "Content-Type": "text/plain; charset=utf-8",
+  "Cache-Control": "no-cache",
+  "Transfer-Encoding": "chunked",
+};
 
 export async function POST(request: Request) {
   // Auth check — proxy does not cover /api routes
@@ -25,8 +31,11 @@ export async function POST(request: Request) {
   const zipFile = formData.get("zip") as File | null;
   const optionsJson = formData.get("options") as string | null;
 
-  if (!csvFile) {
-    return Response.json({ error: "CSV file is required" }, { status: 400 });
+  if (!csvFile && !zipFile) {
+    return Response.json(
+      { error: "At least one file (CSV or ZIP) is required" },
+      { status: 400 }
+    );
   }
 
   let options: ImportOptions;
@@ -38,10 +47,53 @@ export async function POST(request: Request) {
     return Response.json({ error: "Invalid options" }, { status: 400 });
   }
 
-  // Parse CSV
+  const encoder = new TextEncoder();
+
+  // ZIP-only path: import images for existing/new products
+  if (!csvFile && zipFile) {
+    const imageMap = await extractImagesFromZip(zipFile);
+
+    if (Object.keys(imageMap).length === 0) {
+      return Response.json(
+        { error: "No product image folders found in ZIP" },
+        { status: 400 }
+      );
+    }
+
+    const imageOnlyRows = await validateImageOnlyRows(imageMap);
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const event of importImagesOnly(imageMap, imageOnlyRows)) {
+            controller.enqueue(
+              encoder.encode(JSON.stringify(event) + "\n")
+            );
+          }
+
+          revalidatePath("/admin/products");
+          revalidatePath("/", "layout");
+          controller.close();
+        } catch (error) {
+          const msg =
+            error instanceof Error ? error.message : "Import failed";
+          controller.enqueue(
+            encoder.encode(
+              JSON.stringify({ type: "error", slug: "", error: msg }) + "\n"
+            )
+          );
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(stream, { headers: streamHeaders });
+  }
+
+  // CSV path (csv-only or csv-and-zip)
   let csvText: string;
   try {
-    csvText = await csvFile.text();
+    csvText = await csvFile!.text();
   } catch {
     return Response.json(
       { error: "Failed to read CSV file" },
@@ -62,7 +114,6 @@ export async function POST(request: Request) {
   const validated = await validateProductRows(parsedRows, imageMap);
 
   // Stream import events
-  const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
       try {
@@ -87,11 +138,5 @@ export async function POST(request: Request) {
     },
   });
 
-  return new Response(stream, {
-    headers: {
-      "Content-Type": "text/plain; charset=utf-8",
-      "Cache-Control": "no-cache",
-      "Transfer-Encoding": "chunked",
-    },
-  });
+  return new Response(stream, { headers: streamHeaders });
 }

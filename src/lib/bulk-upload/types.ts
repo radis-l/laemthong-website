@@ -82,6 +82,15 @@ export type ValidationStats = {
   errors: number;
 };
 
+export type UploadMode = "csv-only" | "zip-only" | "csv-and-zip";
+
+export type ImageOnlyValidationResult = {
+  slug: string;
+  productName: string | null;
+  productExists: boolean;
+  images: ImageInfo;
+};
+
 export type ImportOptions = {
   overwriteExisting: boolean;
   skipErrors: boolean;
@@ -89,7 +98,11 @@ export type ImportOptions = {
 
 export type ImportEvent =
   | { type: "progress"; current: number; total: number; slug: string }
-  | { type: "success"; slug: string; action: "created" | "updated" }
+  | {
+      type: "success";
+      slug: string;
+      action: "created" | "updated" | "image-updated";
+    }
   | { type: "skipped"; slug: string; reason: string }
   | { type: "error"; slug: string; error: string }
   | { type: "complete"; stats: ImportStats };

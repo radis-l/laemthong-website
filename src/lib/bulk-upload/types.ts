@@ -1,3 +1,13 @@
+export type ParsedSpecification = {
+  label: { th: string; en: string };
+  value: { th: string; en: string };
+};
+
+export type ParsedFeature = {
+  th: string;
+  en: string;
+};
+
 export type ParsedProductRow = {
   index: number; // Row number in CSV (1-based)
   data: {
@@ -18,6 +28,16 @@ export type ParsedProductRow = {
     features?: string;
     documents?: string;
     image?: string;
+    // Pipe-separated raw strings from CSV (for validation messages)
+    specLabelsTh?: string;
+    specLabelsEn?: string;
+    specValuesTh?: string;
+    specValuesEn?: string;
+    featuresTh?: string;
+    featuresEn?: string;
+    // Parsed structured data (built from pipe-separated columns)
+    parsedSpecifications?: ParsedSpecification[];
+    parsedFeatures?: ParsedFeature[];
   };
 };
 

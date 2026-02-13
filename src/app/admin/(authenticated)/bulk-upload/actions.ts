@@ -66,9 +66,65 @@ export async function parseAndValidateAction(formData: FormData): Promise<{
 }
 
 export async function generateTemplateAction(): Promise<string> {
-  const template = `slug,category_slug,brand_slug,name_th,name_en,short_description_th,short_description_en,description_th,description_en,featured,sort_order
-example-product-1,welding-machines,lincoln-electric,ชื่อผลิตภัณฑ์,Product Name,คำอธิบายสั้น,Short description here,คำอธิบายยาว,Long description here,false,1
-example-product-2,cutting-equipment,harris,ชื่อสินค้า,Another Product,รายละเอียดย่อ,Brief details,รายละเอียดเต็ม,Full details,true,2`;
+  const headers = [
+    "slug",
+    "category_slug",
+    "brand_slug",
+    "name_th",
+    "name_en",
+    "short_description_th",
+    "short_description_en",
+    "description_th",
+    "description_en",
+    "featured",
+    "sort_order",
+    "spec_labels_th",
+    "spec_labels_en",
+    "spec_values_th",
+    "spec_values_en",
+    "features_th",
+    "features_en",
+  ].join(",");
 
-  return template;
+  const row1 = [
+    "example-product-1",
+    "welding-machines",
+    "lincoln-electric",
+    "ชื่อผลิตภัณฑ์",
+    "Product Name",
+    "คำอธิบายสั้น",
+    "Short description here",
+    "คำอธิบายยาว",
+    "Long description here",
+    "false",
+    "1",
+    "น้ำหนัก|แรงดันไฟฟ้า|กำลังไฟ",
+    "Weight|Voltage|Power",
+    "50 กก.|220V|3000 วัตต์",
+    "50 kg|220V|3000 W",
+    "ประหยัดพลังงาน|ทนทาน",
+    "Energy efficient|Durable",
+  ].join(",");
+
+  const row2 = [
+    "example-product-2",
+    "cutting-equipment",
+    "harris",
+    "ชื่อสินค้า",
+    "Another Product",
+    "รายละเอียดย่อ",
+    "Brief details",
+    "รายละเอียดเต็ม",
+    "Full details",
+    "true",
+    "2",
+    "",
+    "",
+    "",
+    "",
+    "ใช้งานง่าย",
+    "Easy to use",
+  ].join(",");
+
+  return `${headers}\n${row1}\n${row2}`;
 }

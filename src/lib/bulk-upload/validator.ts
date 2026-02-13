@@ -55,6 +55,57 @@ export async function validateProductRows(
     }
     seenSlugs.add(row.data.slug);
 
+    // Specification column count validation
+    if (
+      row.data.specLabelsTh ||
+      row.data.specLabelsEn ||
+      row.data.specValuesTh ||
+      row.data.specValuesEn
+    ) {
+      const counts: Record<string, number> = {};
+      if (row.data.specLabelsTh) counts.spec_labels_th = row.data.specLabelsTh.split("|").length;
+      if (row.data.specLabelsEn) counts.spec_labels_en = row.data.specLabelsEn.split("|").length;
+      if (row.data.specValuesTh) counts.spec_values_th = row.data.specValuesTh.split("|").length;
+      if (row.data.specValuesEn) counts.spec_values_en = row.data.specValuesEn.split("|").length;
+
+      const entries = Object.entries(counts);
+      if (entries.length > 1) {
+        const firstCount = entries[0][1];
+        const hasMismatch = entries.some(([, v]) => v !== firstCount);
+        if (hasMismatch) {
+          const detail = entries.map(([col, count]) => `${col}: ${count}`).join(", ");
+          errors.push(`Specification column count mismatch (${detail})`);
+        }
+      }
+
+      const hasTh = row.data.specLabelsTh || row.data.specValuesTh;
+      const hasEn = row.data.specLabelsEn || row.data.specValuesEn;
+      if (hasTh && !hasEn) {
+        warnings.push("Specifications have Thai data but no English translations");
+      }
+      if (hasEn && !hasTh) {
+        warnings.push("Specifications have English data but no Thai translations");
+      }
+    }
+
+    // Feature column count validation
+    if (row.data.featuresTh || row.data.featuresEn) {
+      const thCount = row.data.featuresTh ? row.data.featuresTh.split("|").length : 0;
+      const enCount = row.data.featuresEn ? row.data.featuresEn.split("|").length : 0;
+
+      if (thCount > 0 && enCount > 0 && thCount !== enCount) {
+        errors.push(
+          `Feature column count mismatch: features_th has ${thCount} items but features_en has ${enCount}`
+        );
+      }
+      if (row.data.featuresTh && !row.data.featuresEn) {
+        warnings.push("Features have Thai data but no English translations");
+      }
+      if (row.data.featuresEn && !row.data.featuresTh) {
+        warnings.push("Features have English data but no Thai translations");
+      }
+    }
+
     // Image warnings
     const images = imageMap[row.data.slug];
     if (!images?.main) {

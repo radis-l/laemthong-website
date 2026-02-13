@@ -180,6 +180,14 @@ export function UploadZone({ onFilesSelected }: UploadZoneProps) {
           <li>One product per row</li>
           <li>Slugs must be lowercase with hyphens (e.g., &quot;product-name&quot;)</li>
         </ul>
+        <p className="font-medium mt-4">Specifications &amp; Features (optional):</p>
+        <ul className="list-disc list-inside space-y-1 ml-2">
+          <li>spec_labels_th, spec_labels_en &mdash; Pipe-separated specification labels</li>
+          <li>spec_values_th, spec_values_en &mdash; Pipe-separated specification values</li>
+          <li>features_th, features_en &mdash; Pipe-separated feature descriptions</li>
+          <li>Use | (pipe) to separate items, e.g. &quot;Weight|Voltage|Power&quot;</li>
+          <li>All spec columns must have the same number of items</li>
+        </ul>
         <p className="font-medium mt-4">ZIP Structure:</p>
         <ul className="list-disc list-inside space-y-1 ml-2">
           <li>products/[slug]/main.jpg - Main product image</li>

@@ -118,6 +118,7 @@ export function PreviewTable({ rows, stats, onImport, onBack }: PreviewTableProp
                 <th className="px-4 py-3 text-left text-sm font-medium">Category</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">Brand</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">Images</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Data</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">Issues</th>
               </tr>
             </thead>
@@ -153,6 +154,16 @@ export function PreviewTable({ rows, stats, onImport, onBack }: PreviewTableProp
                     {row.imageInfo && row.imageInfo.galleryCount > 0
                       ? ` + ${row.imageInfo.galleryCount}G`
                       : ""}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">
+                    {(() => {
+                      const specCount = row.row.data.parsedSpecifications?.length || 0;
+                      const featCount = row.row.data.parsedFeatures?.length || 0;
+                      const parts: string[] = [];
+                      if (specCount > 0) parts.push(`${specCount} specs`);
+                      if (featCount > 0) parts.push(`${featCount} feat.`);
+                      return parts.length > 0 ? parts.join(", ") : "\u2014";
+                    })()}
                   </td>
                   <td className="px-4 py-3 text-sm">
                     {row.errors.length > 0 && (

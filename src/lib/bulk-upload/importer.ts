@@ -126,8 +126,8 @@ export async function* importProducts(
         },
         image: mainImageUrl || "",
         gallery: galleryUrls,
-        specifications: [],
-        features: [],
+        specifications: result.row.data.parsedSpecifications || [],
+        features: result.row.data.parsedFeatures || [],
         documents: [],
         featured:
           result.row.data.featured === "true" ||

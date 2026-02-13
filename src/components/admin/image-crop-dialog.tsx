@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Cropper from "react-easy-crop";
+import type { MediaSize } from "react-easy-crop";
 import { cropImage } from "@/lib/crop-image";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -12,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2 } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 
 type CroppedAreaPixels = {
   x: number;
@@ -38,9 +39,30 @@ export function ImageCropDialog({
 }: ImageCropDialogProps) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
+  const [coverZoom, setCoverZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] =
     useState<CroppedAreaPixels | null>(null);
   const [isCropping, setIsCropping] = useState(false);
+
+  // Reset state when image changes (handles crop queue)
+  useEffect(() => {
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setCoverZoom(1);
+    setCroppedAreaPixels(null);
+  }, [imageSrc]);
+
+  const onMediaLoaded = useCallback(
+    (mediaSize: MediaSize) => {
+      const imageRatio = mediaSize.naturalWidth / mediaSize.naturalHeight;
+      const computed = Math.max(
+        imageRatio / aspectRatio,
+        aspectRatio / imageRatio
+      );
+      setCoverZoom(computed);
+    },
+    [aspectRatio]
+  );
 
   const onCropComplete = useCallback(
     (_croppedArea: unknown, pixels: CroppedAreaPixels) => {
@@ -62,6 +84,9 @@ export function ImageCropDialog({
     }
   };
 
+  const isFilled = zoom >= coverZoom - 0.01;
+  const maxZoom = Math.max(3, Math.ceil(coverZoom * 10) / 10);
+
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onCancel()}>
       <DialogContent className="sm:max-w-xl" showCloseButton={false}>
@@ -75,22 +100,37 @@ export function ImageCropDialog({
             crop={crop}
             zoom={zoom}
             aspect={aspectRatio}
+            objectFit="contain"
             onCropChange={setCrop}
             onZoomChange={setZoom}
             onCropComplete={onCropComplete}
+            onMediaLoaded={onMediaLoaded}
+            maxZoom={maxZoom}
           />
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground">Zoom</span>
-          <Slider
-            min={1}
-            max={3}
-            step={0.1}
-            value={[zoom]}
-            onValueChange={(v) => setZoom(v[0])}
-            className="flex-1"
-          />
+        <div className="space-y-1">
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-muted-foreground">Zoom</span>
+            <Slider
+              min={1}
+              max={maxZoom}
+              step={0.1}
+              value={[zoom]}
+              onValueChange={(v) => setZoom(v[0])}
+              className="flex-1"
+            />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {isFilled ? (
+              <span className="inline-flex items-center gap-1 text-emerald-600">
+                <Check className="h-3 w-3" />
+                Frame filled
+              </span>
+            ) : (
+              "Zoom in to fill the frame"
+            )}
+          </p>
         </div>
 
         <DialogFooter>

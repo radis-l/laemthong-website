@@ -35,7 +35,7 @@ export function BrandShowcase({ brands }: Props) {
                       alt={brand.name}
                       fill
                       sizes="80px"
-                      className="object-cover"
+                      className="object-contain"
                     />
                   ) : (
                     <span className="text-xl font-bold text-primary">

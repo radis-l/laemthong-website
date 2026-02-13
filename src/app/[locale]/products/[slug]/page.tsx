@@ -157,7 +157,7 @@ export default async function ProductDetailPage({ params }: Props) {
           <div className="grid gap-10 lg:grid-cols-2">
             {/* Image */}
             <div>
-              <div className="relative aspect-square overflow-hidden rounded-2xl border bg-muted">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border bg-muted">
                 {product.image?.startsWith("http") ? (
                   <Image
                     src={product.image}

@@ -90,7 +90,7 @@ export function ImageCropDialog({
   const isFilled = mediaLoaded && zoom >= coverZoom - 0.01;
   const isFit = mediaLoaded && zoom <= 1.01;
   const maxZoom = Math.max(3, Math.ceil(coverZoom * 10) / 10);
-  const showPresets = mediaLoaded && coverZoom > 1.05;
+  const showPresets = mediaLoaded && coverZoom > 1.01;
 
   const handleFit = () => {
     setZoom(1);
@@ -120,10 +120,11 @@ export function ImageCropDialog({
             onZoomChange={setZoom}
             onCropComplete={onCropComplete}
             onMediaLoaded={onMediaLoaded}
+            minZoom={1}
             maxZoom={maxZoom}
             style={{
               containerStyle: {
-                background: `repeating-conic-gradient(hsl(0 0% 82%) 0% 25%, hsl(0 0% 92%) 0% 50%) 50% / 16px 16px`,
+                background: "#f0f0f0",
               },
             }}
           />
@@ -158,6 +159,8 @@ export function ImageCropDialog({
             <p className="text-xs text-muted-foreground">
               {!mediaLoaded ? (
                 <span className="text-muted-foreground/50">Loading...</span>
+              ) : isFit && showPresets ? (
+                "White padding will be added"
               ) : isFilled ? (
                 <span className="inline-flex items-center gap-1 text-emerald-600">
                   <Check className="h-3 w-3" />

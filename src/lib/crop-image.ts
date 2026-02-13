@@ -24,29 +24,79 @@ export async function cropImage(
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d")!;
 
-  let { width, height } = pixelCrop;
+  let outW = pixelCrop.width;
+  let outH = pixelCrop.height;
 
   // Resize if larger than max dimension
-  if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
-    const scale = MAX_DIMENSION / Math.max(width, height);
-    width = Math.round(width * scale);
-    height = Math.round(height * scale);
+  if (outW > MAX_DIMENSION || outH > MAX_DIMENSION) {
+    const scale = MAX_DIMENSION / Math.max(outW, outH);
+    outW = Math.round(outW * scale);
+    outH = Math.round(outH * scale);
   }
 
-  canvas.width = width;
-  canvas.height = height;
+  canvas.width = outW;
+  canvas.height = outH;
 
-  ctx.drawImage(
-    image,
-    pixelCrop.x,
-    pixelCrop.y,
-    pixelCrop.width,
-    pixelCrop.height,
-    0,
-    0,
-    width,
-    height
-  );
+  // Fill with white to handle areas outside the source image.
+  // react-easy-crop can return negative x/y when objectFit="contain"
+  // and the crop area extends beyond the image bounds.
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, outW, outH);
+
+  const natW = image.naturalWidth;
+  const natH = image.naturalHeight;
+
+  // Clamp source rectangle to actual image bounds
+  let sx = pixelCrop.x;
+  let sy = pixelCrop.y;
+  let sw = pixelCrop.width;
+  let sh = pixelCrop.height;
+  let dx = 0;
+  let dy = 0;
+  let dw = pixelCrop.width;
+  let dh = pixelCrop.height;
+
+  if (sx < 0) {
+    const clip = -sx;
+    dx += clip;
+    dw -= clip;
+    sw -= clip;
+    sx = 0;
+  }
+  if (sy < 0) {
+    const clip = -sy;
+    dy += clip;
+    dh -= clip;
+    sh -= clip;
+    sy = 0;
+  }
+  if (sx + sw > natW) {
+    const excess = sx + sw - natW;
+    sw -= excess;
+    dw -= excess;
+  }
+  if (sy + sh > natH) {
+    const excess = sy + sh - natH;
+    sh -= excess;
+    dh -= excess;
+  }
+
+  // Scale destination to match output canvas size
+  const outputScale = outW / pixelCrop.width;
+
+  if (sw > 0 && sh > 0) {
+    ctx.drawImage(
+      image,
+      sx,
+      sy,
+      sw,
+      sh,
+      dx * outputScale,
+      dy * outputScale,
+      dw * outputScale,
+      dh * outputScale
+    );
+  }
 
   return new Promise((resolve, reject) => {
     canvas.toBlob(

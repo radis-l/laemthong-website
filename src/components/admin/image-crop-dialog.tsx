@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Cropper from "react-easy-crop";
 import type { MediaSize } from "react-easy-crop";
 import { cropImage } from "@/lib/crop-image";
@@ -37,8 +37,10 @@ export function ImageCropDialog({
   onCrop,
   onCancel,
 }: ImageCropDialogProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
+  const [fitZoom, setFitZoom] = useState(1);
   const [coverZoom, setCoverZoom] = useState(1);
   const [mediaLoaded, setMediaLoaded] = useState(false);
   const [croppedAreaPixels, setCroppedAreaPixels] =
@@ -49,6 +51,7 @@ export function ImageCropDialog({
   useEffect(() => {
     setCrop({ x: 0, y: 0 });
     setZoom(1);
+    setFitZoom(1);
     setCoverZoom(1);
     setMediaLoaded(false);
     setCroppedAreaPixels(null);
@@ -56,12 +59,29 @@ export function ImageCropDialog({
 
   const onMediaLoaded = useCallback(
     (mediaSize: MediaSize) => {
-      const imageRatio = mediaSize.naturalWidth / mediaSize.naturalHeight;
-      const computed = Math.max(
-        imageRatio / aspectRatio,
-        aspectRatio / imageRatio
-      );
-      setCoverZoom(computed);
+      // Measure container to compute crop area dimensions
+      const cW = containerRef.current!.clientWidth;
+      const cH = containerRef.current!.clientHeight;
+      const containerRatio = cW / cH;
+      let cropW: number, cropH: number;
+      if (aspectRatio >= containerRatio) {
+        cropW = cW;
+        cropH = cW / aspectRatio;
+      } else {
+        cropH = cH;
+        cropW = cH * aspectRatio;
+      }
+
+      // mediaSize.width/height = displayed image size at zoom=1
+      const imgW = mediaSize.width;
+      const imgH = mediaSize.height;
+
+      const fit = Math.min(cropW / imgW, cropH / imgH, 1);
+      const cover = Math.max(cropW / imgW, cropH / imgH, 1);
+
+      setFitZoom(fit);
+      setCoverZoom(cover);
+      setZoom(fit);
       setMediaLoaded(true);
     },
     [aspectRatio]
@@ -88,12 +108,12 @@ export function ImageCropDialog({
   };
 
   const isFilled = mediaLoaded && zoom >= coverZoom - 0.01;
-  const isFit = mediaLoaded && zoom <= 1.01;
+  const isFit = mediaLoaded && zoom <= fitZoom + 0.01;
   const maxZoom = Math.max(3, Math.ceil(coverZoom * 10) / 10);
   const showPresets = mediaLoaded && coverZoom > 1.01;
 
   const handleFit = () => {
-    setZoom(1);
+    setZoom(fitZoom);
     setCrop({ x: 0, y: 0 });
   };
 
@@ -109,7 +129,7 @@ export function ImageCropDialog({
           <DialogTitle>Crop Image</DialogTitle>
         </DialogHeader>
 
-        <div className="relative h-[350px] w-full overflow-hidden rounded-md">
+        <div ref={containerRef} className="relative h-[350px] w-full overflow-hidden rounded-md">
           <Cropper
             image={imageSrc}
             crop={crop}
@@ -120,7 +140,7 @@ export function ImageCropDialog({
             onZoomChange={setZoom}
             onCropComplete={onCropComplete}
             onMediaLoaded={onMediaLoaded}
-            minZoom={1}
+            minZoom={fitZoom}
             maxZoom={maxZoom}
             style={{
               containerStyle: {
@@ -175,7 +195,7 @@ export function ImageCropDialog({
           <div className="flex items-center gap-3">
             <span className="text-xs text-muted-foreground">Zoom</span>
             <Slider
-              min={1}
+              min={fitZoom}
               max={maxZoom}
               step={0.1}
               value={[zoom]}

@@ -64,31 +64,36 @@ export default async function AboutPage({ params }: Props) {
   return (
     <>
       {/* Hero */}
-      <section className="bg-gradient-to-b from-primary/5 to-background py-16 md:py-20">
-        <div className="mx-auto max-w-7xl px-6 text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+      <section className="border-b py-16 md:py-20">
+        <div className="mx-auto max-w-7xl px-6">
+          <p className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
+            {t("title")}
+          </p>
+          <h1 className="max-w-3xl text-4xl font-bold tracking-tight text-foreground md:text-5xl">
             {t("title")}
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+          <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
             {t("subtitle")}
           </p>
         </div>
       </section>
 
       {/* History */}
-      <section className="py-16 md:py-20">
+      <section className="py-20 md:py-28">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="grid gap-12 lg:grid-cols-2">
+          <div className="grid gap-16 lg:grid-cols-2">
             <div>
-              <h2 className="text-3xl font-bold text-foreground">
+              <h2 className="text-3xl font-bold tracking-tight text-foreground lg:text-4xl">
                 {t("historyTitle")}
               </h2>
-              <p className="mt-4 leading-relaxed text-muted-foreground">
+              <div className="mt-1 h-0.5 w-12 bg-primary" />
+              <p className="mt-6 leading-relaxed text-muted-foreground">
                 {t("historyText")}
               </p>
             </div>
             <div className="flex flex-col gap-6">
-              <div className="overflow-hidden rounded-2xl border shadow-sm">
+              <div className="overflow-hidden rounded-lg">
                 <PlaceholderImage
                   variant="about"
                   icon={Factory}
@@ -96,27 +101,27 @@ export default async function AboutPage({ params }: Props) {
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-xl border bg-card p-4 text-center shadow-sm">
-                  <div className="text-3xl font-bold text-primary">60+</div>
-                  <div className="mt-1 text-sm text-muted-foreground">
+                <div className="rounded-lg border p-5">
+                  <div className="text-3xl font-light tracking-tight text-foreground">60+</div>
+                  <div className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                     {t("statYearsExperience")}
                   </div>
                 </div>
-                <div className="rounded-xl border bg-card p-4 text-center shadow-sm">
-                  <div className="text-3xl font-bold text-primary">3+</div>
-                  <div className="mt-1 text-sm text-muted-foreground">
+                <div className="rounded-lg border p-5">
+                  <div className="text-3xl font-light tracking-tight text-foreground">3+</div>
+                  <div className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                     {t("statGlobalBrands")}
                   </div>
                 </div>
-                <div className="rounded-xl border bg-card p-4 text-center shadow-sm">
-                  <div className="text-3xl font-bold text-primary">1000+</div>
-                  <div className="mt-1 text-sm text-muted-foreground">
+                <div className="rounded-lg border p-5">
+                  <div className="text-3xl font-light tracking-tight text-foreground">1,000+</div>
+                  <div className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                     {t("statProducts")}
                   </div>
                 </div>
-                <div className="rounded-xl border bg-card p-4 text-center shadow-sm">
-                  <div className="text-3xl font-bold text-primary">500+</div>
-                  <div className="mt-1 text-sm text-muted-foreground">
+                <div className="rounded-lg border p-5">
+                  <div className="text-3xl font-light tracking-tight text-foreground">500+</div>
+                  <div className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                     {t("statClients")}
                   </div>
                 </div>
@@ -127,22 +132,21 @@ export default async function AboutPage({ params }: Props) {
       </section>
 
       {/* Milestones */}
-      <section className="border-y bg-muted/30 py-16 md:py-20">
+      <section className="border-y bg-muted/30 py-20 md:py-28">
         <div className="mx-auto max-w-7xl px-6">
-          <SectionHeading title={t("milestonesTitle")} align="center" />
+          <SectionHeading title={t("milestonesTitle")} label="Timeline" align="center" />
           <div className="relative">
-            {/* Connecting line */}
-            <div className="absolute left-0 right-0 top-5 hidden h-0.5 bg-border md:block" />
-            <div className="grid gap-8 md:grid-cols-4">
+            <div className="absolute left-0 right-0 top-5 hidden h-px bg-border md:block" />
+            <div className="grid gap-10 md:grid-cols-4">
               {milestones.map((m) => (
                 <div key={m.yearKey} className="relative text-center">
-                  <div className="relative mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                  <div className="relative mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-foreground text-sm font-medium text-background">
                     {t(m.yearKey)}
                   </div>
                   <h3 className="font-semibold text-foreground">
                     {t(m.titleKey)}
                   </h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                     {t(m.descKey)}
                   </p>
                 </div>
@@ -153,12 +157,12 @@ export default async function AboutPage({ params }: Props) {
       </section>
 
       {/* Mission */}
-      <section className="border-b bg-card py-16 md:py-20">
+      <section className="py-20 md:py-28">
         <div className="mx-auto max-w-7xl px-6 text-center">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
-            <Building2 className="h-10 w-10 text-primary" />
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border-2 border-foreground">
+            <Building2 className="h-7 w-7 text-foreground" />
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-foreground">
+          <h2 className="mt-6 text-3xl font-bold tracking-tight text-foreground lg:text-4xl">
             {t("missionTitle")}
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
@@ -168,18 +172,14 @@ export default async function AboutPage({ params }: Props) {
       </section>
 
       {/* Why Choose Us */}
-      <section className="py-16 md:py-20">
+      <section className="border-t py-20 md:py-28">
         <div className="mx-auto max-w-7xl px-6">
-          <SectionHeading title={t("whyChooseUs")} />
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <SectionHeading title={t("whyChooseUs")} label="Our Strengths" />
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             {reasons.map(({ key, icon: Icon }) => (
-              <div
-                key={key}
-                className="relative overflow-hidden rounded-xl border bg-card p-6 shadow-sm"
-              >
-                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary to-primary/60" />
-                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10">
-                  <Icon className="h-7 w-7 text-primary" />
+              <div key={key} className="group">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg border transition-colors group-hover:border-primary group-hover:text-primary">
+                  <Icon className="h-5 w-5" />
                 </div>
                 <h3 className="font-semibold text-foreground">
                   {t(`${key}Title` as `${typeof key}Title`)}

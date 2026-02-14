@@ -1,32 +1,31 @@
 import { useTranslations } from "next-intl";
-import { Clock, DollarSign, Wrench, ShieldCheck } from "lucide-react";
 
 const usps = [
-  { key: "experience", icon: Clock },
-  { key: "directImporter", icon: DollarSign },
-  { key: "serviceTeam", icon: Wrench },
-  { key: "authorized", icon: ShieldCheck },
+  { key: "experience" },
+  { key: "directImporter" },
+  { key: "serviceTeam" },
+  { key: "authorized" },
 ] as const;
 
 export function UspSection() {
   const t = useTranslations("usp");
 
   return (
-    <section className="border-y bg-card py-12">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-          {usps.map(({ key, icon: Icon }) => (
-            <div key={key} className="flex flex-col items-center text-center">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <Icon className="h-7 w-7" />
+    <section className="bg-foreground text-background">
+      <div className="mx-auto max-w-7xl px-6 py-14">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+          {usps.map(({ key }, i) => (
+            <div key={key} className="group">
+              <div className="text-xs font-medium uppercase tracking-[0.15em] text-background/40">
+                0{i + 1}
               </div>
-              <div className="my-3 h-px w-8 bg-primary/20" />
-              <div className="text-lg font-bold text-foreground">
+              <div className="mt-2 text-base font-semibold text-background">
                 {t(`${key}` as `${typeof key}`)}
               </div>
-              <div className="mt-1 text-sm text-muted-foreground">
+              <div className="mt-1.5 text-sm leading-relaxed text-background/60">
                 {t(`${key}Desc` as `${typeof key}Desc`)}
               </div>
+              <div className="mt-3 h-px w-8 bg-primary transition-all duration-300 group-hover:w-12" />
             </div>
           ))}
         </div>

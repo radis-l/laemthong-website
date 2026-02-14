@@ -160,7 +160,7 @@ export function ImageCropDialog({
               <div className="flex gap-1">
                 <Button
                   type="button"
-                  variant={isFit ? "default" : "outline"}
+                  variant={isFit ? "accent" : "outline"}
                   size="xs"
                   onClick={handleFit}
                 >
@@ -169,7 +169,7 @@ export function ImageCropDialog({
                 </Button>
                 <Button
                   type="button"
-                  variant={isFilled ? "default" : "outline"}
+                  variant={isFilled ? "accent" : "outline"}
                   size="xs"
                   onClick={handleFill}
                 >
@@ -213,7 +213,7 @@ export function ImageCropDialog({
           <Button variant="outline" onClick={onCancel} disabled={isCropping}>
             Cancel
           </Button>
-          <Button onClick={handleConfirm} disabled={isCropping}>
+          <Button variant="accent" onClick={handleConfirm} disabled={isCropping}>
             {isCropping ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

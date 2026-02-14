@@ -161,7 +161,7 @@ export default async function ProductDetailPage({ params }: Props) {
           <div className="grid gap-10 lg:grid-cols-2">
             {/* Image */}
             <div>
-              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border bg-muted">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-lg border bg-muted">
                 {product.image?.startsWith("http") ? (
                   <Image
                     src={product.image}
@@ -204,7 +204,7 @@ export default async function ProductDetailPage({ params }: Props) {
             <div>
               <div className="flex items-center gap-2">
                 {brand && (
-                  <Badge variant="secondary">{brand.name}</Badge>
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{brand.name}</p>
                 )}
                 {category && (
                   <Badge variant="outline">
@@ -256,7 +256,7 @@ export default async function ProductDetailPage({ params }: Props) {
               <h2 className="text-2xl font-bold text-foreground">
                 {t("specifications")}
               </h2>
-              <div className="mt-4 overflow-hidden rounded-xl border">
+              <div className="mt-4 overflow-hidden rounded-lg border">
                 <Table>
                   <TableBody>
                     {product.specifications.map((spec, i) => (

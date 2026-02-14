@@ -1,5 +1,6 @@
 type Props = {
   title: string;
+  label?: string;
   description?: string;
   className?: string;
   align?: "left" | "center";
@@ -7,20 +8,28 @@ type Props = {
 
 export function SectionHeading({
   title,
+  label,
   description,
   className,
-  align = "center",
+  align = "left",
 }: Props) {
   return (
     <div
-      className={`mb-10 ${align === "center" ? "text-center" : "text-left"} ${className ?? ""}`}
+      className={`mb-12 ${align === "center" ? "text-center" : "text-left"} ${className ?? ""}`}
     >
-      <div className="mb-3 inline-block h-1 w-10 rounded-full bg-primary" />
-      <h2 className="text-3xl font-bold tracking-tight text-foreground">
+      {label && (
+        <p className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+          <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
+          {label}
+        </p>
+      )}
+      <h2 className="text-3xl font-bold tracking-tight text-foreground lg:text-4xl">
         {title}
       </h2>
       {description && (
-        <p className="mt-3 text-lg text-muted-foreground">{description}</p>
+        <p className="mt-3 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+          {description}
+        </p>
       )}
     </div>
   );

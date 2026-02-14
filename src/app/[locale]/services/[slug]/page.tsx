@@ -111,13 +111,13 @@ export default async function ServiceDetailPage({ params }: Props) {
       </div>
 
       {/* Hero */}
-      <section className="bg-gradient-to-b from-primary/5 to-background py-16 md:py-20">
+      <section className="border-b py-16 md:py-20">
         <div className="mx-auto max-w-7xl px-6">
           <div className="grid gap-10 lg:grid-cols-[1fr_400px] lg:items-center">
             <div>
               <div className="flex items-center gap-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
-                  <Icon className="h-8 w-8 text-primary" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg border">
+                  <Icon className="h-6 w-6" />
                 </div>
                 <div>
                   <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
@@ -130,7 +130,7 @@ export default async function ServiceDetailPage({ params }: Props) {
               </p>
             </div>
             <div className="hidden lg:block">
-              <div className="overflow-hidden rounded-2xl border">
+              <div className="overflow-hidden rounded-lg border">
                 <PlaceholderImage variant="service" icon={Icon} aspect="aspect-square" />
               </div>
             </div>
@@ -167,7 +167,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                 {expertise.map((item, i) => (
                   <div
                     key={i}
-                    className="rounded-lg bg-primary/5 px-4 py-3 text-sm font-medium text-foreground"
+                    className="rounded-lg bg-muted px-4 py-3 text-sm font-medium text-foreground"
                   >
                     {item}
                   </div>
@@ -185,7 +185,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             {processSteps.map((step, i) => (
               <div key={i} className="relative">
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-foreground text-sm font-bold text-background">
                   {i + 1}
                 </div>
                 <h3 className="font-semibold text-foreground">{step.title}</h3>
@@ -199,24 +199,28 @@ export default async function ServiceDetailPage({ params }: Props) {
       </section>
 
       {/* CTA */}
-      <section className="py-16 md:py-20">
+      <section className="py-20 md:py-28">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-primary/80 px-8 py-14 text-center md:px-16 md:py-20">
-            <div className="absolute -left-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
-            <div className="absolute -bottom-10 -right-10 h-60 w-60 rounded-full bg-white/10" />
-            <div className="relative">
-              <h2 className="text-3xl font-extrabold tracking-tight text-primary-foreground md:text-4xl">
+          <div className="grid items-center gap-10 lg:grid-cols-2">
+            <div>
+              <h2 className="text-3xl font-bold tracking-tight text-foreground lg:text-4xl">
                 {t("ctaTitle")}
               </h2>
-              <p className="mx-auto mt-4 max-w-xl text-lg text-primary-foreground/80">
+              <p className="mt-4 max-w-md text-lg leading-relaxed text-muted-foreground">
                 {t("ctaDescription")}
               </p>
-              <Button
-                asChild
-                size="lg"
-                variant="secondary"
-                className="mt-8 gap-2"
-              >
+            </div>
+            <div className="rounded-lg bg-foreground p-8 text-background md:p-10">
+              <p className="text-sm font-medium uppercase tracking-[0.15em] text-background/50">
+                Get in touch
+              </p>
+              <p className="mt-3 text-xl font-semibold text-background">
+                sales@laemthong-syndicate.com
+              </p>
+              <p className="mt-1 text-lg text-background/70">
+                +66-2-234-5678
+              </p>
+              <Button asChild variant="accent" size="lg" className="mt-6 gap-2">
                 <Link href="/contact">
                   {t("ctaButton")}
                   <ArrowRight className="h-4 w-4" />
@@ -238,10 +242,10 @@ export default async function ServiceDetailPage({ params }: Props) {
                 <Link
                   key={other.slug}
                   href={`/services/${other.slug}`}
-                  className="group rounded-xl border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
+                  className="group rounded-lg border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
                 >
-                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                    <OtherIcon className="h-5 w-5 text-primary" />
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg border">
+                    <OtherIcon className="h-5 w-5" />
                   </div>
                   <h3 className="font-semibold text-foreground group-hover:text-primary">
                     {t(`${other.slug}.title`)}

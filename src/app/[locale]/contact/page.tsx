@@ -54,12 +54,16 @@ export default async function ContactPage({ params, searchParams }: Props) {
   return (
     <>
       {company && <JsonLd data={buildLocalBusinessSchema(company, locale as Locale)} />}
-      <section className="bg-gradient-to-b from-primary/5 to-background py-16 md:py-20">
-        <div className="mx-auto max-w-7xl px-6 text-center">
+      <section className="border-b py-16 md:py-20">
+        <div className="mx-auto max-w-7xl px-6">
+          <p className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
+            {t("title")}
+          </p>
           <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
             {t("title")}
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+          <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
             {t("description")}
           </p>
         </div>
@@ -69,7 +73,7 @@ export default async function ContactPage({ params, searchParams }: Props) {
         <div className="mx-auto max-w-7xl px-6">
           <div className="grid gap-10 lg:grid-cols-[1fr_380px]">
             {/* Form */}
-            <div className="rounded-xl border bg-card p-8 shadow-sm">
+            <div className="rounded-lg border bg-card p-8 shadow-sm">
               <h2 className="mb-6 text-xl font-semibold text-foreground">
                 {t("formTitle")}
               </h2>
@@ -78,13 +82,13 @@ export default async function ContactPage({ params, searchParams }: Props) {
 
             {/* Company info sidebar */}
             <div className="space-y-6">
-              <div className="rounded-xl border bg-card p-6 shadow-sm">
+              <div className="rounded-lg border bg-card p-6 shadow-sm">
                 <h3 className="mb-4 font-semibold text-foreground">
                   {t("companyInfo")}
                 </h3>
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3">
-                    <Phone className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                    <Phone className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
                     <div>
                       <p className="text-sm font-medium text-foreground">
                         {t("phoneLabel")}
@@ -98,7 +102,7 @@ export default async function ContactPage({ params, searchParams }: Props) {
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
-                    <Mail className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                    <Mail className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
                     <div>
                       <p className="text-sm font-medium text-foreground">
                         {t("emailLabel")}
@@ -112,7 +116,7 @@ export default async function ContactPage({ params, searchParams }: Props) {
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
-                    <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                    <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
                     <div>
                       <p className="text-sm font-medium text-foreground">
                         {t("addressLabel")}
@@ -123,7 +127,7 @@ export default async function ContactPage({ params, searchParams }: Props) {
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
-                    <Clock className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                    <Clock className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
                     <div>
                       <p className="text-sm font-medium text-foreground">
                         {t("businessHours")}
@@ -137,7 +141,7 @@ export default async function ContactPage({ params, searchParams }: Props) {
               </div>
 
               {/* Map placeholder */}
-              <div className="relative overflow-hidden rounded-xl border bg-muted">
+              <div className="relative overflow-hidden rounded-lg border bg-muted">
                 <div className="h-64">
                   <svg
                     className="absolute inset-0 h-full w-full"

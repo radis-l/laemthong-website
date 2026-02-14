@@ -63,12 +63,16 @@ export default async function ServicesPage({ params }: Props) {
       />
 
       {/* Hero */}
-      <section className="bg-gradient-to-b from-primary/5 to-background py-16 md:py-20">
-        <div className="mx-auto max-w-7xl px-6 text-center">
+      <section className="border-b py-16 md:py-20">
+        <div className="mx-auto max-w-7xl px-6">
+          <p className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
+            {t("title")}
+          </p>
           <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
             {t("title")}
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+          <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
             {t("subtitle")}
           </p>
         </div>
@@ -86,13 +90,10 @@ export default async function ServicesPage({ params }: Props) {
               return (
                 <div
                   key={service.slug}
-                  className="relative overflow-hidden rounded-xl border bg-card p-8 shadow-sm transition-shadow hover:shadow-md"
+                  className="overflow-hidden rounded-lg border bg-card p-8 shadow-sm transition-shadow hover:shadow-md"
                 >
-                  <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary to-primary/60" />
-                  <div className="mb-6 flex h-28 items-center justify-center rounded-lg bg-gradient-to-br from-primary/5 to-accent/5">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
-                      <Icon className="h-8 w-8 text-primary" />
-                    </div>
+                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg border">
+                    <Icon className="h-6 w-6" />
                   </div>
                   <h2 className="text-2xl font-bold text-foreground">
                     {t(`${service.slug}.title`)}
@@ -127,24 +128,28 @@ export default async function ServicesPage({ params }: Props) {
       </section>
 
       {/* CTA */}
-      <section className="py-16 md:py-20">
+      <section className="py-20 md:py-28">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-primary/80 px-8 py-14 text-center md:px-16 md:py-20">
-            <div className="absolute -left-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
-            <div className="absolute -bottom-10 -right-10 h-60 w-60 rounded-full bg-white/10" />
-            <div className="relative">
-              <h2 className="text-3xl font-extrabold tracking-tight text-primary-foreground md:text-4xl">
+          <div className="grid items-center gap-10 lg:grid-cols-2">
+            <div>
+              <h2 className="text-3xl font-bold tracking-tight text-foreground lg:text-4xl">
                 {t("ctaTitle")}
               </h2>
-              <p className="mx-auto mt-4 max-w-xl text-lg text-primary-foreground/80">
+              <p className="mt-4 max-w-md text-lg leading-relaxed text-muted-foreground">
                 {t("ctaDescription")}
               </p>
-              <Button
-                asChild
-                size="lg"
-                variant="secondary"
-                className="mt-8 gap-2"
-              >
+            </div>
+            <div className="rounded-lg bg-foreground p-8 text-background md:p-10">
+              <p className="text-sm font-medium uppercase tracking-[0.15em] text-background/50">
+                Get in touch
+              </p>
+              <p className="mt-3 text-xl font-semibold text-background">
+                sales@laemthong-syndicate.com
+              </p>
+              <p className="mt-1 text-lg text-background/70">
+                +66-2-234-5678
+              </p>
+              <Button asChild variant="accent" size="lg" className="mt-6 gap-2">
                 <Link href="/contact">
                   {t("ctaButton")}
                   <ArrowRight className="h-4 w-4" />

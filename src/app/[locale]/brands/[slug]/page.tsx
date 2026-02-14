@@ -111,7 +111,7 @@ export default async function BrandDetailPage({ params }: Props) {
         </div>
       </div>
 
-      <section className="bg-gradient-to-b from-primary/5 to-background py-12 md:py-16">
+      <section className="border-b py-12 md:py-16">
         <div className="mx-auto max-w-7xl px-6">
           {brand.logo?.startsWith("http") ? (
             <div className="mb-4">
@@ -124,8 +124,8 @@ export default async function BrandDetailPage({ params }: Props) {
               />
             </div>
           ) : (
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-primary/10">
-              <span className="text-2xl font-black text-primary/60">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-muted">
+              <span className="text-2xl font-bold text-muted-foreground">
                 {brand.name.charAt(0)}
               </span>
             </div>

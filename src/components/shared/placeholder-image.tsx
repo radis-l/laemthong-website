@@ -12,11 +12,11 @@ type Props = {
 };
 
 const VARIANT_STYLES: Record<Variant, string> = {
-  product: "bg-gradient-to-br from-muted via-muted/80 to-accent/10",
-  brand: "bg-gradient-to-br from-primary/5 to-muted",
-  hero: "bg-gradient-to-br from-primary/10 via-muted to-background",
-  about: "bg-gradient-to-br from-muted to-muted/60",
-  service: "bg-gradient-to-br from-primary/5 to-accent/5",
+  product: "bg-muted/50",
+  brand: "bg-muted/40",
+  hero: "bg-muted/30",
+  about: "bg-muted/40",
+  service: "bg-muted/50",
 };
 
 const PATTERNS: Record<Variant, { d: string; size: number }> = {

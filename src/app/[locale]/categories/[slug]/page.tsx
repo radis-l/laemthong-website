@@ -109,8 +109,12 @@ export default async function CategoryPage({ params }: Props) {
         </div>
       </div>
 
-      <section className="bg-gradient-to-b from-primary/5 to-background py-12 md:py-16">
+      <section className="border-b py-12 md:py-16">
         <div className="mx-auto max-w-7xl px-6">
+          <p className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
+            {category.name[locale as Locale]}
+          </p>
           <h1 className="text-3xl font-bold text-foreground md:text-4xl">
             {category.name[locale as Locale]}
           </h1>

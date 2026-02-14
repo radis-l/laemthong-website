@@ -55,12 +55,16 @@ export default async function BrandsPage({ params }: Props) {
 
   return (
     <>
-      <section className="bg-gradient-to-b from-primary/5 to-background py-16 md:py-20">
-        <div className="mx-auto max-w-7xl px-6 text-center">
+      <section className="border-b py-16 md:py-20">
+        <div className="mx-auto max-w-7xl px-6">
+          <p className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
+            {t("title")}
+          </p>
           <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
             {t("title")}
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+          <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
             {t("description")}
           </p>
         </div>
@@ -74,10 +78,10 @@ export default async function BrandsPage({ params }: Props) {
               return (
                 <div
                   key={brand.slug}
-                  className="overflow-hidden rounded-xl border bg-card shadow-sm"
+                  className="overflow-hidden rounded-lg border bg-card shadow-sm"
                 >
                   <div className="grid gap-6 p-8 md:grid-cols-[200px_1fr]">
-                    <div className="flex items-center justify-center rounded-xl bg-muted p-6">
+                    <div className="flex items-center justify-center rounded-lg bg-muted p-6">
                       {brand.logo?.startsWith("http") ? (
                         <Image
                           src={brand.logo}
@@ -87,8 +91,8 @@ export default async function BrandsPage({ params }: Props) {
                           className="object-contain"
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5">
-                          <span className="text-4xl font-black text-primary/40">
+                        <div className="flex h-full w-full items-center justify-center">
+                          <span className="text-4xl font-bold text-muted-foreground">
                             {brand.name.charAt(0)}
                           </span>
                         </div>

@@ -9,24 +9,29 @@ export function CtaSection() {
   return (
     <section className="py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-6">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-primary/80 px-8 py-14 text-center md:px-16 md:py-20">
-          {/* Decorative circles */}
-          <div className="absolute -left-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
-          <div className="absolute -bottom-10 -right-10 h-60 w-60 rounded-full bg-white/10" />
-
-          <div className="relative">
-            <h2 className="text-3xl font-extrabold tracking-tight text-primary-foreground md:text-4xl">
+        <div className="grid items-center gap-10 lg:grid-cols-2">
+          {/* Left — text */}
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight text-foreground lg:text-4xl">
               {t("ctaTitle")}
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-lg text-primary-foreground/80">
+            <p className="mt-4 max-w-md text-lg leading-relaxed text-muted-foreground">
               {t("ctaDesc")}
             </p>
-            <Button
-              asChild
-              size="lg"
-              variant="secondary"
-              className="mt-8 gap-2"
-            >
+          </div>
+
+          {/* Right — action card */}
+          <div className="rounded-lg bg-foreground p-8 text-background md:p-10">
+            <p className="text-sm font-medium uppercase tracking-[0.15em] text-background/50">
+              Get in touch
+            </p>
+            <p className="mt-3 text-xl font-semibold text-background">
+              sales@laemthong-syndicate.com
+            </p>
+            <p className="mt-1 text-lg text-background/70">
+              +66-2-234-5678
+            </p>
+            <Button asChild variant="accent" size="lg" className="mt-6 gap-2">
               <Link href="/contact">
                 {t("ctaButton")}
                 <ArrowRight className="h-4 w-4" />

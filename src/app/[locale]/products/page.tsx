@@ -88,116 +88,118 @@ export default async function ProductsPage({ params, searchParams }: Props) {
 
   return (
     <>
-      <section className="bg-gradient-to-b from-primary/5 to-background py-16 md:py-20">
-        <div className="mx-auto max-w-7xl px-6 text-center">
+      {/* Page header */}
+      <section className="border-b py-16 md:py-20">
+        <div className="mx-auto max-w-7xl px-6">
+          <p className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
+            {t("title")}
+          </p>
           <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
             {t("title")}
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+          <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
             {t("description")}
           </p>
         </div>
       </section>
 
-      <section className="py-12 md:py-16">
+      <section className="py-10 md:py-14">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
-            {/* Sidebar filters */}
-            <aside className="space-y-6">
-              <div>
-                <h3 className="mb-3 text-sm font-semibold text-foreground">
-                  {t("filterByCategory")}
-                </h3>
-                <div className="flex flex-wrap gap-2 lg:flex-col lg:gap-1">
-                  <Link
-                    href={buildProductsUrl({ brand, q })}
-                    className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
-                      !category
-                        ? "bg-primary/10 font-medium text-primary"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    {t("allCategories")}
-                  </Link>
-                  {categories.map((cat) => (
-                    <Link
-                      key={cat.slug}
-                      href={buildProductsUrl({ category: cat.slug, brand, q })}
-                      className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
-                        category === cat.slug
-                          ? "bg-primary/10 font-medium text-primary"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {cat.name[loc]}
-                    </Link>
-                  ))}
-                </div>
-              </div>
+          {/* Top filter bar */}
+          <div className="space-y-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <Suspense fallback={<div className="h-10 w-full max-w-sm" />}>
+                <ProductSearch currentQuery={q ?? ""} />
+              </Suspense>
+            </div>
 
-              <div>
-                <h3 className="mb-3 text-sm font-semibold text-foreground">
-                  {t("filterByBrand")}
-                </h3>
-                <div className="flex flex-wrap gap-2 lg:flex-col lg:gap-1">
-                  <Link
-                    href={buildProductsUrl({ category, q })}
-                    className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
-                      !brand
-                        ? "bg-primary/10 font-medium text-primary"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    {t("allBrands")}
-                  </Link>
-                  {brands.map((b) => (
-                    <Link
-                      key={b.slug}
-                      href={buildProductsUrl({ category, brand: b.slug, q })}
-                      className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
-                        brand === b.slug
-                          ? "bg-primary/10 font-medium text-primary"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {b.name}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </aside>
+            {/* Category pills */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="mr-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                {t("filterByCategory")}:
+              </span>
+              <Link
+                href={buildProductsUrl({ brand, q })}
+                className={`rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
+                  !category
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+                }`}
+              >
+                {t("allCategories")}
+              </Link>
+              {categories.map((cat) => (
+                <Link
+                  key={cat.slug}
+                  href={buildProductsUrl({ category: cat.slug, brand, q })}
+                  className={`rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
+                    category === cat.slug
+                      ? "border-foreground bg-foreground text-background"
+                      : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+                  }`}
+                >
+                  {cat.name[loc]}
+                </Link>
+              ))}
+            </div>
 
-            {/* Product grid */}
-            <div>
-              <div className="mb-6">
-                <Suspense fallback={<div className="h-9" />}>
-                  <ProductSearch currentQuery={q ?? ""} />
-                </Suspense>
-              </div>
-
-              {q && filteredProducts.length > 0 && (
-                <p className="mb-4 text-sm text-muted-foreground">
-                  {t("searchResultsFor", { query: q })} ({filteredProducts.length})
-                </p>
-              )}
-
-              {filteredProducts.length > 0 ? (
-                <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                  {filteredProducts.map((product) => (
-                    <ProductCard
-                      key={product.slug}
-                      product={product}
-                      locale={loc}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="py-20 text-center text-muted-foreground">
-                  {t("noProducts")}
-                </div>
-              )}
+            {/* Brand pills */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="mr-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                {t("filterByBrand")}:
+              </span>
+              <Link
+                href={buildProductsUrl({ category, q })}
+                className={`rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
+                  !brand
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+                }`}
+              >
+                {t("allBrands")}
+              </Link>
+              {brands.map((b) => (
+                <Link
+                  key={b.slug}
+                  href={buildProductsUrl({ category, brand: b.slug, q })}
+                  className={`rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
+                    brand === b.slug
+                      ? "border-foreground bg-foreground text-background"
+                      : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+                  }`}
+                >
+                  {b.name}
+                </Link>
+              ))}
             </div>
           </div>
+
+          {/* Results info */}
+          <div className="mt-8 mb-6 flex items-center justify-between border-b pb-4">
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              {q
+                ? `${t("searchResultsFor", { query: q })} (${filteredProducts.length})`
+                : `${filteredProducts.length} products`}
+            </p>
+          </div>
+
+          {/* Product grid */}
+          {filteredProducts.length > 0 ? (
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {filteredProducts.map((product) => (
+                <ProductCard
+                  key={product.slug}
+                  product={product}
+                  locale={loc}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="py-20 text-center text-muted-foreground">
+              {t("noProducts")}
+            </div>
+          )}
         </div>
       </section>
     </>

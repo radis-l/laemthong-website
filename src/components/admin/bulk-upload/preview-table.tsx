@@ -103,7 +103,7 @@ export function PreviewTable({
       {/* Filter Tabs */}
       <div className="flex gap-2">
         <Button
-          variant={filter === "all" ? "default" : "outline"}
+          variant={filter === "all" ? "accent" : "outline"}
           size="sm"
           onClick={() => {
             setFilter("all");
@@ -113,7 +113,7 @@ export function PreviewTable({
           All ({stats.total})
         </Button>
         <Button
-          variant={filter === "valid" ? "default" : "outline"}
+          variant={filter === "valid" ? "accent" : "outline"}
           size="sm"
           onClick={() => {
             setFilter("valid");
@@ -123,7 +123,7 @@ export function PreviewTable({
           Valid ({stats.valid})
         </Button>
         <Button
-          variant={filter === "warnings" ? "default" : "outline"}
+          variant={filter === "warnings" ? "accent" : "outline"}
           size="sm"
           onClick={() => {
             setFilter("warnings");
@@ -133,7 +133,7 @@ export function PreviewTable({
           Warnings ({stats.warnings})
         </Button>
         <Button
-          variant={filter === "errors" ? "default" : "outline"}
+          variant={filter === "errors" ? "accent" : "outline"}
           size="sm"
           onClick={() => {
             setFilter("errors");
@@ -326,6 +326,7 @@ export function PreviewTable({
           Back
         </Button>
         <Button
+          variant="accent"
           onClick={() => onImport({ overwriteExisting, skipErrors })}
           disabled={!canImport}
         >
@@ -392,7 +393,7 @@ function ImageOnlyPreview({
       {/* Filter Tabs */}
       <div className="flex gap-2">
         <Button
-          variant={filter === "all" ? "default" : "outline"}
+          variant={filter === "all" ? "accent" : "outline"}
           size="sm"
           onClick={() => {
             setFilter("all");
@@ -402,7 +403,7 @@ function ImageOnlyPreview({
           All ({stats.total})
         </Button>
         <Button
-          variant={filter === "existing" ? "default" : "outline"}
+          variant={filter === "existing" ? "accent" : "outline"}
           size="sm"
           onClick={() => {
             setFilter("existing");
@@ -412,7 +413,7 @@ function ImageOnlyPreview({
           Existing ({existingCount})
         </Button>
         <Button
-          variant={filter === "new" ? "default" : "outline"}
+          variant={filter === "new" ? "accent" : "outline"}
           size="sm"
           onClick={() => {
             setFilter("new");
@@ -536,7 +537,7 @@ function ImageOnlyPreview({
         <Button variant="outline" onClick={onBack}>
           Back
         </Button>
-        <Button onClick={onImport}>
+        <Button variant="accent" onClick={onImport}>
           Upload Images for {stats.total} Products
         </Button>
       </div>

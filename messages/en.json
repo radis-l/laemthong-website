@@ -68,7 +68,13 @@
     "filterByBrand": "Filter by Brand",
     "searchPlaceholder": "Search products...",
     "searchLabel": "Search",
-    "searchResultsFor": "Showing results for \"{query}\""
+    "searchResultsFor": "Showing results for \"{query}\"",
+    "activeFilters": "Active Filters",
+    "clearAll": "Clear All",
+    "productCount": "{count} {count, plural, one {product} other {products}}",
+    "noProductsLabel": "No Results",
+    "noProductsDescription": "No products match your current filters. Try adjusting your search or clearing filters to see all products.",
+    "backToProducts": "Back to Products"
   },
   "brands": {
     "title": "Brands We Carry",

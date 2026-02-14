@@ -8,9 +8,10 @@ import { formatSlug } from "@/lib/format";
 type Props = {
   product: Product;
   locale: Locale;
+  categoryName?: string;
 };
 
-export function ProductCard({ product, locale }: Props) {
+export function ProductCard({ product, locale, categoryName }: Props) {
   const brandLabel = formatSlug(product.brandSlug);
 
   return (
@@ -34,9 +35,19 @@ export function ProductCard({ product, locale }: Props) {
           )}
         </div>
         <div className="py-4">
-          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            {brandLabel}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              {brandLabel}
+            </p>
+            {categoryName && (
+              <>
+                <span className="text-muted-foreground/40">|</span>
+                <p className="text-xs text-muted-foreground">
+                  {categoryName}
+                </p>
+              </>
+            )}
+          </div>
           <h3 className="mt-1 font-semibold text-foreground transition-colors group-hover:text-primary">
             {product.name[locale]}
           </h3>

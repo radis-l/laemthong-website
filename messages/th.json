@@ -68,7 +68,13 @@
     "filterByBrand": "กรองตามแบรนด์",
     "searchPlaceholder": "ค้นหาสินค้า...",
     "searchLabel": "ค้นหา",
-    "searchResultsFor": "แสดงผลลัพธ์สำหรับ \"{query}\""
+    "searchResultsFor": "แสดงผลลัพธ์สำหรับ \"{query}\"",
+    "activeFilters": "ตัวกรองที่ใช้",
+    "clearAll": "ล้างทั้งหมด",
+    "productCount": "{count} สินค้า",
+    "noProductsLabel": "ไม่พบผลลัพธ์",
+    "noProductsDescription": "ไม่พบสินค้าที่ตรงกับตัวกรองที่เลือก ลองปรับการค้นหาหรือล้างตัวกรองเพื่อดูสินค้าทั้งหมด",
+    "backToProducts": "กลับไปหน้าสินค้า"
   },
   "brands": {
     "title": "แบรนด์ที่เราจำหน่าย",

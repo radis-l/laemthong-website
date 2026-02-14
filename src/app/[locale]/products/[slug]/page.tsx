@@ -20,7 +20,8 @@ import {
   TableCell,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowRight, ChevronRight, FileText } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ArrowLeft, ArrowRight, ChevronRight, FileText } from "lucide-react";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { ProductImageGallery } from "@/components/products/product-image-gallery";
 import { JsonLd } from "@/components/shared/json-ld";
@@ -167,7 +168,15 @@ export default async function ProductDetailPage({ params }: Props) {
 
             {/* Info */}
             <div>
-              <div className="flex items-center gap-2">
+              <Link
+                href="/products"
+                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                {t("backToProducts")}
+              </Link>
+
+              <div className="mt-4 flex items-center gap-2">
                 {brand && (
                   <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{brand.name}</p>
                 )}
@@ -215,49 +224,61 @@ export default async function ProductDetailPage({ params }: Props) {
             </div>
           </div>
 
-          {/* Specifications */}
-          {product.specifications.length > 0 && (
+          {/* Specifications & Documents — tabbed layout */}
+          {(product.specifications.length > 0 || (product.documents && product.documents.length > 0)) && (
             <div className="mt-12">
-              <h2 className="text-2xl font-bold text-foreground">
-                {t("specifications")}
-              </h2>
-              <div className="mt-4 overflow-hidden rounded-lg border">
-                <Table>
-                  <TableBody>
-                    {product.specifications.map((spec, i) => (
-                      <TableRow key={i}>
-                        <TableCell className="w-1/3 font-medium text-foreground">
-                          {spec.label[locale as Locale]}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {spec.value[locale as Locale]}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
-          )}
+              <Tabs defaultValue={product.specifications.length > 0 ? "specifications" : "documents"}>
+                <TabsList variant="line" className="w-full justify-start border-b">
+                  {product.specifications.length > 0 && (
+                    <TabsTrigger value="specifications">
+                      {t("specifications")}
+                    </TabsTrigger>
+                  )}
+                  {product.documents && product.documents.length > 0 && (
+                    <TabsTrigger value="documents">
+                      {t("documents")}
+                    </TabsTrigger>
+                  )}
+                </TabsList>
 
-          {/* Documents */}
-          {product.documents && product.documents.length > 0 && (
-            <div className="mt-12">
-              <h2 className="text-2xl font-bold text-foreground">
-                {t("documents")}
-              </h2>
-              <div className="mt-4 flex flex-wrap gap-3">
-                {product.documents.map((doc, i) => (
-                  <a
-                    key={i}
-                    href={doc.url}
-                    className="flex items-center gap-2 rounded-lg border bg-card px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
-                  >
-                    <FileText className="h-4 w-4 text-primary" />
-                    {doc.name}
-                  </a>
-                ))}
-              </div>
+                {product.specifications.length > 0 && (
+                  <TabsContent value="specifications" className="mt-6">
+                    <div className="overflow-hidden rounded-lg border">
+                      <Table>
+                        <TableBody>
+                          {product.specifications.map((spec, i) => (
+                            <TableRow key={i}>
+                              <TableCell className="w-1/3 font-medium text-foreground">
+                                {spec.label[locale as Locale]}
+                              </TableCell>
+                              <TableCell className="text-muted-foreground">
+                                {spec.value[locale as Locale]}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </TabsContent>
+                )}
+
+                {product.documents && product.documents.length > 0 && (
+                  <TabsContent value="documents" className="mt-6">
+                    <div className="flex flex-wrap gap-3">
+                      {product.documents.map((doc, i) => (
+                        <a
+                          key={i}
+                          href={doc.url}
+                          className="flex items-center gap-2 rounded-lg border bg-card px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                        >
+                          <FileText className="h-4 w-4 text-primary" />
+                          {doc.name}
+                        </a>
+                      ))}
+                    </div>
+                  </TabsContent>
+                )}
+              </Tabs>
             </div>
           )}
         </div>
@@ -274,6 +295,7 @@ export default async function ProductDetailPage({ params }: Props) {
                   key={p.slug}
                   product={p}
                   locale={locale as Locale}
+                  categoryName={category?.name[locale as Locale]}
                 />
               ))}
             </div>

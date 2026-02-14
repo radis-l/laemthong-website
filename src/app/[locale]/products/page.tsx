@@ -5,6 +5,8 @@ import { getAllProducts, getAllCategories, getAllBrands } from "@/lib/db";
 import { ProductCard } from "@/components/products/product-card";
 import { ProductSearch } from "@/components/products/product-search";
 import { Link } from "@/i18n/navigation";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 import {
   getPageUrl,
   getAlternateLanguages,
@@ -115,13 +117,13 @@ export default async function ProductsPage({ params, searchParams }: Props) {
             </div>
 
             {/* Category pills */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="mr-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:flex-wrap sm:overflow-visible sm:pb-0">
+              <span className="mr-1 shrink-0 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 {t("filterByCategory")}:
               </span>
               <Link
                 href={buildProductsUrl({ brand, q })}
-                className={`rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
+                className={`shrink-0 rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
                   !category
                     ? "border-foreground bg-foreground text-background"
                     : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
@@ -133,7 +135,7 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                 <Link
                   key={cat.slug}
                   href={buildProductsUrl({ category: cat.slug, brand, q })}
-                  className={`rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
+                  className={`shrink-0 rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
                     category === cat.slug
                       ? "border-foreground bg-foreground text-background"
                       : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
@@ -145,13 +147,13 @@ export default async function ProductsPage({ params, searchParams }: Props) {
             </div>
 
             {/* Brand pills */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="mr-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:flex-wrap sm:overflow-visible sm:pb-0">
+              <span className="mr-1 shrink-0 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 {t("filterByBrand")}:
               </span>
               <Link
                 href={buildProductsUrl({ category, q })}
-                className={`rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
+                className={`shrink-0 rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
                   !brand
                     ? "border-foreground bg-foreground text-background"
                     : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
@@ -163,7 +165,7 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                 <Link
                   key={b.slug}
                   href={buildProductsUrl({ category, brand: b.slug, q })}
-                  className={`rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
+                  className={`shrink-0 rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
                     brand === b.slug
                       ? "border-foreground bg-foreground text-background"
                       : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
@@ -173,6 +175,54 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                 </Link>
               ))}
             </div>
+
+            {/* Active filter chips */}
+            {(category || brand || q) && (
+              <div className="flex flex-wrap items-center gap-2 border-t pt-4">
+                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  {t("activeFilters")}:
+                </span>
+                {category && (() => {
+                  const cat = categories.find((c) => c.slug === category);
+                  return cat ? (
+                    <Link
+                      href={buildProductsUrl({ brand, q })}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground/5 px-3 py-1 text-sm text-foreground transition-colors hover:bg-foreground/10"
+                    >
+                      {cat.name[loc]}
+                      <X className="h-3 w-3" />
+                    </Link>
+                  ) : null;
+                })()}
+                {brand && (() => {
+                  const br = brands.find((b) => b.slug === brand);
+                  return br ? (
+                    <Link
+                      href={buildProductsUrl({ category, q })}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground/5 px-3 py-1 text-sm text-foreground transition-colors hover:bg-foreground/10"
+                    >
+                      {br.name}
+                      <X className="h-3 w-3" />
+                    </Link>
+                  ) : null;
+                })()}
+                {q && (
+                  <Link
+                    href={buildProductsUrl({ category, brand })}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground/5 px-3 py-1 text-sm text-foreground transition-colors hover:bg-foreground/10"
+                  >
+                    &ldquo;{q}&rdquo;
+                    <X className="h-3 w-3" />
+                  </Link>
+                )}
+                <Link
+                  href="/products"
+                  className="text-xs font-medium text-primary hover:underline"
+                >
+                  {t("clearAll")}
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Results info */}
@@ -180,24 +230,43 @@ export default async function ProductsPage({ params, searchParams }: Props) {
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
               {q
                 ? `${t("searchResultsFor", { query: q })} (${filteredProducts.length})`
-                : `${filteredProducts.length} products`}
+                : t("productCount", { count: filteredProducts.length })}
             </p>
           </div>
 
           {/* Product grid */}
           {filteredProducts.length > 0 ? (
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filteredProducts.map((product) => (
-                <ProductCard
-                  key={product.slug}
-                  product={product}
-                  locale={loc}
-                />
-              ))}
+              {filteredProducts.map((product) => {
+                const cat = categories.find((c) => c.slug === product.categorySlug);
+                return (
+                  <ProductCard
+                    key={product.slug}
+                    product={product}
+                    locale={loc}
+                    categoryName={cat?.name[loc]}
+                  />
+                );
+              })}
             </div>
           ) : (
-            <div className="py-20 text-center text-muted-foreground">
-              {t("noProducts")}
+            <div className="flex flex-col items-center py-20 text-center">
+              <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
+                {t("noProductsLabel")}
+              </p>
+              <p className="mt-3 max-w-md text-muted-foreground">
+                {t("noProductsDescription")}
+              </p>
+              {(category || brand || q) && (
+                <div className="mt-6">
+                  <Button asChild variant="outline" size="lg">
+                    <Link href="/products">
+                      {t("clearAll")}
+                    </Link>
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </div>

@@ -90,6 +90,11 @@ export function ProductImageGallery({
             sizes="(max-width: 1024px) 100vw, 50vw"
             priority
           />
+          {allImages.length > 1 && (
+            <div className="absolute bottom-3 right-3 rounded-full bg-foreground/70 px-2.5 py-1 text-xs font-medium text-background backdrop-blur-sm">
+              {selectedIndex + 1} / {allImages.length}
+            </div>
+          )}
         </div>
       </button>
 
@@ -100,10 +105,7 @@ export function ProductImageGallery({
             <button
               key={i}
               type="button"
-              onClick={() => {
-                setSelectedIndex(i);
-                setLightboxOpen(true);
-              }}
+              onClick={() => setSelectedIndex(i)}
               className={cn(
                 "relative aspect-square overflow-hidden rounded-lg border bg-muted transition-all",
                 i === selectedIndex

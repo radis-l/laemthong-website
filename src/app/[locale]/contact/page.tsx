@@ -137,10 +137,41 @@ export default async function ContactPage({ params, searchParams }: Props) {
               </div>
 
               {/* Map placeholder */}
-              <div className="overflow-hidden rounded-xl border">
-                <div className="flex h-64 items-center justify-center bg-muted text-sm text-muted-foreground">
-                  <MapPin className="mr-2 h-5 w-5" />
-                  {t("mapPlaceholder")}
+              <div className="relative overflow-hidden rounded-xl border bg-muted">
+                <div className="h-64">
+                  <svg
+                    className="absolute inset-0 h-full w-full"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <defs>
+                      <pattern
+                        id="map-grid"
+                        width="60"
+                        height="60"
+                        patternUnits="userSpaceOnUse"
+                      >
+                        <path
+                          d="M 60 0 L 0 0 0 60"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="0.5"
+                          className="text-muted-foreground/10"
+                        />
+                      </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#map-grid)" />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="relative">
+                      <span className="absolute inline-flex h-8 w-8 animate-ping rounded-full bg-primary/20" />
+                      <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                        <MapPin className="h-4 w-4" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="absolute bottom-3 left-3 rounded-md bg-background/80 px-3 py-1.5 text-xs text-muted-foreground backdrop-blur-sm">
+                    {t("mapPlaceholder")}
+                  </div>
                 </div>
               </div>
             </div>

@@ -1,6 +1,14 @@
 import { Link } from "@/i18n/navigation";
 
-export function Logo({ className }: { className?: string }) {
+type Props = {
+  className?: string;
+  variant?: "default" | "light";
+};
+
+export function Logo({ className, variant = "default" }: Props) {
+  const textColor = variant === "light" ? "text-white" : "text-foreground";
+  const subTextColor = variant === "light" ? "text-white/60" : "text-muted-foreground";
+
   return (
     <Link href="/" className={`flex items-center gap-2 ${className ?? ""}`}>
       <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
@@ -19,10 +27,10 @@ export function Logo({ className }: { className?: string }) {
         </svg>
       </div>
       <div className="flex flex-col">
-        <span className="text-base font-bold leading-tight tracking-tight text-foreground">
+        <span className={`text-base font-bold leading-tight tracking-tight ${textColor}`}>
           LAEMTHONG
         </span>
-        <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+        <span className={`text-[10px] font-medium uppercase tracking-widest ${subTextColor}`}>
           Syndicate
         </span>
       </div>

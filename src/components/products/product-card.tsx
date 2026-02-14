@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
+import { PlaceholderImage } from "@/components/shared/placeholder-image";
+import { getCategoryIcon } from "@/lib/category-icons";
 import type { Product, Locale } from "@/data/types";
 import { formatSlug } from "@/lib/format";
 
@@ -14,7 +16,7 @@ export function ProductCard({ product, locale }: Props) {
 
   return (
     <Link href={`/products/${product.slug}`} className="group">
-      <div className="overflow-hidden rounded-xl border bg-card shadow-sm transition-all hover:shadow-md hover:border-primary/30">
+      <div className="overflow-hidden rounded-xl border bg-card shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5">
         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
           {product.image?.startsWith("http") ? (
             <Image
@@ -25,21 +27,11 @@ export function ProductCard({ product, locale }: Props) {
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
           ) : (
-            <div className="flex h-full items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-              <div className="text-4xl text-muted-foreground/30">
-                {product.categorySlug === "welding-machines"
-                  ? "⚡"
-                  : product.categorySlug === "cutting-equipment"
-                    ? "✂️"
-                    : product.categorySlug === "welding-wire-rods"
-                      ? "🔗"
-                      : product.categorySlug === "gas-regulators"
-                        ? "⚙️"
-                        : product.categorySlug === "safety-equipment"
-                          ? "🛡️"
-                          : "🔧"}
-              </div>
-            </div>
+            <PlaceholderImage
+              icon={getCategoryIcon(product.categorySlug)}
+              variant="product"
+              aspect="aspect-[4/3]"
+            />
           )}
         </div>
         <div className="p-5">

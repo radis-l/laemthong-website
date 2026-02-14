@@ -157,6 +157,34 @@ export function buildProductSchema(
   };
 }
 
+export function buildServiceSchema(
+  serviceSlug: string,
+  locale: Locale,
+  title: string,
+  description: string,
+): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: title,
+    description,
+    url: getPageUrl(locale, `/services/${serviceSlug}`),
+    provider: {
+      "@type": "Organization",
+      name: SITE_NAME[locale],
+      url: SITE_URL,
+    },
+    areaServed: {
+      "@type": "Country",
+      name: "Thailand",
+    },
+    availableChannel: {
+      "@type": "ServiceChannel",
+      serviceUrl: getPageUrl(locale, "/contact"),
+    },
+  };
+}
+
 export interface BreadcrumbItem {
   name: string;
   href: string;

@@ -113,7 +113,7 @@ export default async function BrandDetailPage({ params }: Props) {
 
       <section className="bg-gradient-to-b from-primary/5 to-background py-12 md:py-16">
         <div className="mx-auto max-w-7xl px-6">
-          {brand.logo?.startsWith("http") && (
+          {brand.logo?.startsWith("http") ? (
             <div className="mb-4">
               <Image
                 src={brand.logo}
@@ -122,6 +122,12 @@ export default async function BrandDetailPage({ params }: Props) {
                 height={60}
                 className="object-contain"
               />
+            </div>
+          ) : (
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-primary/10">
+              <span className="text-2xl font-black text-primary/60">
+                {brand.name.charAt(0)}
+              </span>
             </div>
           )}
           <h1 className="text-3xl font-bold text-foreground md:text-4xl">

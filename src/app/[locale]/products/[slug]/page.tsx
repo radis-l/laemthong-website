@@ -23,6 +23,8 @@ import {
 import Image from "next/image";
 import { ArrowRight, ChevronRight, FileText } from "lucide-react";
 import { SectionHeading } from "@/components/shared/section-heading";
+import { PlaceholderImage } from "@/components/shared/placeholder-image";
+import { getCategoryIcon } from "@/lib/category-icons";
 import { JsonLd } from "@/components/shared/json-ld";
 import {
   getPageUrl,
@@ -170,21 +172,12 @@ export default async function ProductDetailPage({ params }: Props) {
                     priority
                   />
                 ) : (
-                  <div className="flex h-full items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-                    <div className="text-6xl text-muted-foreground/20">
-                      {product.categorySlug === "welding-machines"
-                        ? "⚡"
-                        : product.categorySlug === "cutting-equipment"
-                          ? "✂️"
-                          : product.categorySlug === "welding-wire-rods"
-                            ? "🔗"
-                            : product.categorySlug === "gas-regulators"
-                              ? "⚙️"
-                              : product.categorySlug === "safety-equipment"
-                                ? "🛡️"
-                                : "🔧"}
-                    </div>
-                  </div>
+                  <PlaceholderImage
+                    icon={getCategoryIcon(product.categorySlug)}
+                    variant="product"
+                    aspect="aspect-[4/3]"
+                    className="h-full"
+                  />
                 )}
               </div>
               {product.gallery.filter((u) => u.startsWith("http")).length > 0 && (

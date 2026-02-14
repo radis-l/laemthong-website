@@ -13,7 +13,7 @@ export function BrandShowcase({ brands }: Props) {
   const locale = useLocale() as Locale;
 
   return (
-    <section className="border-y bg-card py-16 md:py-20">
+    <section className="border-y bg-card py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading
           title={t("ourBrands")}
@@ -38,9 +38,11 @@ export function BrandShowcase({ brands }: Props) {
                       className="object-contain"
                     />
                   ) : (
-                    <span className="text-xl font-bold text-primary">
-                      {brand.name.charAt(0)}
-                    </span>
+                    <div className="flex h-full w-full items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5">
+                      <span className="text-3xl font-black text-primary/60">
+                        {brand.name.charAt(0)}
+                      </span>
+                    </div>
                   )}
                 </div>
                 <h3 className="text-lg font-semibold text-foreground group-hover:text-primary">

@@ -5,6 +5,7 @@ import {
   getCategorySlugsWithDates,
   getBrandSlugsWithDates,
 } from "@/lib/db";
+import { SERVICE_SLUGS } from "@/data/services";
 
 export const revalidate = 3600;
 
@@ -61,6 +62,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       urls.push({
         url: `${baseUrl}/${locale}/brands/${slug}`,
         lastModified: new Date(updatedAt),
+        changeFrequency: "monthly",
+        priority: 0.7,
+      });
+    }
+
+    for (const slug of SERVICE_SLUGS) {
+      urls.push({
+        url: `${baseUrl}/${locale}/services/${slug}`,
+        lastModified: new Date(),
         changeFrequency: "monthly",
         priority: 0.7,
       });

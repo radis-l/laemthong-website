@@ -91,11 +91,154 @@
     "statYearsExperience": "Years Experience",
     "statGlobalBrands": "Global Brands",
     "statProducts": "Products",
-    "statClients": "Clients"
+    "statClients": "Clients",
+    "milestonesTitle": "Our Journey",
+    "milestone1Year": "1963",
+    "milestone1Title": "Company Founded",
+    "milestone1Desc": "Established in Bangkok as welding equipment importer",
+    "milestone2Year": "1970s",
+    "milestone2Title": "International Partnerships",
+    "milestone2Desc": "Became authorized dealer for leading global brands",
+    "milestone3Year": "1990s",
+    "milestone3Title": "Nationwide Expansion",
+    "milestone3Desc": "Built dealer and service network across Thailand",
+    "milestone4Year": "2020s",
+    "milestone4Title": "Digital Transformation",
+    "milestone4Desc": "Modernizing operations with online presence"
   },
   "services": {
     "title": "Our Services",
-    "description": "Comprehensive services for industrial welding and cutting equipment"
+    "description": "Comprehensive technical services for industrial welding, cutting, and automation equipment",
+    "subtitle": "Expert solutions backed by 60+ years of industry experience",
+    "primaryTitle": "Core Services",
+    "primaryDescription": "Our flagship consulting and calibration services for maximum operational efficiency",
+    "secondaryTitle": "Support Services",
+    "secondaryDescription": "Professional repair and training to keep your operations running smoothly",
+    "viewDetails": "View Details",
+    "ctaTitle": "Need Expert Assistance?",
+    "ctaDescription": "Our team of experienced engineers is ready to help you optimize your welding and cutting operations",
+    "ctaButton": "Contact Our Team",
+    "backToServices": "Back to Services",
+    "ourProcess": "Our Process",
+    "keyFeatures": "Key Features",
+    "areasOfExpertise": "Areas of Expertise",
+    "otherServices": "Explore Other Services",
+    "consulting": {
+      "title": "Technical Consulting",
+      "shortDescription": "Expert consultation for industrial welding, cutting, and automation solutions tailored to your specific operational needs.",
+      "description": "Our team of experienced engineers provides comprehensive technical consulting services to help you select the right equipment, optimize welding processes, and improve production efficiency. With over 60 years of industry expertise, we understand the unique challenges of industrial manufacturing in Thailand.",
+      "features": [
+        "Equipment selection and specification guidance",
+        "Welding process optimization and parameter development",
+        "Production line efficiency analysis",
+        "Material selection and compatibility assessment",
+        "Cost reduction through process improvement",
+        "Automation feasibility studies and integration"
+      ],
+      "processSteps": [
+        { "title": "Initial Assessment", "description": "We visit your facility to understand your current processes, equipment, and challenges." },
+        { "title": "Analysis & Recommendations", "description": "Our engineers analyze your requirements and develop tailored solutions." },
+        { "title": "Solution Proposal", "description": "We present detailed recommendations with equipment specifications and cost estimates." },
+        { "title": "Implementation Support", "description": "We guide your team through equipment setup, parameter optimization, and process validation." }
+      ],
+      "expertise": [
+        "MIG/MAG Welding Systems",
+        "TIG Welding Applications",
+        "Plasma Cutting Systems",
+        "Oxy-Fuel Cutting Equipment",
+        "Welding Automation & Robotics",
+        "Fume Extraction Solutions"
+      ],
+      "metaTitle": "Technical Consulting - Industrial Welding & Cutting",
+      "metaDescription": "Expert technical consulting for industrial welding, cutting, and automation equipment. Process optimization, equipment selection, and production efficiency analysis."
+    },
+    "calibration": {
+      "title": "Equipment Calibration",
+      "shortDescription": "Precision calibration services for welding equipment and measurement instruments ensuring accuracy and compliance.",
+      "description": "Our calibration services provide traceable, accurate calibration for both welding equipment and measurement instruments. Proper calibration ensures your equipment operates within specified parameters, maintains product quality, and meets industry standards and regulatory requirements.",
+      "features": [
+        "Welding machine output calibration (current, voltage)",
+        "Gas flow meter calibration",
+        "Temperature measurement device calibration",
+        "Pressure gauge calibration",
+        "Dimensional measurement instrument calibration",
+        "Calibration certificates with full traceability"
+      ],
+      "processSteps": [
+        { "title": "Scheduling", "description": "Contact us to schedule a calibration appointment at your facility or our laboratory." },
+        { "title": "Pre-Calibration Inspection", "description": "We inspect equipment condition and document current performance readings." },
+        { "title": "Calibration Procedure", "description": "Precision calibration performed using traceable reference standards." },
+        { "title": "Documentation", "description": "Detailed calibration certificate issued with measurement data and traceability records." }
+      ],
+      "expertise": [
+        "Welding Machine Calibration",
+        "Current & Voltage Measurement",
+        "Gas Flow Measurement",
+        "Temperature Instruments",
+        "Pressure Gauges",
+        "Dimensional Gauges"
+      ],
+      "metaTitle": "Equipment Calibration - Welding & Measurement Instruments",
+      "metaDescription": "Professional calibration services for welding equipment and measurement instruments. Traceable calibration with certificates for compliance and quality assurance."
+    },
+    "repair": {
+      "title": "Equipment Repair",
+      "shortDescription": "Fast, reliable repair services for all welding and cutting equipment with genuine replacement parts.",
+      "description": "Our factory-trained technicians provide expert repair services for all major brands of welding and cutting equipment. We use genuine replacement parts and follow manufacturer-recommended procedures to restore your equipment to full operational capacity with minimal downtime.",
+      "features": [
+        "Factory-trained expert technicians",
+        "Genuine manufacturer replacement parts",
+        "On-site and workshop repair options",
+        "Preventive maintenance programs",
+        "Emergency breakdown response",
+        "Quality guarantee on all repairs"
+      ],
+      "processSteps": [
+        { "title": "Report Issue", "description": "Contact us with equipment details and a description of the problem." },
+        { "title": "Diagnosis", "description": "Our technicians diagnose the issue and provide a detailed repair estimate." },
+        { "title": "Repair", "description": "Equipment is repaired using genuine parts and thoroughly tested." },
+        { "title": "Return & Warranty", "description": "Repaired equipment is returned with a warranty on the work performed." }
+      ],
+      "expertise": [
+        "MIG/MAG Welding Machines",
+        "TIG Welding Systems",
+        "Plasma Cutting Equipment",
+        "Wire Feed Systems",
+        "Power Source Inverters",
+        "Control Boards & Electronics"
+      ],
+      "metaTitle": "Equipment Repair - Welding & Cutting Machines",
+      "metaDescription": "Professional repair services for industrial welding and cutting equipment. Factory-trained technicians, genuine parts, and fast turnaround."
+    },
+    "training": {
+      "title": "Training Programs",
+      "shortDescription": "Hands-on training programs for welding operators, technicians, and engineers to maximize equipment utilization.",
+      "description": "We offer comprehensive training programs designed to help your workforce get the most out of their welding and cutting equipment. From basic operator training to advanced process techniques, our programs are tailored to your team's skill level and your specific applications.",
+      "features": [
+        "Hands-on equipment operation training",
+        "Welding technique improvement courses",
+        "Safety and best practices workshops",
+        "Equipment maintenance training",
+        "New technology introduction sessions",
+        "Customized programs for your team"
+      ],
+      "processSteps": [
+        { "title": "Needs Assessment", "description": "We assess your team's current skill level and training requirements." },
+        { "title": "Program Design", "description": "Customized training curriculum developed for your specific needs." },
+        { "title": "Training Delivery", "description": "Hands-on training conducted at your facility or our training center." },
+        { "title": "Certification", "description": "Participants receive certificates of completion with skills assessment." }
+      ],
+      "expertise": [
+        "Welding Operator Certification",
+        "Equipment Operation",
+        "Safety Procedures",
+        "Process Techniques",
+        "Maintenance Basics",
+        "Quality Inspection"
+      ],
+      "metaTitle": "Training Programs - Welding & Cutting Operations",
+      "metaDescription": "Professional training programs for welding operators and technicians. Hands-on courses covering equipment operation, safety, and advanced techniques."
+    }
   },
   "contact": {
     "title": "Contact Us",
@@ -133,6 +276,9 @@
     "productCategories": "Product Categories",
     "contactInfo": "Contact Info",
     "copyright": "Copyright",
-    "allRightsReserved": "All rights reserved"
+    "allRightsReserved": "All rights reserved",
+    "authorizedDealer": "Authorized Dealer",
+    "qualityAssured": "Quality Assured",
+    "trustedSince": "Trusted Since 1963"
   }
 }

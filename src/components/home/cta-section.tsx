@@ -7,7 +7,7 @@ export function CtaSection() {
   const t = useTranslations("home");
 
   return (
-    <section className="py-16 md:py-20">
+    <section className="py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-6">
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-primary/80 px-8 py-14 text-center md:px-16 md:py-20">
           {/* Decorative circles */}

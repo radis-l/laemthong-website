@@ -17,9 +17,10 @@ export function UspSection() {
         <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
           {usps.map(({ key, icon: Icon }) => (
             <div key={key} className="flex flex-col items-center text-center">
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <Icon className="h-6 w-6" />
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Icon className="h-7 w-7" />
               </div>
+              <div className="my-3 h-px w-8 bg-primary/20" />
               <div className="text-lg font-bold text-foreground">
                 {t(`${key}` as `${typeof key}`)}
               </div>

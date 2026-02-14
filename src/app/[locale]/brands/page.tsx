@@ -87,9 +87,11 @@ export default async function BrandsPage({ params }: Props) {
                           className="object-contain"
                         />
                       ) : (
-                        <span className="text-2xl font-bold text-primary">
-                          {brand.name.charAt(0)}
-                        </span>
+                        <div className="flex h-full w-full items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5">
+                          <span className="text-4xl font-black text-primary/40">
+                            {brand.name.charAt(0)}
+                          </span>
+                        </div>
                       )}
                     </div>
                     <div>

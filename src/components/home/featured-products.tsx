@@ -2,6 +2,8 @@ import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { SectionHeading } from "@/components/shared/section-heading";
+import { PlaceholderImage } from "@/components/shared/placeholder-image";
+import { getCategoryIcon } from "@/lib/category-icons";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight } from "lucide-react";
@@ -18,7 +20,7 @@ export function FeaturedProducts({ products }: Props) {
   const locale = useLocale() as Locale;
 
   return (
-    <section className="py-16 md:py-20">
+    <section className="py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading
           title={t("featuredProducts")}
@@ -43,19 +45,11 @@ export function FeaturedProducts({ products }: Props) {
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
                   ) : (
-                    <div className="flex h-full items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-                      <div className="text-4xl text-muted-foreground/30">
-                        {product.categorySlug === "welding-machines"
-                          ? "⚡"
-                          : product.categorySlug === "cutting-equipment"
-                            ? "✂️"
-                            : product.categorySlug === "welding-wire-rods"
-                              ? "🔗"
-                              : product.categorySlug === "gas-regulators"
-                                ? "⚙️"
-                                : "🔧"}
-                      </div>
-                    </div>
+                    <PlaceholderImage
+                      icon={getCategoryIcon(product.categorySlug)}
+                      variant="product"
+                      aspect="aspect-[4/3]"
+                    />
                   )}
                 </div>
                 <div className="p-5">

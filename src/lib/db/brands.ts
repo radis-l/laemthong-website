@@ -56,3 +56,18 @@ export async function getBrandSlugsWithDates(): Promise<
     updatedAt: row.updated_at,
   }));
 }
+
+export async function getProductCountsByBrand(): Promise<Record<string, number>> {
+  const supabase = createSupabaseClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select("brand_slug");
+  if (error) return {};
+  return (data as { brand_slug: string }[]).reduce<Record<string, number>>(
+    (acc, row) => {
+      acc[row.brand_slug] = (acc[row.brand_slug] ?? 0) + 1;
+      return acc;
+    },
+    {}
+  );
+}

@@ -17,6 +17,8 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Headphones,
 };
 
+export const revalidate = 3600;
+
 type Props = {
   params: Promise<{ locale: string }>;
 };

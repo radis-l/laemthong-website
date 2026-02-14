@@ -13,6 +13,7 @@ export {
   getBrandBySlug,
   getAllBrandSlugs,
   getBrandSlugsWithDates,
+  getProductCountsByBrand,
 } from "./brands";
 
 export {

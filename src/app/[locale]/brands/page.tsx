@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
-import { getAllBrands, getProductsByBrand } from "@/lib/db";
+import { getAllBrands, getProductCountsByBrand } from "@/lib/db";
 import { ArrowRight } from "lucide-react";
 import {
   getPageUrl,
@@ -11,6 +11,8 @@ import {
   getOgAlternateLocale,
 } from "@/lib/seo";
 import type { Locale } from "@/data/types";
+
+export const revalidate = 3600;
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -46,10 +48,10 @@ export default async function BrandsPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "brands" });
-  const brands = await getAllBrands();
-  const productCounts = await Promise.all(
-    brands.map(async (b) => (await getProductsByBrand(b.slug)).length)
-  );
+  const [brands, productCounts] = await Promise.all([
+    getAllBrands(),
+    getProductCountsByBrand(),
+  ]);
 
   return (
     <>
@@ -67,8 +69,8 @@ export default async function BrandsPage({ params }: Props) {
       <section className="py-16 md:py-20">
         <div className="mx-auto max-w-7xl px-6">
           <div className="space-y-8">
-            {brands.map((brand, idx) => {
-              const productCount = productCounts[idx];
+            {brands.map((brand) => {
+              const productCount = productCounts[brand.slug] ?? 0;
               return (
                 <div
                   key={brand.slug}

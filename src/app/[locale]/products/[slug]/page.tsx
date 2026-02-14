@@ -34,6 +34,8 @@ import {
 } from "@/lib/seo";
 import type { Locale } from "@/data/types";
 
+export const revalidate = 3600;
+
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
 };

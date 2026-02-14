@@ -38,6 +38,7 @@ export interface Brand {
   description: LocalizedString;
   website?: string;
   country: string;
+  productCount?: number;
   sortOrder: number;
 }
 

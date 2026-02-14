@@ -6,6 +6,8 @@ import {
   getBrandSlugsWithDates,
 } from "@/lib/db";
 
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://laemthong-website.vercel.app";
   const locales = routing.locales;

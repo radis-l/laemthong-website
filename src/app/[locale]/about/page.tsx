@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { Building2, DollarSign, Wrench, Award, Users, Factory } from "lucide-react";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { PlaceholderImage } from "@/components/shared/placeholder-image";
+import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
 import {
   getPageUrl,
   getAlternateLanguages,
@@ -101,30 +102,21 @@ export default async function AboutPage({ params }: Props) {
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-lg border p-5">
-                  <div className="text-3xl font-light tracking-tight text-foreground">60+</div>
-                  <div className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    {t("statYearsExperience")}
-                  </div>
-                </div>
-                <div className="rounded-lg border p-5">
-                  <div className="text-3xl font-light tracking-tight text-foreground">3+</div>
-                  <div className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    {t("statGlobalBrands")}
-                  </div>
-                </div>
-                <div className="rounded-lg border p-5">
-                  <div className="text-3xl font-light tracking-tight text-foreground">1,000+</div>
-                  <div className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    {t("statProducts")}
-                  </div>
-                </div>
-                <div className="rounded-lg border p-5">
-                  <div className="text-3xl font-light tracking-tight text-foreground">500+</div>
-                  <div className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    {t("statClients")}
-                  </div>
-                </div>
+                {[
+                  { value: "60+", label: t("statYearsExperience") },
+                  { value: "3+", label: t("statGlobalBrands") },
+                  { value: "1,000+", label: t("statProducts") },
+                  { value: "500+", label: t("statClients") },
+                ].map((stat, i) => (
+                  <AnimateOnScroll key={stat.label} delay={i * 100}>
+                    <div className="rounded-lg border p-5">
+                      <div className="text-3xl font-light tracking-tight text-foreground">{stat.value}</div>
+                      <div className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        {stat.label}
+                      </div>
+                    </div>
+                  </AnimateOnScroll>
+                ))}
               </div>
             </div>
           </div>
@@ -138,18 +130,20 @@ export default async function AboutPage({ params }: Props) {
           <div className="relative">
             <div className="absolute left-0 right-0 top-5 hidden h-px bg-border md:block" />
             <div className="grid gap-10 md:grid-cols-4">
-              {milestones.map((m) => (
-                <div key={m.yearKey} className="relative text-center">
-                  <div className="relative mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-foreground text-sm font-medium text-background">
-                    {t(m.yearKey)}
+              {milestones.map((m, i) => (
+                <AnimateOnScroll key={m.yearKey} delay={i * 150}>
+                  <div className="relative text-center">
+                    <div className="relative mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-foreground text-sm font-medium text-background">
+                      {t(m.yearKey)}
+                    </div>
+                    <h3 className="font-semibold text-foreground">
+                      {t(m.titleKey)}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      {t(m.descKey)}
+                    </p>
                   </div>
-                  <h3 className="font-semibold text-foreground">
-                    {t(m.titleKey)}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {t(m.descKey)}
-                  </p>
-                </div>
+                </AnimateOnScroll>
               ))}
             </div>
           </div>
@@ -176,18 +170,20 @@ export default async function AboutPage({ params }: Props) {
         <div className="mx-auto max-w-7xl px-6">
           <SectionHeading title={t("whyChooseUs")} label="Our Strengths" />
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            {reasons.map(({ key, icon: Icon }) => (
-              <div key={key} className="group">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg border transition-colors group-hover:border-primary group-hover:text-primary">
-                  <Icon className="h-5 w-5" />
+            {reasons.map(({ key, icon: Icon }, i) => (
+              <AnimateOnScroll key={key} delay={i * 100}>
+                <div className="group">
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg border transition-colors group-hover:border-primary group-hover:text-primary">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="font-semibold text-foreground">
+                    {t(`${key}Title` as `${typeof key}Title`)}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {t(`${key}Desc` as `${typeof key}Desc`)}
+                  </p>
                 </div>
-                <h3 className="font-semibold text-foreground">
-                  {t(`${key}Title` as `${typeof key}Title`)}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {t(`${key}Desc` as `${typeof key}Desc`)}
-                </p>
-              </div>
+              </AnimateOnScroll>
             ))}
           </div>
         </div>

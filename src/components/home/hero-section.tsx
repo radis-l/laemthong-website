@@ -1,7 +1,12 @@
+"use client";
+
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Phone } from "lucide-react";
+import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
+import { useInView } from "@/hooks/use-in-view";
+import { useCountUp } from "@/hooks/use-count-up";
 
 export function HeroSection() {
   const t = useTranslations("hero");
@@ -44,22 +49,59 @@ export function HeroSection() {
         </div>
 
         {/* Stats strip */}
-        <div className="mt-20 flex flex-wrap items-center gap-8 border-t pt-8 md:gap-12 lg:gap-16">
-          <StatItem value="60+" label="Years" />
-          <StatItem value="3+" label="Global Brands" />
-          <StatItem value="1,000+" label="Products" />
-          <StatItem value="500+" label="Clients" />
-        </div>
+        <StatsStrip />
       </div>
     </section>
   );
 }
 
-function StatItem({ value, label }: { value: string; label: string }) {
+const stats = [
+  { target: 60, suffix: "+", labelKey: "statsYears" },
+  { target: 3, suffix: "+", labelKey: "statsBrands" },
+  { target: 1000, suffix: "+", labelKey: "statsProducts" },
+  { target: 500, suffix: "+", labelKey: "statsClients" },
+] as const;
+
+function StatsStrip() {
+  const t = useTranslations("hero");
+  const { ref, isInView } = useInView();
+
+  return (
+    <div
+      ref={ref}
+      className="mt-20 flex flex-wrap items-center gap-8 border-t pt-8 md:gap-12 lg:gap-16"
+    >
+      {stats.map((stat, i) => (
+        <AnimateOnScroll key={stat.labelKey} delay={i * 100}>
+          <StatItem
+            target={stat.target}
+            suffix={stat.suffix}
+            label={t(stat.labelKey)}
+            isInView={isInView}
+          />
+        </AnimateOnScroll>
+      ))}
+    </div>
+  );
+}
+
+function StatItem({
+  target,
+  suffix,
+  label,
+  isInView,
+}: {
+  target: number;
+  suffix: string;
+  label: string;
+  isInView: boolean;
+}) {
+  const count = useCountUp(target, isInView);
+
   return (
     <div>
       <div className="text-3xl font-light tracking-tight text-foreground md:text-4xl">
-        {value}
+        {count.toLocaleString("en-US")}{suffix}
       </div>
       <div className="mt-1 text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">
         {label}

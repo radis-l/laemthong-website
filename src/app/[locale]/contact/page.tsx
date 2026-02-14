@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { ContactForm } from "@/components/contact/contact-form";
+import { GoogleMap } from "@/components/contact/google-map";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { JsonLd } from "@/components/shared/json-ld";
 import { getCompanyInfo } from "@/lib/db";
@@ -140,44 +141,12 @@ export default async function ContactPage({ params, searchParams }: Props) {
                 </ul>
               </div>
 
-              {/* Map placeholder */}
-              <div className="relative overflow-hidden rounded-lg border bg-muted">
-                <div className="h-64">
-                  <svg
-                    className="absolute inset-0 h-full w-full"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <defs>
-                      <pattern
-                        id="map-grid"
-                        width="60"
-                        height="60"
-                        patternUnits="userSpaceOnUse"
-                      >
-                        <path
-                          d="M 60 0 L 0 0 0 60"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="0.5"
-                          className="text-muted-foreground/10"
-                        />
-                      </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill="url(#map-grid)" />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="relative">
-                      <span className="absolute inline-flex h-8 w-8 animate-ping rounded-full bg-primary/20" />
-                      <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                        <MapPin className="h-4 w-4" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="absolute bottom-3 left-3 rounded-md bg-background/80 px-3 py-1.5 text-xs text-muted-foreground backdrop-blur-sm">
-                    {t("mapPlaceholder")}
-                  </div>
-                </div>
-              </div>
+              {/* Map */}
+              <GoogleMap
+                mapUrl={company?.mapUrl}
+                coordinates={company?.coordinates}
+                title={company?.name[locale as Locale]}
+              />
             </div>
           </div>
         </div>

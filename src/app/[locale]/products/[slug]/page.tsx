@@ -20,11 +20,9 @@ import {
   TableCell,
   TableRow,
 } from "@/components/ui/table";
-import Image from "next/image";
 import { ArrowRight, ChevronRight, FileText } from "lucide-react";
 import { SectionHeading } from "@/components/shared/section-heading";
-import { PlaceholderImage } from "@/components/shared/placeholder-image";
-import { getCategoryIcon } from "@/lib/category-icons";
+import { ProductImageGallery } from "@/components/products/product-image-gallery";
 import { JsonLd } from "@/components/shared/json-ld";
 import {
   getPageUrl,
@@ -160,45 +158,12 @@ export default async function ProductDetailPage({ params }: Props) {
         <div className="mx-auto max-w-7xl px-6">
           <div className="grid gap-10 lg:grid-cols-2">
             {/* Image */}
-            <div>
-              <div className="relative aspect-[4/3] overflow-hidden rounded-lg border bg-muted">
-                {product.image?.startsWith("http") ? (
-                  <Image
-                    src={product.image}
-                    alt={product.name[locale as Locale]}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    priority
-                  />
-                ) : (
-                  <PlaceholderImage
-                    icon={getCategoryIcon(product.categorySlug)}
-                    variant="product"
-                    aspect="aspect-[4/3]"
-                    className="h-full"
-                  />
-                )}
-              </div>
-              {product.gallery.filter((u) => u.startsWith("http")).length > 0 && (
-                <div className="mt-3 grid grid-cols-4 gap-2">
-                  {product.gallery.filter((u) => u.startsWith("http")).map((url, i) => (
-                    <div
-                      key={i}
-                      className="relative aspect-square overflow-hidden rounded-lg border bg-muted"
-                    >
-                      <Image
-                        src={url}
-                        alt={`${product.name[locale as Locale]} - ${i + 1}`}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 1024px) 25vw, 12vw"
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <ProductImageGallery
+              mainImage={product.image?.startsWith("http") ? product.image : null}
+              gallery={product.gallery}
+              productName={product.name[locale as Locale]}
+              categorySlug={product.categorySlug}
+            />
 
             {/* Info */}
             <div>

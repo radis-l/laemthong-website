@@ -26,7 +26,11 @@
     "title": "Thailand's Leading Industrial Welding Equipment Supplier",
     "subtitle": "Importing and distributing high-quality welding and cutting equipment from world-class brands for over 60 years",
     "cta": "Browse All Products",
-    "ctaSecondary": "Contact Sales Team"
+    "ctaSecondary": "Contact Sales Team",
+    "statsYears": "Years",
+    "statsBrands": "Global Brands",
+    "statsProducts": "Products",
+    "statsClients": "Clients"
   },
   "usp": {
     "experience": "60+ Years",
@@ -269,6 +273,12 @@
     "mapPlaceholder": "Map",
     "businessHours": "Business Hours",
     "businessHoursValue": "Monday - Saturday 8:00 AM - 5:00 PM"
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "The page you are looking for doesn't exist or has been moved.",
+    "backHome": "Back to Home",
+    "browseProducts": "Browse Products"
   },
   "footer": {
     "description": "Thailand's leading importer and distributor of industrial welding and cutting equipment",

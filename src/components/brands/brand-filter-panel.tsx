@@ -155,7 +155,6 @@ export function BrandFilterPanel({ brands, productCounts, locale }: Props) {
               >
                 <BrandGridCard
                   brand={brand}
-                  productCount={productCounts[brand.slug] ?? 0}
                   productsLabel={t("products", {
                     count: productCounts[brand.slug] ?? 0,
                   })}

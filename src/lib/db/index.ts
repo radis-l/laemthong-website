@@ -3,7 +3,6 @@ export {
   getFilteredProducts,
   getProductBySlug,
   getProductsByCategory,
-  getProductsByBrand,
   getFeaturedProducts,
   getAllProductSlugs,
   getProductSlugsWithDates,
@@ -14,7 +13,6 @@ export type { ProductSort, ProductFilter, PaginatedProducts } from "./products";
 export {
   getAllBrands,
   getBrandBySlug,
-  getAllBrandSlugs,
   getBrandSlugsWithDates,
   getProductCountsByBrand,
 } from "./brands";
@@ -22,7 +20,6 @@ export {
 export {
   getAllCategories,
   getCategoryBySlug,
-  getAllCategorySlugs,
   getCategorySlugsWithDates,
 } from "./categories";
 

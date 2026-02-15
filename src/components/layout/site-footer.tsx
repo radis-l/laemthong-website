@@ -61,7 +61,7 @@ export async function SiteFooter({ locale }: { locale: string }) {
                   {footerCategories.map((cat) => (
                     <li key={cat.slug}>
                       <Link
-                        href={`/categories/${cat.slug}`}
+                        href={{ pathname: "/products", query: { category: cat.slug } }}
                         className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                       >
                         {cat.name[loc]}

@@ -44,6 +44,20 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/:locale(th|en)/categories/:slug",
+        destination: "/:locale/products?category=:slug",
+        permanent: true,
+      },
+      {
+        source: "/:locale(th|en)/brands/:slug",
+        destination: "/:locale/products?brand=:slug",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

@@ -1,19 +1,30 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import Image from "next/image";
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import { getFilteredProducts, getAllCategories, getAllBrands } from "@/lib/db";
+import { getFilteredProducts, getAllCategories, getAllBrands, getCategoryBySlug, getBrandBySlug } from "@/lib/db";
 import type { ProductSort } from "@/lib/db";
 import { ProductCard } from "@/components/products/product-card";
 import { ProductSearch } from "@/components/products/product-search";
 import { ProductPagination } from "@/components/products/product-pagination";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { JsonLd } from "@/components/shared/json-ld";
 import { X, LayoutGrid, List } from "lucide-react";
 import {
   getPageUrl,
   getAlternateLanguages,
   getOgLocale,
   getOgAlternateLocale,
+  buildBreadcrumbSchema,
 } from "@/lib/seo";
 import type { Locale } from "@/data/types";
 
@@ -56,13 +67,33 @@ function buildProductsUrl(params: {
   return `/products${qs ? `?${qs}` : ""}`;
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { locale } = await params;
+  const { category, brand } = await searchParams;
   const loc = locale as Locale;
   const t = await getTranslations({ locale, namespace: "products" });
-  const title = t("title");
-  const description = t("description");
-  const pageUrl = getPageUrl(loc, "/products");
+
+  let title = t("title");
+  let description = t("description");
+  let pagePath = "/products";
+
+  if (category) {
+    const cat = await getCategoryBySlug(category);
+    if (cat) {
+      title = `${cat.name[loc]} — ${t("title")}`;
+      description = cat.description[loc] || description;
+      pagePath = `/products?category=${category}`;
+    }
+  } else if (brand) {
+    const br = await getBrandBySlug(brand);
+    if (br) {
+      title = `${br.name} — ${t("title")}`;
+      description = br.description[loc] || description;
+      pagePath = `/products?brand=${brand}`;
+    }
+  }
+
+  const pageUrl = getPageUrl(loc, pagePath);
   return {
     title,
     description,
@@ -112,21 +143,101 @@ export default async function ProductsPage({ params, searchParams }: Props) {
   const { products, total, totalPages } = result;
 
   const categoryMap = new Map(categories.map((c) => [c.slug, c]));
+  const activeCategory = category ? categoryMap.get(category) : undefined;
+  const activeBrand = brand ? brands.find((b) => b.slug === brand) : undefined;
+
+  const tCommon = await getTranslations({ locale, namespace: "common" });
+
+  // Determine hero content based on active filter
+  const heroLabel = activeCategory
+    ? t("filterByCategory")
+    : activeBrand
+      ? t("filterByBrand")
+      : t("title");
+  const heroTitle = activeCategory
+    ? activeCategory.name[loc]
+    : activeBrand
+      ? activeBrand.name
+      : t("title");
+  const heroDescription = activeCategory
+    ? activeCategory.description[loc]
+    : activeBrand
+      ? activeBrand.description[loc]
+      : t("description");
 
   return (
     <>
+      {/* Breadcrumb JSON-LD */}
+      {(activeCategory || activeBrand) && (
+        <JsonLd
+          data={buildBreadcrumbSchema(loc, [
+            { name: tCommon("home"), href: "" },
+            { name: t("title"), href: "/products" },
+            ...(activeCategory
+              ? [{ name: activeCategory.name[loc], href: `/products?category=${category}` }]
+              : []),
+            ...(activeBrand
+              ? [{ name: activeBrand.name, href: `/products?brand=${brand}` }]
+              : []),
+          ])}
+        />
+      )}
+
+      {/* Breadcrumb bar (when filtered) */}
+      {(activeCategory || activeBrand) && (
+        <div className="border-b bg-muted/30">
+          <div className="mx-auto max-w-7xl px-6 py-3">
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link href="/">{tCommon("home")}</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link href="/products">{t("title")}</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>
+                    {activeCategory ? activeCategory.name[loc] : activeBrand!.name}
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+        </div>
+      )}
+
       {/* Page header */}
       <section className="border-b py-16 md:py-20">
         <div className="mx-auto max-w-7xl px-6">
+          {activeBrand?.logo?.startsWith("http") && (
+            <div className="mb-4">
+              <Image
+                src={activeBrand.logo}
+                alt={activeBrand.name}
+                width={120}
+                height={60}
+                className="object-contain"
+              />
+            </div>
+          )}
           <p className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
-            {t("title")}
+            {heroLabel}
           </p>
           <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-            {t("title")}
+            {heroTitle}
           </h1>
+          {activeBrand?.country && (
+            <p className="mt-2 text-sm text-muted-foreground">{activeBrand.country}</p>
+          )}
           <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-            {t("description")}
+            {heroDescription}
           </p>
         </div>
       </section>

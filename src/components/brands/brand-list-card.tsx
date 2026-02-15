@@ -52,7 +52,7 @@ export function BrandListCard({
           </p>
           <div className="mt-4 flex items-center gap-4">
             <Link
-              href={`/brands/${brand.slug}`}
+              href={{ pathname: "/products", query: { brand: brand.slug } }}
               className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
             >
               {productsFromLabel} {brand.name} ({productCount})

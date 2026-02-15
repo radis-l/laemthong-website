@@ -5,13 +5,12 @@ import type { Brand } from "@/data/types";
 
 type Props = {
   brand: Brand;
-  productCount: number;
   productsLabel: string;
 };
 
-export function BrandGridCard({ brand, productCount, productsLabel }: Props) {
+export function BrandGridCard({ brand, productsLabel }: Props) {
   return (
-    <Link href={`/brands/${brand.slug}`} className="group block">
+    <Link href={{ pathname: "/products", query: { brand: brand.slug } }} className="group block">
       <div className="overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg">
         {/* Logo area */}
         <div className="relative flex aspect-square items-center justify-center overflow-hidden bg-muted/50 p-8">

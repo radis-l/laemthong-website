@@ -51,18 +51,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     for (const { slug, updatedAt } of categoryData) {
       urls.push({
-        url: `${baseUrl}/${locale}/categories/${slug}`,
+        url: `${baseUrl}/${locale}/products?category=${slug}`,
         lastModified: new Date(updatedAt),
-        changeFrequency: "monthly",
+        changeFrequency: "weekly",
         priority: 0.7,
       });
     }
 
     for (const { slug, updatedAt } of brandData) {
       urls.push({
-        url: `${baseUrl}/${locale}/brands/${slug}`,
+        url: `${baseUrl}/${locale}/products?brand=${slug}`,
         lastModified: new Date(updatedAt),
-        changeFrequency: "monthly",
+        changeFrequency: "weekly",
         priority: 0.7,
       });
     }

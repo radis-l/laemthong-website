@@ -25,7 +25,7 @@ export function BrandShowcase({ brands }: Props) {
             {brands.map((brand) => (
               <Link
                 key={brand.slug}
-                href={`/brands/${brand.slug}`}
+                href={{ pathname: "/products", query: { brand: brand.slug } }}
                 className="group flex flex-col items-center gap-3"
               >
                 <div className="relative flex h-16 w-24 items-center justify-center grayscale-hover md:h-20 md:w-32">

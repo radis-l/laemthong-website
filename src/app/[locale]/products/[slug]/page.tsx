@@ -115,7 +115,7 @@ export default async function ProductDetailPage({ params }: Props) {
             ? [
                 {
                   name: category.name[locale as Locale],
-                  href: `/categories/${category.slug}`,
+                  href: `/products?category=${category.slug}`,
                 },
               ]
             : []),
@@ -143,7 +143,7 @@ export default async function ProductDetailPage({ params }: Props) {
                   <BreadcrumbSeparator />
                   <BreadcrumbItem>
                     <BreadcrumbLink asChild>
-                      <Link href={`/categories/${category.slug}`}>
+                      <Link href={{ pathname: "/products", query: { category: category.slug } }}>
                         {category.name[locale as Locale]}
                       </Link>
                     </BreadcrumbLink>

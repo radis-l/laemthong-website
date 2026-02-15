@@ -168,10 +168,10 @@ insert into company_info (name, tagline, description, year_established, address,
  '{"th":"ผู้นำด้านอุปกรณ์เชื่อมและตัดครบวงจร ตั้งแต่ปี 2506","en":"Thailand''s Leading Welding & Cutting Equipment Supplier Since 1963"}',
  '{"th":"บริษัท แหลมทอง ซินดิเคท จำกัด เป็นผู้นำเข้าและจัดจำหน่ายอุปกรณ์เชื่อมและตัดชั้นนำของประเทศไทย ก่อตั้งขึ้นในปี พ.ศ. 2506 ด้วยประสบการณ์กว่า 60 ปี เรามุ่งมั่นในการจัดหาสินค้าคุณภาพสูงจากแบรนด์ชั้นนำระดับโลก พร้อมบริการหลังการขายที่ครบครัน เพื่อตอบสนองความต้องการของลูกค้าในภาคอุตสาหกรรมทุกประเภท","en":"Laemthong Syndicate Co., Ltd. is Thailand''s leading importer and distributor of welding and cutting equipment. Established in 1963, with over 60 years of experience, we are committed to providing high-quality products from world-class brands along with comprehensive after-sales service to meet the needs of customers across all industrial sectors."}',
  1963,
- '{"th":"123 ถนนเจริญกรุง แขวงสี่พระยา เขตบางรัก กรุงเทพฯ 10500","en":"123 Charoen Krung Road, Si Phraya, Bang Rak, Bangkok 10500"}',
- '+66-2-234-5678',
+ '{"th":"1188 ซอยจันทรสุข ถนนลาดพร้าว แขวงคลองจั่น เขตบางกะปิ กรุงเทพฯ 10240","en":"1188 Soi Chantrasuk, Latphrao Road, Khlong Chan, Bang Kapi, Bangkok 10240"}',
+ '+66-2-538-4949',
  'sales@laemthong-syndicate.com',
  '@laemthong',
- 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3875.7!2d100.52!3d13.73!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTPCsDQzJzQ4LjAiTiAxMDDCsDMxJzEyLjAiRQ!5e0!3m2!1sth!2sth!4v1700000000000',
- '{"lat":13.73,"lng":100.52}'
+ 'https://maps.google.com/maps?q=Laemthong+Syndicate+Co+Ltd+Bangkok&output=embed',
+ '{"lat":13.7726,"lng":100.6435}'
 );

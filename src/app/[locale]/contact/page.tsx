@@ -83,10 +83,10 @@ export default async function ContactPage({ params, searchParams }: Props) {
                         {t("phoneLabel")}
                       </p>
                       <a
-                        href="tel:+6622345678"
+                        href={`tel:${company?.phone?.replace(/-/g, "") ?? "+6625384949"}`}
                         className="text-sm text-muted-foreground hover:text-foreground"
                       >
-                        +66-2-234-5678
+                        {company?.phone ?? "+66-2-538-4949"}
                       </a>
                     </div>
                   </li>
@@ -97,10 +97,10 @@ export default async function ContactPage({ params, searchParams }: Props) {
                         {t("emailLabel")}
                       </p>
                       <a
-                        href="mailto:sales@laemthong-syndicate.com"
+                        href={`mailto:${company?.email ?? "sales@laemthong-syndicate.com"}`}
                         className="text-sm text-muted-foreground hover:text-foreground"
                       >
-                        sales@laemthong-syndicate.com
+                        {company?.email ?? "sales@laemthong-syndicate.com"}
                       </a>
                     </div>
                   </li>

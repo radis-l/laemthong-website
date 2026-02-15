@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { CtaContactSection } from "@/components/shared/cta-contact-section";
-import { BreadcrumbBar } from "@/components/shared/breadcrumb-bar";
 import { JsonLd } from "@/components/shared/json-ld";
 import { PageHero } from "@/components/shared/page-hero";
 import { getAllBrands, getProductCountsByBrand } from "@/lib/db";
@@ -68,11 +67,6 @@ export default async function BrandsPage({ params }: Props) {
           { name: t("title"), href: "/brands" },
         ])}
       />
-
-      <BreadcrumbBar items={[
-        { label: tNav("home"), href: "/" },
-        { label: t("title") },
-      ]} />
 
       <PageHero label={t("title")} title={t("title")} description={t("description")} />
 

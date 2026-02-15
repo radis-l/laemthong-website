@@ -1,13 +1,35 @@
-import { Link } from "@/i18n/navigation";
+"use client";
+
+import { useFilterNavigation } from "./products-filter-context";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+
+type BaseParams = {
+  category?: string;
+  brand?: string;
+  q?: string;
+  sort?: string;
+  view?: string;
+};
 
 type Props = {
   currentPage: number;
   totalPages: number;
-  buildUrl: (page: number) => string;
+  baseParams: BaseParams;
   previousLabel: string;
   nextLabel: string;
 };
+
+function buildProductsUrl(params: BaseParams & { page?: number }): string {
+  const sp = new URLSearchParams();
+  if (params.category) sp.set("category", params.category);
+  if (params.brand) sp.set("brand", params.brand);
+  if (params.q) sp.set("q", params.q);
+  if (params.page && params.page > 1) sp.set("page", String(params.page));
+  if (params.sort && params.sort !== "default") sp.set("sort", params.sort);
+  if (params.view && params.view !== "grid") sp.set("view", params.view);
+  const qs = sp.toString();
+  return `/products${qs ? `?${qs}` : ""}`;
+}
 
 function getPageNumbers(current: number, total: number): (number | "...")[] {
   if (total <= 7) {
@@ -35,24 +57,28 @@ function getPageNumbers(current: number, total: number): (number | "...")[] {
 export function ProductPagination({
   currentPage,
   totalPages,
-  buildUrl,
+  baseParams,
   previousLabel,
   nextLabel,
 }: Props) {
+  const { navigate } = useFilterNavigation();
+
   if (totalPages <= 1) return null;
 
   const pages = getPageNumbers(currentPage, totalPages);
+  const url = (page: number) => buildProductsUrl({ ...baseParams, page });
 
   return (
     <nav aria-label="Pagination" className="mt-12 flex items-center justify-center gap-1">
       {currentPage > 1 ? (
-        <Link
-          href={buildUrl(currentPage - 1)}
+        <button
+          type="button"
+          onClick={() => navigate(url(currentPage - 1))}
           className="inline-flex h-9 items-center gap-1 rounded-lg border px-3 text-sm text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
         >
           <ChevronLeft className="h-4 w-4" />
           <span className="hidden sm:inline">{previousLabel}</span>
-        </Link>
+        </button>
       ) : (
         <span className="inline-flex h-9 items-center gap-1 rounded-lg border border-border/50 px-3 text-sm text-muted-foreground/40">
           <ChevronLeft className="h-4 w-4" />
@@ -77,25 +103,27 @@ export function ProductPagination({
               {page}
             </span>
           ) : (
-            <Link
+            <button
               key={page}
-              href={buildUrl(page)}
+              type="button"
+              onClick={() => navigate(url(page))}
               className="inline-flex h-9 w-9 items-center justify-center rounded-lg border text-sm text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
             >
               {page}
-            </Link>
+            </button>
           ),
         )}
       </div>
 
       {currentPage < totalPages ? (
-        <Link
-          href={buildUrl(currentPage + 1)}
+        <button
+          type="button"
+          onClick={() => navigate(url(currentPage + 1))}
           className="inline-flex h-9 items-center gap-1 rounded-lg border px-3 text-sm text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
         >
           <span className="hidden sm:inline">{nextLabel}</span>
           <ChevronRight className="h-4 w-4" />
-        </Link>
+        </button>
       ) : (
         <span className="inline-flex h-9 items-center gap-1 rounded-lg border border-border/50 px-3 text-sm text-muted-foreground/40">
           <span className="hidden sm:inline">{nextLabel}</span>

@@ -1,24 +1,19 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import Image from "next/image";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { getFilteredProducts, getAllCategories, getAllBrands, getCategoryBySlug, getBrandBySlug } from "@/lib/db";
 import type { ProductSort } from "@/lib/db";
 import { ProductCard } from "@/components/products/product-card";
 import { ProductSearch } from "@/components/products/product-search";
+import { ProductFilterBar } from "@/components/products/product-filter-bar";
 import { ProductPagination } from "@/components/products/product-pagination";
+import { FilterNavigationProvider } from "@/components/products/products-filter-context";
+import { SortSelect } from "@/components/products/sort-select";
+import { ViewToggle } from "@/components/products/view-toggle";
+import { ProductGridWrapper } from "@/components/products/product-grid-wrapper";
 import { Link } from "@/i18n/navigation";
-import { Button } from "@/components/ui/button";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { JsonLd } from "@/components/shared/json-ld";
-import { X, LayoutGrid, List } from "lucide-react";
+import { PageHero } from "@/components/shared/page-hero";
 import {
   getPageUrl,
   getAlternateLanguages,
@@ -148,370 +143,166 @@ export default async function ProductsPage({ params, searchParams }: Props) {
 
   const tCommon = await getTranslations({ locale, namespace: "common" });
 
-  // Determine hero content based on active filter
-  const heroLabel = activeCategory
-    ? t("filterByCategory")
-    : activeBrand
-      ? t("filterByBrand")
-      : t("title");
-  const heroTitle = activeCategory
-    ? activeCategory.name[loc]
-    : activeBrand
-      ? activeBrand.name
-      : t("title");
-  const heroDescription = activeCategory
-    ? activeCategory.description[loc]
-    : activeBrand
-      ? activeBrand.description[loc]
-      : t("description");
+  // Hero content is always stable — filter context shown via breadcrumb + filter chips
+  const heroLabel = t("title");
+  const heroTitle = t("title");
+  const heroDescription = t("description");
+
+  // Pre-compute URLs for client components
+  const sortUrls = Object.fromEntries(
+    VALID_SORTS.map((s) => [s, buildProductsUrl({ category, brand, q, sort: s, view: viewParam })])
+  ) as Record<string, string>;
+  const sortLabels = Object.fromEntries(
+    VALID_SORTS.map((s) => [s, t(SORT_KEYS[s])])
+  ) as Record<string, string>;
 
   return (
     <>
-      {/* Breadcrumb JSON-LD */}
-      {(activeCategory || activeBrand) && (
-        <JsonLd
-          data={buildBreadcrumbSchema(loc, [
-            { name: tCommon("home"), href: "" },
-            { name: t("title"), href: "/products" },
-            ...(activeCategory
-              ? [{ name: activeCategory.name[loc], href: `/products?category=${category}` }]
-              : []),
-            ...(activeBrand
-              ? [{ name: activeBrand.name, href: `/products?brand=${brand}` }]
-              : []),
-          ])}
-        />
-      )}
-
-      {/* Breadcrumb bar (when filtered) */}
-      {(activeCategory || activeBrand) && (
-        <div className="border-b bg-muted/30">
-          <div className="mx-auto max-w-7xl px-6 py-3">
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink asChild>
-                    <Link href="/">{tCommon("home")}</Link>
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbLink asChild>
-                    <Link href="/products">{t("title")}</Link>
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>
-                    {activeCategory ? activeCategory.name[loc] : activeBrand!.name}
-                  </BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
-        </div>
-      )}
+      {/* Breadcrumb JSON-LD — always rendered for SEO */}
+      <JsonLd
+        data={buildBreadcrumbSchema(loc, [
+          { name: tCommon("home"), href: "" },
+          { name: t("title"), href: "/products" },
+          ...(activeCategory
+            ? [{ name: activeCategory.name[loc], href: `/products?category=${category}` }]
+            : []),
+          ...(activeBrand
+            ? [{ name: activeBrand.name, href: `/products?brand=${brand}` }]
+            : []),
+        ])}
+      />
 
       {/* Page header */}
-      <section className="border-b py-16 md:py-20">
-        <div className="mx-auto max-w-7xl px-6">
-          {activeBrand?.logo?.startsWith("http") && (
-            <div className="mb-4">
-              <Image
-                src={activeBrand.logo}
-                alt={activeBrand.name}
-                width={120}
-                height={60}
-                className="object-contain"
-              />
-            </div>
-          )}
-          <p className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
-            {heroLabel}
-          </p>
-          <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-            {heroTitle}
-          </h1>
-          {activeBrand?.country && (
-            <p className="mt-2 text-sm text-muted-foreground">{activeBrand.country}</p>
-          )}
-          <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-            {heroDescription}
-          </p>
-        </div>
-      </section>
+      <PageHero label={heroLabel} title={heroTitle} description={heroDescription} className="py-10 md:py-12" />
 
-      <section className="py-16 md:py-20">
+      <section className="pt-8 pb-16 md:pt-10 md:pb-20">
         <div className="mx-auto max-w-7xl px-6">
-          {/* Top filter bar */}
-          <div className="space-y-4">
+          <FilterNavigationProvider>
+            {/* Search + controls toolbar */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <Suspense fallback={<div className="h-10 w-full max-w-sm" />}>
-                <ProductSearch currentQuery={q ?? ""} />
-              </Suspense>
-            </div>
-
-            {/* Category pills */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:flex-wrap sm:overflow-visible sm:pb-0">
-              <span className="mr-1 shrink-0 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                {t("filterByCategory")}:
-              </span>
-              <Link
-                href={buildProductsUrl({ brand, q, sort: sortParam, view: viewParam })}
-                className={`shrink-0 rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
-                  !category
-                    ? "border-foreground bg-foreground text-background"
-                    : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
-                }`}
-              >
-                {t("allCategories")}
-              </Link>
-              {categories.map((cat) => (
-                <Link
-                  key={cat.slug}
-                  href={buildProductsUrl({ category: cat.slug, brand, q, sort: sortParam, view: viewParam })}
-                  className={`shrink-0 rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
-                    category === cat.slug
-                      ? "border-foreground bg-foreground text-background"
-                      : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
-                  }`}
-                >
-                  {cat.name[loc]}
-                </Link>
-              ))}
-            </div>
-
-            {/* Brand pills */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:flex-wrap sm:overflow-visible sm:pb-0">
-              <span className="mr-1 shrink-0 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                {t("filterByBrand")}:
-              </span>
-              <Link
-                href={buildProductsUrl({ category, q, sort: sortParam, view: viewParam })}
-                className={`shrink-0 rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
-                  !brand
-                    ? "border-foreground bg-foreground text-background"
-                    : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
-                }`}
-              >
-                {t("allBrands")}
-              </Link>
-              {brands.map((b) => (
-                <Link
-                  key={b.slug}
-                  href={buildProductsUrl({ category, brand: b.slug, q, sort: sortParam, view: viewParam })}
-                  className={`shrink-0 rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
-                    brand === b.slug
-                      ? "border-foreground bg-foreground text-background"
-                      : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
-                  }`}
-                >
-                  {b.name}
-                </Link>
-              ))}
-            </div>
-
-            {/* Active filter chips */}
-            {(category || brand || q) && (
-              <div className="flex flex-wrap items-center gap-2 border-t pt-4">
-                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  {t("activeFilters")}:
-                </span>
-                {category && (() => {
-                  const cat = categoryMap.get(category);
-                  return cat ? (
-                    <Link
-                      href={buildProductsUrl({ brand, q, sort: sortParam, view: viewParam })}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground/5 px-3 py-1 text-sm text-foreground transition-colors hover:bg-foreground/10"
-                    >
-                      {cat.name[loc]}
-                      <X className="h-3 w-3" />
-                    </Link>
-                  ) : null;
-                })()}
-                {brand && (() => {
-                  const br = brands.find((b) => b.slug === brand);
-                  return br ? (
-                    <Link
-                      href={buildProductsUrl({ category, q, sort: sortParam, view: viewParam })}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground/5 px-3 py-1 text-sm text-foreground transition-colors hover:bg-foreground/10"
-                    >
-                      {br.name}
-                      <X className="h-3 w-3" />
-                    </Link>
-                  ) : null;
-                })()}
-                {q && (
-                  <Link
-                    href={buildProductsUrl({ category, brand, sort: sortParam, view: viewParam })}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground/5 px-3 py-1 text-sm text-foreground transition-colors hover:bg-foreground/10"
-                  >
-                    &ldquo;{q}&rdquo;
-                    <X className="h-3 w-3" />
-                  </Link>
-                )}
-                <Link
-                  href="/products"
-                  className="text-xs font-medium text-primary hover:underline"
-                >
-                  {t("clearAll")}
-                </Link>
+              <div className="w-full sm:max-w-sm">
+                <Suspense fallback={<div className="h-10 w-full" />}>
+                  <ProductSearch currentQuery={q ?? ""} />
+                </Suspense>
               </div>
-            )}
-          </div>
 
-          {/* Results bar with sort + view toggle */}
-          <div className="mt-8 mb-6 flex items-center justify-between border-b pb-4">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              {q
-                ? `${t("searchResultsFor", { query: q })} (${total})`
-                : t("productCount", { count: total })}
-            </p>
+              <div className="flex items-center gap-3">
+                <p className="shrink-0 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  {q
+                    ? `${t("searchResultsFor", { query: q })} (${total})`
+                    : t("productCount", { count: total })}
+                </p>
 
-            <div className="flex items-center gap-3">
-              {/* Sort dropdown */}
-              <div className="flex items-center gap-2">
-                <label htmlFor="sort-select" className="hidden text-xs text-muted-foreground sm:inline">
-                  {t("sortLabel")}:
-                </label>
                 <SortSelect
                   current={sort}
-                  buildUrl={(s) => buildProductsUrl({ category, brand, q, sort: s, view: viewParam })}
-                  labels={Object.fromEntries(
-                    VALID_SORTS.map((s) => [s, t(SORT_KEYS[s])])
-                  ) as Record<ProductSort, string>}
+                  sortUrls={sortUrls}
+                  labels={sortLabels}
+                  validSorts={VALID_SORTS as string[]}
+                  sortLabel={t("sortLabel")}
+                />
+
+                <ViewToggle
+                  currentView={view}
+                  gridUrl={buildProductsUrl({ category, brand, q, page: pageNum, sort: sortParam, view: "grid" })}
+                  listUrl={buildProductsUrl({ category, brand, q, page: pageNum, sort: sortParam, view: "list" })}
+                  gridLabel={t("viewGrid")}
+                  listLabel={t("viewList")}
                 />
               </div>
-
-              {/* View toggle */}
-              <div className="flex items-center rounded-lg border">
-                <Link
-                  href={buildProductsUrl({ category, brand, q, page: pageNum, sort: sortParam, view: "grid" })}
-                  className={`inline-flex h-8 w-8 items-center justify-center rounded-l-lg transition-colors ${
-                    view === "grid"
-                      ? "bg-foreground text-background"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                  aria-label={t("viewGrid")}
-                >
-                  <LayoutGrid className="h-3.5 w-3.5" />
-                </Link>
-                <Link
-                  href={buildProductsUrl({ category, brand, q, page: pageNum, sort: sortParam, view: "list" })}
-                  className={`inline-flex h-8 w-8 items-center justify-center rounded-r-lg transition-colors ${
-                    view === "list"
-                      ? "bg-foreground text-background"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                  aria-label={t("viewList")}
-                >
-                  <List className="h-3.5 w-3.5" />
-                </Link>
-              </div>
             </div>
-          </div>
 
-          {/* Product grid/list */}
-          {products.length > 0 ? (
-            <>
-              {view === "list" ? (
-                <div className="space-y-2">
-                  {products.map((product) => (
-                    <ProductCard
-                      key={product.slug}
-                      product={product}
-                      locale={loc}
-                      categoryName={categoryMap.get(product.categorySlug)?.name[loc]}
-                      variant="list"
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {products.map((product) => (
-                    <ProductCard
-                      key={product.slug}
-                      product={product}
-                      locale={loc}
-                      categoryName={categoryMap.get(product.categorySlug)?.name[loc]}
-                    />
-                  ))}
-                </div>
-              )}
-
-              <ProductPagination
-                currentPage={pageNum}
-                totalPages={totalPages}
-                buildUrl={(p) => buildProductsUrl({ category, brand, q, page: p, sort: sortParam, view: viewParam })}
-                previousLabel={t("previousPage")}
-                nextLabel={t("nextPage")}
+            {/* Tabbed filter bar */}
+            <div className="mt-6 mb-8">
+              <ProductFilterBar
+                categories={categories.map((c) => ({ slug: c.slug, name: c.name[loc] }))}
+                brands={brands.map((b) => ({ slug: b.slug, name: b.name }))}
+                activeCategory={category}
+                activeBrand={brand}
+                activeQuery={q}
+                sortParam={sortParam}
+                viewParam={viewParam}
+                labels={{
+                  category: t("filterByCategory"),
+                  brand: t("filterByBrand"),
+                  allCategories: t("allCategories"),
+                  allBrands: t("allBrands"),
+                  activeFilters: t("activeFilters"),
+                  clearAll: t("clearAll"),
+                }}
               />
-            </>
-          ) : (
-            <div className="flex flex-col items-center py-20 text-center">
-              <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
-                {t("noProductsLabel")}
-              </p>
-              <p className="mt-3 max-w-md text-muted-foreground">
-                {t("noProductsDescription")}
-              </p>
-              {(category || brand || q) && (
-                <div className="mt-6">
-                  <Button asChild variant="outline" size="lg">
-                    <Link href="/products">
-                      {t("clearAll")}
-                    </Link>
-                  </Button>
+            </div>
+
+            {/* Product grid/list */}
+            <ProductGridWrapper>
+              {products.length > 0 ? (
+                <>
+                  {view === "list" ? (
+                    <div className="space-y-2">
+                      {products.map((product) => (
+                        <ProductCard
+                          key={product.slug}
+                          product={product}
+                          locale={loc}
+                          categoryName={categoryMap.get(product.categorySlug)?.name[loc]}
+                          variant="list"
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                      {products.map((product) => (
+                        <ProductCard
+                          key={product.slug}
+                          product={product}
+                          locale={loc}
+                          categoryName={categoryMap.get(product.categorySlug)?.name[loc]}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  <ProductPagination
+                    currentPage={pageNum}
+                    totalPages={totalPages}
+                    baseParams={{ category, brand, q, sort: sortParam, view: viewParam }}
+                    previousLabel={t("previousPage")}
+                    nextLabel={t("nextPage")}
+                  />
+                </>
+              ) : (
+                <div className="flex flex-col items-center py-20 text-center">
+                  <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
+                    {t("noProductsLabel")}
+                  </p>
+                  <p className="mt-3 max-w-md text-muted-foreground">
+                    {t("noProductsDescription")}
+                  </p>
+                  {(category || brand || q) && (
+                    <div className="mt-6">
+                      <ClearFiltersButton label={t("clearAll")} />
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
-          )}
+            </ProductGridWrapper>
+          </FilterNavigationProvider>
         </div>
       </section>
     </>
   );
 }
 
-function SortSelect({
-  current,
-  buildUrl,
-  labels,
-}: {
-  current: ProductSort;
-  buildUrl: (sort: string) => string;
-  labels: Record<ProductSort, string>;
-}) {
+function ClearFiltersButton({ label }: { label: string }) {
+  // This is rendered inside FilterNavigationProvider, but since it's a server component
+  // helper, we need a small client component. However, since the empty state already
+  // renders inside the provider, we can use a simple Link with scroll={false}.
   return (
-    <div className="relative">
-      <select
-        id="sort-select"
-        defaultValue={current}
-        className="h-8 cursor-pointer appearance-none rounded-lg border bg-background pr-8 pl-3 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50"
-        // Client-side navigation on change
-        // Using a data attribute + inline script to avoid a client component
-        data-sort-urls={JSON.stringify(
-          Object.fromEntries(VALID_SORTS.map((s) => [s, buildUrl(s)]))
-        )}
-      >
-        {VALID_SORTS.map((s) => (
-          <option key={s} value={s}>
-            {labels[s]}
-          </option>
-        ))}
-      </select>
-      <SortSelectScript />
-    </div>
-  );
-}
-
-function SortSelectScript() {
-  return (
-    <script
-      dangerouslySetInnerHTML={{
-        __html: `document.addEventListener('change',function(e){var s=e.target;if(s.id==='sort-select'){var u=JSON.parse(s.dataset.sortUrls);if(u[s.value])window.location.href=u[s.value]}})`,
-      }}
-    />
+    <Link
+      href="/products"
+      className="inline-flex h-11 items-center justify-center rounded-lg border border-input bg-background px-8 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground"
+    >
+      {label}
+    </Link>
   );
 }

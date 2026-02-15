@@ -3,15 +3,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useRouter, usePathname } from "@/i18n/navigation";
+import { usePathname } from "@/i18n/navigation";
+import { useFilterNavigation } from "./products-filter-context";
 import { Input } from "@/components/ui/input";
 import { Search, X } from "lucide-react";
 
 export function ProductSearch({ currentQuery = "" }: { currentQuery?: string }) {
   const t = useTranslations("products");
-  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { navigate } = useFilterNavigation();
   const [value, setValue] = useState(currentQuery);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -29,9 +30,9 @@ export function ProductSearch({ currentQuery = "" }: { currentQuery?: string }) 
       }
       params.delete("page");
       const qs = params.toString();
-      router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
+      navigate(`${pathname}${qs ? `?${qs}` : ""}`);
     },
-    [router, pathname, searchParams],
+    [navigate, pathname, searchParams],
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -6,14 +6,7 @@ import { getProductBySlug, getProductsByCategory, getCategoryBySlug, getBrandByS
 import { ProductCard } from "@/components/products/product-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { BreadcrumbBar } from "@/components/shared/breadcrumb-bar";
 import {
   Table,
   TableBody,
@@ -123,41 +116,16 @@ export default async function ProductDetailPage({ params }: Props) {
         ])}
       />
       {/* Breadcrumb */}
-      <div className="border-b bg-muted/30">
-        <div className="mx-auto max-w-7xl px-6 py-3">
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href="/">{tCommon("home")}</Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href="/products">{t("title")}</Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              {category && (
-                <>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbLink asChild>
-                      <Link href={{ pathname: "/products", query: { category: category.slug } }}>
-                        {category.name[locale as Locale]}
-                      </Link>
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                </>
-              )}
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>{product.name[locale as Locale]}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </div>
-      </div>
+      <BreadcrumbBar
+        items={[
+          { label: tCommon("home"), href: "/" },
+          { label: t("title"), href: "/products" },
+          ...(category
+            ? [{ label: category.name[locale as Locale], href: `/products?category=${category.slug}` }]
+            : []),
+          { label: product.name[locale as Locale] },
+        ]}
+      />
 
       {/* Product detail */}
       <section className="py-12 md:py-16">

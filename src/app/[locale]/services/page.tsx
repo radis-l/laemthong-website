@@ -4,7 +4,6 @@ import { Link } from "@/i18n/navigation";
 import { CheckCircle2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CtaContactSection } from "@/components/shared/cta-contact-section";
-import { BreadcrumbBar } from "@/components/shared/breadcrumb-bar";
 import { JsonLd } from "@/components/shared/json-ld";
 import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
 import { PageHero } from "@/components/shared/page-hero";
@@ -67,11 +66,6 @@ export default async function ServicesPage({ params }: Props) {
           { name: t("title"), href: "/services" },
         ])}
       />
-
-      <BreadcrumbBar items={[
-        { label: tNav("home"), href: "/" },
-        { label: t("title") },
-      ]} />
 
       <PageHero label={t("title")} title={t("title")} description={t("subtitle")} />
 

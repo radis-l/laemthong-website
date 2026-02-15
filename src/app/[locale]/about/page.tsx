@@ -77,9 +77,17 @@ export default async function AboutPage({ params }: Props) {
                 {t("historyTitle")}
               </h2>
               <div className="mt-1 h-0.5 w-12 bg-primary" />
-              <p className="mt-6 leading-relaxed text-muted-foreground">
-                {t("historyText")}
-              </p>
+              <div className="mt-6 space-y-4">
+                <p className="leading-relaxed text-muted-foreground">
+                  {t("historyText1")}
+                </p>
+                <p className="leading-relaxed text-muted-foreground">
+                  {t("historyText2")}
+                </p>
+                <p className="leading-relaxed text-muted-foreground">
+                  {t("historyText3")}
+                </p>
+              </div>
             </div>
             <div className="flex flex-col gap-6">
               <div className="overflow-hidden rounded-lg">

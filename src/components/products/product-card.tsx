@@ -65,8 +65,8 @@ export function ProductCard({ product, locale, categoryName, variant = "grid" }:
 
   return (
     <Link href={`/products/${product.slug}`} className="group">
-      <div className="overflow-hidden rounded-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-        <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-muted/50">
+      <div className="overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg">
+        <div className="relative aspect-[4/3] overflow-hidden bg-muted/50">
           {product.image?.startsWith("http") ? (
             <Image
               src={product.image}
@@ -83,7 +83,9 @@ export function ProductCard({ product, locale, categoryName, variant = "grid" }:
             />
           )}
         </div>
-        <div className="py-4">
+        {/* Red accent divider */}
+        <div className="h-px w-full bg-border transition-colors duration-300 group-hover:bg-primary" />
+        <div className="px-4 py-3">
           <div className="flex items-center gap-2">
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
               {brandLabel}

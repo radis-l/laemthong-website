@@ -65,6 +65,7 @@ export default async function ServiceDetailPage({ params }: Props) {
   const loc = locale as Locale;
   const t = await getTranslations({ locale, namespace: "services" });
   const tNav = await getTranslations({ locale, namespace: "nav" });
+  const tCommon = await getTranslations({ locale, namespace: "common" });
 
   const Icon = service.icon;
   const features = t.raw(`${slug}.features`) as string[];
@@ -212,7 +213,7 @@ export default async function ServiceDetailPage({ params }: Props) {
             </div>
             <div className="rounded-lg bg-foreground p-8 text-background md:p-10">
               <p className="text-sm font-medium uppercase tracking-[0.15em] text-background/50">
-                Get in touch
+                {tCommon("getInTouch")}
               </p>
               <p className="mt-3 text-xl font-semibold text-background">
                 sales@laemthong-syndicate.com

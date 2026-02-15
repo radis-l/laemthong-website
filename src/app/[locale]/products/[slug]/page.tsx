@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { getProductBySlug, getProductsByCategory, getCategoryBySlug, getBrandBySlug } from "@/lib/db";
+import { getProductBySlug, getProductsByCategory, getCategoryBySlug, getBrandBySlug, getAllProductSlugs } from "@/lib/db";
 import { ProductCard } from "@/components/products/product-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -72,6 +72,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: product.image?.startsWith("http") ? [product.image] : undefined,
     },
   };
+}
+
+export async function generateStaticParams() {
+  const slugs = await getAllProductSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export default async function ProductDetailPage({ params }: Props) {

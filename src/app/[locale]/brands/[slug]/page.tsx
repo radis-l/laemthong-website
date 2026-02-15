@@ -157,7 +157,7 @@ export default async function BrandDetailPage({ params }: Props) {
             </div>
           ) : (
             <p className="py-12 text-center text-muted-foreground">
-              No products found.
+              {t("noProducts")}
             </p>
           )}
         </div>

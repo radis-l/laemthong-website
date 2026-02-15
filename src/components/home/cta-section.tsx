@@ -6,6 +6,7 @@ import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
 
 export function CtaSection() {
   const t = useTranslations("home");
+  const tCommon = useTranslations("common");
 
   return (
     <section className="py-20 md:py-28">
@@ -27,7 +28,7 @@ export function CtaSection() {
           <AnimateOnScroll direction="right" delay={150}>
             <div className="rounded-lg bg-foreground p-8 text-background md:p-10">
               <p className="text-sm font-medium uppercase tracking-[0.15em] text-background/50">
-                Get in touch
+                {tCommon("getInTouch")}
               </p>
               <p className="mt-3 text-xl font-semibold text-background">
                 sales@laemthong-syndicate.com

@@ -1,14 +1,25 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import Image from "next/image";
-import { getAllBrands, getProductCountsByBrand } from "@/lib/db";
 import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { JsonLd } from "@/components/shared/json-ld";
+import { getAllBrands, getProductCountsByBrand } from "@/lib/db";
+import { BrandFilterPanel } from "@/components/brands/brand-filter-panel";
 import {
   getPageUrl,
   getAlternateLanguages,
   getOgLocale,
   getOgAlternateLocale,
+  buildBreadcrumbSchema,
 } from "@/lib/seo";
 import type { Locale } from "@/data/types";
 
@@ -47,7 +58,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BrandsPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const loc = locale as Locale;
   const t = await getTranslations({ locale, namespace: "brands" });
+  const tNav = await getTranslations({ locale, namespace: "nav" });
+  const tCommon = await getTranslations({ locale, namespace: "common" });
   const [brands, productCounts] = await Promise.all([
     getAllBrands(),
     getProductCountsByBrand(),
@@ -55,6 +69,33 @@ export default async function BrandsPage({ params }: Props) {
 
   return (
     <>
+      <JsonLd
+        data={buildBreadcrumbSchema(loc, [
+          { name: tNav("home"), href: "/" },
+          { name: t("title"), href: "/brands" },
+        ])}
+      />
+
+      {/* Breadcrumb */}
+      <div className="border-b bg-muted/30">
+        <div className="mx-auto max-w-7xl px-6 py-3">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/">{tNav("home")}</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>{t("title")}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+      </div>
+
+      {/* Hero */}
       <section className="border-b py-16 md:py-20">
         <div className="mx-auto max-w-7xl px-6">
           <p className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
@@ -70,70 +111,46 @@ export default async function BrandsPage({ params }: Props) {
         </div>
       </section>
 
-      <section className="py-16 md:py-20">
+      {/* Brand filter + cards */}
+      <section className="py-10 md:py-14">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="space-y-8">
-            {brands.map((brand) => {
-              const productCount = productCounts[brand.slug] ?? 0;
-              return (
-                <div
-                  key={brand.slug}
-                  className="overflow-hidden rounded-lg border bg-card shadow-sm"
-                >
-                  <div className="grid gap-6 p-8 md:grid-cols-[200px_1fr]">
-                    <div className="flex items-center justify-center rounded-lg bg-muted p-6">
-                      {brand.logo?.startsWith("http") ? (
-                        <Image
-                          src={brand.logo}
-                          alt={brand.name}
-                          width={120}
-                          height={120}
-                          className="object-contain"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center">
-                          <span className="text-4xl font-bold text-muted-foreground">
-                            {brand.name.charAt(0)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-3">
-                        <h2 className="text-2xl font-bold text-foreground">
-                          {brand.name}
-                        </h2>
-                        <span className="text-sm text-muted-foreground">
-                          {brand.country}
-                        </span>
-                      </div>
-                      <p className="mt-3 leading-relaxed text-muted-foreground">
-                        {brand.description[locale as Locale]}
-                      </p>
-                      <div className="mt-4 flex items-center gap-4">
-                        <Link
-                          href={`/brands/${brand.slug}`}
-                          className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-                        >
-                          {t("productsFrom")} {brand.name} ({productCount})
-                          <ArrowRight className="h-3.5 w-3.5" />
-                        </Link>
-                        {brand.website && (
-                          <a
-                            href={brand.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm text-muted-foreground hover:text-foreground"
-                          >
-                            {t("visitWebsite")} &rarr;
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+          <BrandFilterPanel
+            brands={brands}
+            productCounts={productCounts}
+            locale={locale as Locale}
+          />
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-20 md:py-28">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="grid items-center gap-10 lg:grid-cols-2">
+            <div>
+              <h2 className="text-3xl font-bold tracking-tight text-foreground lg:text-4xl">
+                {t("ctaTitle")}
+              </h2>
+              <p className="mt-4 max-w-md text-lg leading-relaxed text-muted-foreground">
+                {t("ctaDescription")}
+              </p>
+            </div>
+            <div className="rounded-lg bg-foreground p-8 text-background md:p-10">
+              <p className="text-sm font-medium uppercase tracking-[0.15em] text-background/50">
+                {tCommon("getInTouch")}
+              </p>
+              <p className="mt-3 text-xl font-semibold text-background">
+                sales@laemthong-syndicate.com
+              </p>
+              <p className="mt-1 text-lg text-background/70">
+                +66-2-234-5678
+              </p>
+              <Button asChild variant="accent" size="lg" className="mt-6 gap-2">
+                <Link href="/contact">
+                  {t("ctaButton")}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>

@@ -23,9 +23,9 @@ export function ProductCard({ product, locale, categoryName, variant = "grid" }:
         className="group flex items-center gap-4 rounded-lg border bg-card p-3 transition-all hover:shadow-md"
       >
         <div className="relative h-[60px] w-20 shrink-0 overflow-hidden rounded-md bg-muted/50">
-          {product.image?.startsWith("http") ? (
+          {product.images[0]?.startsWith("http") ? (
             <Image
-              src={product.image}
+              src={product.images[0]}
               alt={product.name[locale]}
               fill
               className="object-cover"
@@ -67,9 +67,9 @@ export function ProductCard({ product, locale, categoryName, variant = "grid" }:
     <Link href={`/products/${product.slug}`} className="group">
       <div className="overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg">
         <div className="relative aspect-[4/3] overflow-hidden bg-muted/50">
-          {product.image?.startsWith("http") ? (
+          {product.images[0]?.startsWith("http") ? (
             <Image
-              src={product.image}
+              src={product.images[0]}
               alt={product.name[locale]}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"

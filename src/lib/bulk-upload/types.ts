@@ -23,11 +23,10 @@ export type ParsedProductRow = {
     featured?: string;
     sortOrder: number;
     // Complex fields omitted for CSV format
-    gallery?: string;
+    images?: string;
     specifications?: string;
     features?: string;
     documents?: string;
-    image?: string;
     // Pipe-separated raw strings from CSV (for validation messages)
     specLabelsTh?: string;
     specLabelsEn?: string;
@@ -49,14 +48,12 @@ export type ValidationResult = {
   errors: string[];
   warnings: string[];
   images?: {
-    main?: File;
-    gallery: File[];
+    images: File[];
   };
 };
 
 export type ImageInfo = {
-  hasMain: boolean;
-  galleryCount: number;
+  imageCount: number;
 };
 
 export type ClientValidationResult = {
@@ -70,8 +67,7 @@ export type ClientValidationResult = {
 export type ImageMap = Record<
   string,
   {
-    main?: File;
-    gallery: File[];
+    images: File[];
   }
 >;
 

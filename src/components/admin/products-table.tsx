@@ -209,7 +209,7 @@ export function ProductsTable({
                   </TableCell>
                   <TableCell>
                     <TableThumbnail
-                      src={product.image}
+                      src={product.images[0]}
                       alt={product.name.en}
                     />
                   </TableCell>

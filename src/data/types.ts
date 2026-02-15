@@ -12,8 +12,7 @@ export interface Product {
   name: LocalizedString;
   shortDescription: LocalizedString;
   description: LocalizedString;
-  image: string;
-  gallery: string[];
+  images: string[];
   specifications: { label: LocalizedString; value: LocalizedString }[];
   features: LocalizedString[];
   documents?: { name: string; url: string }[];
@@ -96,8 +95,7 @@ export interface DbProduct {
   name: LocalizedString;
   short_description: LocalizedString;
   description: LocalizedString;
-  image: string;
-  gallery: string[];
+  images: string[];
   specifications: { label: LocalizedString; value: LocalizedString }[];
   features: LocalizedString[];
   documents: { name: string; url: string }[];

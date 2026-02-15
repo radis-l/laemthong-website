@@ -40,8 +40,7 @@ export async function createProductAction(
     descriptionEn: formData.get("descriptionEn"),
     categorySlug: formData.get("categorySlug"),
     brandSlug: formData.get("brandSlug"),
-    image: formData.get("image") || undefined,
-    gallery: formData.get("gallery") || undefined,
+    images: formData.get("images") || undefined,
     specifications: formData.get("specifications") || undefined,
     features: formData.get("features") || undefined,
     documents: formData.get("documents") || undefined,
@@ -67,8 +66,7 @@ export async function createProductAction(
         th: validated.data.descriptionTh,
         en: validated.data.descriptionEn,
       },
-      image: validated.data.image || "",
-      gallery: parseJsonOrDefault<string[]>(validated.data.gallery, []),
+      images: parseJsonOrDefault<string[]>(validated.data.images, []),
       specifications: parseJsonOrDefault<
         { label: LocalizedString; value: LocalizedString }[]
       >(validated.data.specifications, []),
@@ -110,8 +108,7 @@ export async function updateProductAction(
     descriptionEn: formData.get("descriptionEn"),
     categorySlug: formData.get("categorySlug"),
     brandSlug: formData.get("brandSlug"),
-    image: formData.get("image") || undefined,
-    gallery: formData.get("gallery") || undefined,
+    images: formData.get("images") || undefined,
     specifications: formData.get("specifications") || undefined,
     features: formData.get("features") || undefined,
     documents: formData.get("documents") || undefined,
@@ -137,8 +134,7 @@ export async function updateProductAction(
         th: validated.data.descriptionTh,
         en: validated.data.descriptionEn,
       },
-      image: validated.data.image || "",
-      gallery: parseJsonOrDefault<string[]>(validated.data.gallery, []),
+      images: parseJsonOrDefault<string[]>(validated.data.images, []),
       specifications: parseJsonOrDefault<
         { label: LocalizedString; value: LocalizedString }[]
       >(validated.data.specifications, []),

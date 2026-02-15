@@ -48,9 +48,9 @@ export function FeaturedProducts({ products }: Props) {
               >
                 <div className="overflow-hidden rounded-lg bg-muted/50">
                   <div className="relative aspect-[4/3] overflow-hidden">
-                    {product.image?.startsWith("http") ? (
+                    {product.images[0]?.startsWith("http") ? (
                       <Image
-                        src={product.image}
+                        src={product.images[0]}
                         alt={product.name[locale]}
                         fill
                         className="object-cover transition-transform duration-300 group-hover:scale-105"

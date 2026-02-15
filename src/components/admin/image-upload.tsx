@@ -9,7 +9,7 @@ import {
 import { ImageCropDialog } from "@/components/admin/image-crop-dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Loader2, Upload, X, ImagePlus } from "lucide-react";
+import { Loader2, Upload, X, ImagePlus, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { ImageFolder } from "@/lib/storage";
@@ -24,6 +24,8 @@ interface ImageUploadProps {
   maxFiles?: number;
   aspectRatio?: number;
   onUploadStateChange?: (isUploading: boolean) => void;
+  reorderable?: boolean;
+  showPrimaryBadge?: boolean;
 }
 
 function isSvg(file: File) {
@@ -40,6 +42,8 @@ export function ImageUpload({
   maxFiles = 10,
   aspectRatio = 4 / 3,
   onUploadStateChange,
+  reorderable = false,
+  showPrimaryBadge = false,
 }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -253,6 +257,16 @@ export function ImageUpload({
     setIsDragOver(false);
   }, []);
 
+  const moveImage = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      const reordered = [...urls];
+      const [moved] = reordered.splice(fromIndex, 1);
+      reordered.splice(toIndex, 0, moved);
+      onChange(reordered);
+    },
+    [urls, onChange]
+  );
+
   const showDropzone = multiple ? !atLimit : urls.length === 0;
 
   // Compute aspect class for preview (static strings for Tailwind JIT)
@@ -270,13 +284,14 @@ export function ImageUpload({
             multiple ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4" : ""
           )}
         >
-          {urls.map((url) => (
+          {urls.map((url, index) => (
             <div
               key={url}
               className={cn(
                 "group relative overflow-hidden rounded-lg border bg-muted",
                 multiple ? "aspect-square" : "max-w-xs",
-                !multiple && aspectClass
+                !multiple && aspectClass,
+                showPrimaryBadge && index === 0 && "ring-2 ring-primary"
               )}
             >
               <Image
@@ -286,14 +301,45 @@ export function ImageUpload({
                 className="object-cover"
                 sizes={multiple ? "200px" : "320px"}
               />
-              <button
-                type="button"
-                onClick={() => handleRemove(url)}
-                className="absolute right-1.5 top-1.5 rounded-full bg-destructive p-1 text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100"
-              >
-                <X className="h-3.5 w-3.5" />
-                <span className="sr-only">Remove</span>
-              </button>
+              {showPrimaryBadge && index === 0 && (
+                <span className="absolute left-1.5 top-1.5 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
+                  Primary
+                </span>
+              )}
+              <div className="absolute right-1.5 top-1.5 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                <button
+                  type="button"
+                  onClick={() => handleRemove(url)}
+                  className="rounded-full bg-destructive p-1 text-destructive-foreground"
+                >
+                  <X className="h-3.5 w-3.5" />
+                  <span className="sr-only">Remove</span>
+                </button>
+              </div>
+              {reorderable && urls.length > 1 && (
+                <div className="absolute bottom-1.5 right-1.5 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                  {index > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => moveImage(index, index - 1)}
+                      className="rounded-full bg-foreground/80 p-1 text-background backdrop-blur-sm"
+                    >
+                      <ChevronLeft className="h-3.5 w-3.5" />
+                      <span className="sr-only">Move left</span>
+                    </button>
+                  )}
+                  {index < urls.length - 1 && (
+                    <button
+                      type="button"
+                      onClick={() => moveImage(index, index + 1)}
+                      className="rounded-full bg-foreground/80 p-1 text-background backdrop-blur-sm"
+                    >
+                      <ChevronRight className="h-3.5 w-3.5" />
+                      <span className="sr-only">Move right</span>
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>

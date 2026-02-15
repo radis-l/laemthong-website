@@ -33,56 +33,57 @@ export async function extractImagesFromZip(
   const zip = new JSZip();
   const loaded = await zip.loadAsync(await zipFile.arrayBuffer());
 
-  const imageMap: ImageMap = {};
-  const galleryTemp: Record<
+  const imageTemp: Record<
     string,
-    { file: File; num: number; name: string }[]
+    { file: File; order: number }[]
   > = {};
 
   for (const [path, file] of Object.entries(loaded.files)) {
     if (file.dir) continue;
+    if (!isValidImageExtension(path)) continue;
 
-    // Parse: products/{slug}/main.jpg, products/{slug}/image.jpg, or products/{slug}/gallery-1.jpg
+    // New format: products/{slug}/{N}.ext or products/{slug}/image-{N}.ext
+    const numberedMatch = path.match(
+      /^products\/([^/]+)\/(?:image-)?(\d+)\.(jpg|jpeg|png|webp|avif|svg)$/i
+    );
+    // Legacy: main.ext or image.ext (treated as first image)
     const mainMatch = path.match(
       /^products\/([^/]+)\/(main|image)\.(jpg|jpeg|png|webp|avif|svg)$/i
     );
+    // Legacy: gallery-N.ext (treated as subsequent images)
     const galleryMatch = path.match(
       /^products\/([^/]+)\/gallery-(\d+)\.(jpg|jpeg|png|webp|avif|svg)$/i
     );
 
-    if (!mainMatch && !galleryMatch) continue;
-    if (!isValidImageExtension(path)) continue;
+    let slug: string | null = null;
+    let order: number | null = null;
+
+    if (numberedMatch) {
+      slug = numberedMatch[1];
+      order = parseInt(numberedMatch[2], 10);
+    } else if (mainMatch) {
+      slug = mainMatch[1];
+      order = 0; // main always first
+    } else if (galleryMatch) {
+      slug = galleryMatch[1];
+      // Offset gallery numbers to sort after main (order 0)
+      order = parseInt(galleryMatch[2], 10) + 1000;
+    }
+
+    if (!slug || order === null) continue;
 
     const blob = await file.async("blob");
     const imageFile = new File([blob], path, { type: getImageMimeType(path) });
 
-    if (mainMatch) {
-      // Main image
-      const slug = mainMatch[1];
-      if (!imageMap[slug]) {
-        imageMap[slug] = { gallery: [] };
-      }
-      imageMap[slug].main = imageFile;
-    } else if (galleryMatch) {
-      // Gallery image
-      const slug = galleryMatch[1];
-      const galleryNum = parseInt(galleryMatch[2], 10);
-
-      if (!galleryTemp[slug]) {
-        galleryTemp[slug] = [];
-      }
-      galleryTemp[slug].push({ file: imageFile, num: galleryNum, name: path });
-    }
+    if (!imageTemp[slug]) imageTemp[slug] = [];
+    imageTemp[slug].push({ file: imageFile, order });
   }
 
-  // Sort gallery images numerically and add to imageMap
-  for (const [slug, images] of Object.entries(galleryTemp)) {
-    if (!imageMap[slug]) {
-      imageMap[slug] = { gallery: [] };
-    }
-    // Sort numerically by gallery number
-    images.sort((a, b) => a.num - b.num);
-    imageMap[slug].gallery = images.map((g) => g.file);
+  // Sort by order and build imageMap
+  const imageMap: ImageMap = {};
+  for (const [slug, items] of Object.entries(imageTemp)) {
+    items.sort((a, b) => a.order - b.order);
+    imageMap[slug] = { images: items.map((i) => i.file) };
   }
 
   return imageMap;

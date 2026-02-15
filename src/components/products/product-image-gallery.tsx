@@ -13,23 +13,17 @@ import {
 import { cn } from "@/lib/utils";
 
 type Props = {
-  mainImage: string | null;
-  gallery: string[];
+  images: string[];
   productName: string;
   categorySlug: string;
 };
 
 export function ProductImageGallery({
-  mainImage,
-  gallery,
+  images,
   productName,
   categorySlug,
 }: Props) {
-  const validGallery = gallery.filter((u) => u.startsWith("http"));
-  const allImages = [
-    ...(mainImage ? [mainImage] : []),
-    ...validGallery,
-  ];
+  const allImages = images.filter((u) => u.startsWith("http"));
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);

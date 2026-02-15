@@ -42,8 +42,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
   >(action, {});
 
   // Complex state for JSON fields
-  const [gallery, setGallery] = useState<string[]>(product?.gallery ?? []);
-  const [mainImage, setMainImage] = useState<string>(product?.image ?? "");
+  const [images, setImages] = useState<string[]>(product?.images ?? []);
   const [currentSlug, setCurrentSlug] = useState(product?.slug ?? "");
   const [specifications, setSpecifications] = useState<
     { label: LocalizedString; value: LocalizedString }[]
@@ -59,9 +58,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
   const [categorySlug, setCategorySlug] = useState(product?.category_slug ?? "");
   const [brandSlug, setBrandSlug] = useState(product?.brand_slug ?? "");
 
-  const [mainImageUploading, setMainImageUploading] = useState(false);
-  const [galleryUploading, setGalleryUploading] = useState(false);
-  const isUploadingImage = mainImageUploading || galleryUploading;
+  const [imagesUploading, setImagesUploading] = useState(false);
 
   useEffect(() => {
     if (state.success) {
@@ -74,8 +71,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
       {isEditing && (
         <input type="hidden" name="originalSlug" value={product.slug} />
       )}
-      <input type="hidden" name="image" value={mainImage} />
-      <input type="hidden" name="gallery" value={JSON.stringify(gallery)} />
+      <input type="hidden" name="images" value={JSON.stringify(images)} />
       <input
         type="hidden"
         name="specifications"
@@ -235,26 +231,21 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
         {/* Tab 2: Images */}
         <TabsContent value="images" forceMount className="data-[state=inactive]:hidden space-y-6 pt-4">
           <ImageUpload
-            label="Main Image"
-            value={mainImage}
-            onChange={(url) => setMainImage(url as string)}
-            onUploadStateChange={setMainImageUploading}
-            folder="products"
-            entitySlug={currentSlug}
-            aspectRatio={4 / 3}
-          />
-
-          <ImageUpload
-            label="Gallery Images"
-            value={gallery}
-            onChange={(urls) => setGallery(urls as string[])}
-            onUploadStateChange={setGalleryUploading}
+            label="Product Images"
+            value={images}
+            onChange={(urls) => setImages(urls as string[])}
+            onUploadStateChange={setImagesUploading}
             folder="products"
             entitySlug={currentSlug}
             multiple
             maxFiles={10}
-            aspectRatio={1}
+            aspectRatio={4 / 3}
+            reorderable
+            showPrimaryBadge
           />
+          <p className="text-xs text-muted-foreground">
+            First image is used as the product thumbnail. Use the arrows to reorder.
+          </p>
         </TabsContent>
 
         {/* Tab 3: Details */}
@@ -456,13 +447,13 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
       </Tabs>
 
       <div className="flex gap-3 border-t pt-6">
-        <Button type="submit" disabled={isPending || isUploadingImage}>
+        <Button type="submit" disabled={isPending || imagesUploading}>
           {isPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Saving...
             </>
-          ) : isUploadingImage ? (
+          ) : imagesUploading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Uploading images...

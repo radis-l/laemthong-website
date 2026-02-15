@@ -141,8 +141,8 @@ export function buildProductSchema(
     name: product.name[locale],
     description: product.description[locale],
     url: getPageUrl(locale, `/products/${product.slug}`),
-    image: product.image
-      ? `${SITE_URL}${product.image}`
+    image: product.images[0]?.startsWith("http")
+      ? product.images[0]
       : `${SITE_URL}${DEFAULT_OG_IMAGE}`,
     sku: product.slug,
     ...(brand && {

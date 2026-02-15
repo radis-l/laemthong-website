@@ -113,8 +113,8 @@ export async function validateProductRows(
 
     // Image warnings
     const images = imageMap[row.data.slug];
-    if (!images?.main) {
-      warnings.push("No main image provided");
+    if (!images || images.images.length === 0) {
+      warnings.push("No images provided");
     }
 
     return {
@@ -145,8 +145,7 @@ export async function validateImageOnlyRows(
         : null,
       productExists: !!product,
       images: {
-        hasMain: !!images.main,
-        galleryCount: images.gallery.length,
+        imageCount: images.images.length,
       },
     });
   }

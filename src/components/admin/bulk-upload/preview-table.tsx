@@ -207,10 +207,9 @@ export function PreviewTable({
                     {row.row.data.brandSlug}
                   </td>
                   <td className="px-4 py-3 text-sm">
-                    {row.imageInfo?.hasMain && "M"}
-                    {row.imageInfo && row.imageInfo.galleryCount > 0
-                      ? ` + ${row.imageInfo.galleryCount}G`
-                      : ""}
+                    {row.imageInfo && row.imageInfo.imageCount > 0
+                      ? `${row.imageInfo.imageCount} img`
+                      : "\u2014"}
                   </td>
                   <td className="px-4 py-3 text-sm text-muted-foreground">
                     {(() => {
@@ -440,10 +439,7 @@ function ImageOnlyPreview({
                   Product Name
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium">
-                  Main Image
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium">
-                  Gallery
+                  Images
                 </th>
               </tr>
             </thead>
@@ -472,15 +468,8 @@ function ImageOnlyPreview({
                     )}
                   </td>
                   <td className="px-4 py-3 text-sm">
-                    {row.images.hasMain ? (
-                      <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    ) : (
-                      <span className="text-muted-foreground">&mdash;</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-sm">
-                    {row.images.galleryCount > 0
-                      ? `${row.images.galleryCount} images`
+                    {row.images.imageCount > 0
+                      ? `${row.images.imageCount} images`
                       : "\u2014"}
                   </td>
                 </tr>

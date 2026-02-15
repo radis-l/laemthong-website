@@ -38,7 +38,7 @@ export async function parseAndValidateAction(formData: FormData): Promise<{
       const imageMap = await extractImagesFromZip(zipFile!);
 
       if (Object.keys(imageMap).length === 0) {
-        return { success: false, error: "No product image folders found in ZIP. Expected structure: products/[slug]/main.jpg" };
+        return { success: false, error: "No product image folders found in ZIP. Expected structure: products/[slug]/1.jpg" };
       }
 
       const imageOnlyRows = await validateImageOnlyRows(imageMap);
@@ -80,7 +80,7 @@ export async function parseAndValidateAction(formData: FormData): Promise<{
       errors: v.errors,
       warnings: v.warnings,
       imageInfo: v.images
-        ? { hasMain: !!v.images.main, galleryCount: v.images.gallery.length }
+        ? { imageCount: v.images.images.length }
         : undefined,
     }));
 

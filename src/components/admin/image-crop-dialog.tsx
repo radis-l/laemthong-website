@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import Cropper from "react-easy-crop";
-import type { MediaSize } from "react-easy-crop";
 import { cropImage } from "@/lib/crop-image";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -42,10 +41,14 @@ export function ImageCropDialog({
   const [zoom, setZoom] = useState(1);
   const [fitZoom, setFitZoom] = useState(1);
   const [coverZoom, setCoverZoom] = useState(1);
-  const [mediaLoaded, setMediaLoaded] = useState(false);
+  const [ready, setReady] = useState(false);
   const [croppedAreaPixels, setCroppedAreaPixels] =
     useState<CroppedAreaPixels | null>(null);
   const [isCropping, setIsCropping] = useState(false);
+  const [cropSize, setCropSize] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
 
   // Reset state when image changes (handles crop queue)
   useEffect(() => {
@@ -53,42 +56,89 @@ export function ImageCropDialog({
     setZoom(1);
     setFitZoom(1);
     setCoverZoom(1);
-    setMediaLoaded(false);
+    setReady(false);
     setCroppedAreaPixels(null);
+    setCropSize(null);
   }, [imageSrc]);
 
-  const onMediaLoaded = useCallback(
-    (mediaSize: MediaSize) => {
-      const cW = containerRef.current!.clientWidth;
-      const cH = containerRef.current!.clientHeight;
+  // Pre-load image and compute crop size, fit/cover zoom before rendering Cropper.
+  // Uses rAF retry because Radix Dialog portal content may not have layout
+  // dimensions on the first useEffect call.
+  useEffect(() => {
+    let cancelled = false;
 
-      // mediaSize.width/height = displayed image size at zoom=1
-      const imgW = mediaSize.width;
-      const imgH = mediaSize.height;
+    function tryMeasure() {
+      if (cancelled) return;
 
-      // Replicate react-easy-crop's getCropSize algorithm:
-      // crop area fits within BOTH media and container bounds
-      const fittingWidth = Math.min(imgW, cW);
-      const fittingHeight = Math.min(imgH, cH);
-      let cropW: number, cropH: number;
-      if (fittingWidth > fittingHeight * aspectRatio) {
-        cropW = fittingHeight * aspectRatio;
-        cropH = fittingHeight;
-      } else {
-        cropW = fittingWidth;
-        cropH = fittingWidth / aspectRatio;
+      const el = containerRef.current;
+      if (!el) {
+        requestAnimationFrame(tryMeasure);
+        return;
       }
 
-      const fit = Math.min(cropW / imgW, cropH / imgH, 1);
-      const cover = Math.max(cropW / imgW, cropH / imgH, 1);
+      // Use offsetWidth/offsetHeight instead of getBoundingClientRect() —
+      // the latter reflects CSS transforms, so during the dialog's zoom-in-95
+      // entry animation it returns ~95% of the final size, making the crop box
+      // permanently too small.
+      const cW = el.offsetWidth;
+      const cH = el.offsetHeight;
 
-      setFitZoom(fit);
-      setCoverZoom(cover);
-      setZoom(fit);
-      setMediaLoaded(true);
-    },
-    [aspectRatio]
-  );
+      if (cW === 0 || cH === 0) {
+        requestAnimationFrame(tryMeasure);
+        return;
+      }
+
+      // Crop area fills the container at the given aspect ratio.
+      let cropW: number, cropH: number;
+      if (cW / cH > aspectRatio) {
+        cropH = cH;
+        cropW = cH * aspectRatio;
+      } else {
+        cropW = cW;
+        cropH = cW / aspectRatio;
+      }
+
+      const img = new Image();
+      img.onload = () => {
+        if (cancelled) return;
+
+        // Compute displayed image size (objectFit: contain in container)
+        const imageAspect = img.naturalWidth / img.naturalHeight;
+        const containerAspect = cW / cH;
+        let imgW: number, imgH: number;
+        if (imageAspect > containerAspect) {
+          imgW = cW;
+          imgH = cW / imageAspect;
+        } else {
+          imgH = cH;
+          imgW = cH * imageAspect;
+        }
+
+        // fit: zoom so entire image is inside the crop area
+        // cover: zoom so image completely fills the crop area
+        const fit = Math.min(cropW / imgW, cropH / imgH, 1);
+        const cover = Math.max(cropW / imgW, cropH / imgH, 1);
+
+        setCropSize({ width: cropW, height: cropH });
+        setFitZoom(fit);
+        setCoverZoom(cover);
+        setZoom(fit);
+        setCrop({ x: 0, y: 0 });
+        setReady(true);
+      };
+      img.onerror = () => {
+        if (cancelled) return;
+        console.error("[ImageCropDialog] Failed to load image:", imageSrc);
+      };
+      img.src = imageSrc;
+    }
+
+    requestAnimationFrame(tryMeasure);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [imageSrc, aspectRatio]);
 
   const onCropComplete = useCallback(
     (_croppedArea: unknown, pixels: CroppedAreaPixels) => {
@@ -110,10 +160,10 @@ export function ImageCropDialog({
     }
   };
 
-  const isFilled = mediaLoaded && zoom >= coverZoom - 0.01;
-  const isFit = mediaLoaded && zoom <= fitZoom + 0.01;
+  const isFilled = ready && zoom >= coverZoom - 0.01;
+  const isFit = ready && zoom <= fitZoom + 0.01;
   const maxZoom = Math.max(3, Math.ceil(coverZoom * 10) / 10);
-  const showPresets = mediaLoaded && coverZoom - fitZoom > 0.01;
+  const showPresets = ready && coverZoom - fitZoom > 0.01;
 
   const handleFit = () => {
     setZoom(fitZoom);
@@ -132,26 +182,35 @@ export function ImageCropDialog({
           <DialogTitle>Crop Image</DialogTitle>
         </DialogHeader>
 
-        <div ref={containerRef} className="relative h-[350px] w-full overflow-hidden rounded-md">
-          <Cropper
-            image={imageSrc}
-            crop={crop}
-            zoom={zoom}
-            aspect={aspectRatio}
-            objectFit="contain"
-            restrictPosition={false}
-            onCropChange={setCrop}
-            onZoomChange={setZoom}
-            onCropComplete={onCropComplete}
-            onMediaLoaded={onMediaLoaded}
-            minZoom={fitZoom}
-            maxZoom={maxZoom}
-            style={{
-              containerStyle: {
-                background: "#f0f0f0",
-              },
-            }}
-          />
+        <div
+          ref={containerRef}
+          className="relative h-[350px] w-full overflow-hidden rounded-md"
+        >
+          {ready && cropSize ? (
+            <Cropper
+              image={imageSrc}
+              crop={crop}
+              zoom={zoom}
+              aspect={aspectRatio}
+              cropSize={cropSize}
+              objectFit="contain"
+              restrictPosition={false}
+              onCropChange={setCrop}
+              onZoomChange={setZoom}
+              onCropComplete={onCropComplete}
+              minZoom={fitZoom}
+              maxZoom={maxZoom}
+              style={{
+                containerStyle: {
+                  background: "#f0f0f0",
+                },
+              }}
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center bg-muted/30">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -181,7 +240,7 @@ export function ImageCropDialog({
               <span />
             )}
             <p className="text-xs text-muted-foreground">
-              {!mediaLoaded ? (
+              {!ready ? (
                 <span className="text-muted-foreground/50">Loading...</span>
               ) : isFit && showPresets ? (
                 "White padding will be added"
@@ -201,7 +260,7 @@ export function ImageCropDialog({
             <Slider
               min={fitZoom}
               max={maxZoom}
-              step={0.1}
+              step={0.01}
               value={[zoom]}
               onValueChange={(v) => setZoom(v[0])}
               className="flex-1"

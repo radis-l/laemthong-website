@@ -200,8 +200,8 @@ export function UploadZone({ onFilesSelected }: UploadZoneProps) {
         </ul>
         <p className="font-medium mt-4">ZIP Structure:</p>
         <ul className="list-disc list-inside space-y-1 ml-2">
-          <li>products/[slug]/main.jpg - Main product image</li>
-          <li>products/[slug]/gallery-1.jpg, gallery-2.jpg - Gallery images</li>
+          <li>products/[slug]/1.jpg, 2.jpg, 3.jpg &mdash; Product images (first = primary thumbnail)</li>
+          <li>Also accepts: products/[slug]/main.jpg and gallery-1.jpg (legacy format)</li>
           <li>Supported formats: JPG, PNG, WebP, AVIF, SVG</li>
           <li>Slug folders match products by slug (e.g., products/my-product/)</li>
         </ul>

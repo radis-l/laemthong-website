@@ -91,25 +91,17 @@ export async function* importProducts(
       }
 
       // Upload images if available
-      let mainImageUrl = "";
-      const galleryUrls: string[] = [];
+      const imageUrls: string[] = [];
 
       const images = result.images;
-      if (images?.main) {
-        mainImageUrl = await uploadImage(
-          "products",
-          result.row.data.slug,
-          images.main
-        );
-      }
-      if (images?.gallery && images.gallery.length > 0) {
-        for (const galleryImg of images.gallery) {
+      if (images?.images && images.images.length > 0) {
+        for (const img of images.images) {
           const url = await uploadImage(
             "products",
             result.row.data.slug,
-            galleryImg
+            img
           );
-          galleryUrls.push(url);
+          imageUrls.push(url);
         }
       }
 
@@ -130,8 +122,7 @@ export async function* importProducts(
           th: result.row.data.descriptionTh,
           en: result.row.data.descriptionEn,
         },
-        image: mainImageUrl || "",
-        gallery: galleryUrls,
+        images: imageUrls,
         specifications: result.row.data.parsedSpecifications || [],
         features: result.row.data.parsedFeatures || [],
         documents: [],
@@ -208,24 +199,18 @@ export async function* importImagesOnly(
       }
 
       // Upload images
-      let mainImageUrl = "";
-      const galleryUrls: string[] = [];
+      const imageUrls: string[] = [];
 
-      if (images.main) {
-        mainImageUrl = await uploadImage("products", row.slug, images.main);
-      }
-      for (const galleryImg of images.gallery) {
-        const url = await uploadImage("products", row.slug, galleryImg);
-        galleryUrls.push(url);
+      for (const img of images.images) {
+        const url = await uploadImage("products", row.slug, img);
+        imageUrls.push(url);
       }
 
       if (row.productExists) {
         // Update only image fields on existing product
-        const updateData: Record<string, unknown> = {};
-        if (mainImageUrl) updateData.image = mainImageUrl;
-        if (galleryUrls.length > 0) updateData.gallery = galleryUrls;
-
-        await adminUpdateProduct(row.slug, updateData);
+        if (imageUrls.length > 0) {
+          await adminUpdateProduct(row.slug, { images: imageUrls });
+        }
         stats.updated++;
         yield { type: "success", slug: row.slug, action: "image-updated" };
       } else {
@@ -263,8 +248,7 @@ export async function* importImagesOnly(
           name: { th: slugToTitle(row.slug), en: slugToTitle(row.slug) },
           short_description: { th: "", en: "" },
           description: { th: "", en: "" },
-          image: mainImageUrl,
-          gallery: galleryUrls,
+          images: imageUrls,
           specifications: [],
           features: [],
           documents: [],

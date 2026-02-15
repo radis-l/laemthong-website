@@ -13,8 +13,7 @@ export const productSchema = z.object({
   descriptionEn: z.string().min(1, "English description is required"),
   categorySlug: z.string().min(1, "Category is required"),
   brandSlug: z.string().min(1, "Brand is required"),
-  image: z.string().optional(),
-  gallery: z.string().optional(), // JSON string of string[]
+  images: z.string().optional(), // JSON string of string[]
   specifications: z.string().optional(), // JSON string of spec array
   features: z.string().optional(), // JSON string of LocalizedString[]
   documents: z.string().optional(), // JSON string of doc array

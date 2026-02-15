@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { CheckCircle2, ArrowRight, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CheckCircle2 } from "lucide-react";
+import { CtaContactSection } from "@/components/shared/cta-contact-section";
+import { BreadcrumbBar } from "@/components/shared/breadcrumb-bar";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { PlaceholderImage } from "@/components/shared/placeholder-image";
 import { JsonLd } from "@/components/shared/json-ld";
@@ -94,22 +95,11 @@ export default async function ServiceDetailPage({ params }: Props) {
         ])}
       />
 
-      {/* Breadcrumb */}
-      <div className="border-b bg-muted/30">
-        <div className="mx-auto max-w-7xl px-6 py-3">
-          <nav className="flex items-center gap-1 text-sm text-muted-foreground">
-            <Link href="/" className="hover:text-foreground">
-              {tNav("home")}
-            </Link>
-            <ChevronRight className="h-3.5 w-3.5" />
-            <Link href="/services" className="hover:text-foreground">
-              {t("title")}
-            </Link>
-            <ChevronRight className="h-3.5 w-3.5" />
-            <span className="text-foreground">{t(`${slug}.title`)}</span>
-          </nav>
-        </div>
-      </div>
+      <BreadcrumbBar items={[
+        { label: tNav("home"), href: "/" },
+        { label: t("title"), href: "/services" },
+        { label: t(`${slug}.title`) },
+      ]} />
 
       {/* Hero */}
       <section className="border-b py-16 md:py-20">
@@ -199,38 +189,12 @@ export default async function ServiceDetailPage({ params }: Props) {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-20 md:py-28">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="grid items-center gap-10 lg:grid-cols-2">
-            <div>
-              <h2 className="text-3xl font-bold tracking-tight text-foreground lg:text-4xl">
-                {t("ctaTitle")}
-              </h2>
-              <p className="mt-4 max-w-md text-lg leading-relaxed text-muted-foreground">
-                {t("ctaDescription")}
-              </p>
-            </div>
-            <div className="rounded-lg bg-foreground p-8 text-background md:p-10">
-              <p className="text-sm font-medium uppercase tracking-[0.15em] text-background/50">
-                {tCommon("getInTouch")}
-              </p>
-              <p className="mt-3 text-xl font-semibold text-background">
-                sales@laemthong-syndicate.com
-              </p>
-              <p className="mt-1 text-lg text-background/70">
-                +66-2-234-5678
-              </p>
-              <Button asChild variant="accent" size="lg" className="mt-6 gap-2">
-                <Link href="/contact">
-                  {t("ctaButton")}
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <CtaContactSection
+        title={t("ctaTitle")}
+        description={t("ctaDescription")}
+        getInTouchLabel={tCommon("getInTouch")}
+        buttonLabel={t("ctaButton")}
+      />
 
       {/* Other Services */}
       <section className="border-t py-16 md:py-20">

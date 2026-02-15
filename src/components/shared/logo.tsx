@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/navigation";
+import { cn } from "@/lib/utils";
 
 type Props = {
   className?: string;
@@ -10,7 +11,7 @@ export function Logo({ className, variant = "default" }: Props) {
   const subTextColor = variant === "light" ? "text-white/60" : "text-muted-foreground";
 
   return (
-    <Link href="/" className={`flex items-center gap-2 ${className ?? ""}`}>
+    <Link href="/" className={cn("flex items-center gap-2", className)}>
       <div className="flex h-10 w-10 items-center justify-center rounded-md bg-foreground">
         <svg
           viewBox="0 0 24 24"
@@ -27,10 +28,10 @@ export function Logo({ className, variant = "default" }: Props) {
         </svg>
       </div>
       <div className="flex flex-col">
-        <span className={`text-base font-bold leading-tight tracking-tight ${textColor}`}>
+        <span className={cn("text-base font-bold leading-tight tracking-tight", textColor)}>
           LAEMTHONG
         </span>
-        <span className={`text-[10px] font-medium uppercase tracking-widest ${subTextColor}`}>
+        <span className={cn("text-xs font-medium uppercase tracking-widest", subTextColor)}>
           Syndicate
         </span>
       </div>

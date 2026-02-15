@@ -3,6 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
+import { COMPANY } from "@/lib/constants";
 
 export function CtaSection() {
   const t = useTranslations("home");
@@ -31,10 +32,10 @@ export function CtaSection() {
                 {tCommon("getInTouch")}
               </p>
               <p className="mt-3 text-xl font-semibold text-background">
-                sales@laemthong-syndicate.com
+                {COMPANY.email}
               </p>
               <p className="mt-1 text-lg text-background/70">
-                +66-2-234-5678
+                {COMPANY.phone}
               </p>
               <Button asChild variant="accent" size="lg" className="mt-6 gap-2">
                 <Link href="/contact">

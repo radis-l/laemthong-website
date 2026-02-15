@@ -7,6 +7,7 @@ import { ArrowRight, Phone } from "lucide-react";
 import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
 import { useInView } from "@/hooks/use-in-view";
 import { useCountUp } from "@/hooks/use-count-up";
+import { COMPANY, STAGGER_DELAY } from "@/lib/constants";
 
 export function HeroSection() {
   const t = useTranslations("hero");
@@ -17,7 +18,7 @@ export function HeroSection() {
         {/* Label */}
         <p className="mb-6 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.3em] text-muted-foreground">
           <span className="inline-block h-px w-8 bg-primary" />
-          Since 1965
+          {`Since ${COMPANY.foundedYear}`}
         </p>
 
         {/* Heading */}
@@ -56,10 +57,10 @@ export function HeroSection() {
 }
 
 const stats = [
-  { target: 60, suffix: "+", labelKey: "statsYears" },
-  { target: 3, suffix: "+", labelKey: "statsBrands" },
-  { target: 1000, suffix: "+", labelKey: "statsProducts" },
-  { target: 500, suffix: "+", labelKey: "statsClients" },
+  { target: COMPANY.stats.years, suffix: "+", labelKey: "statsYears" },
+  { target: COMPANY.stats.brands, suffix: "+", labelKey: "statsBrands" },
+  { target: COMPANY.stats.products, suffix: "+", labelKey: "statsProducts" },
+  { target: COMPANY.stats.clients, suffix: "+", labelKey: "statsClients" },
 ] as const;
 
 function StatsStrip() {
@@ -72,7 +73,7 @@ function StatsStrip() {
       className="mt-20 flex flex-wrap items-center gap-8 border-t pt-8 md:gap-12 lg:gap-16"
     >
       {stats.map((stat, i) => (
-        <AnimateOnScroll key={stat.labelKey} delay={i * 100}>
+        <AnimateOnScroll key={stat.labelKey} delay={i * STAGGER_DELAY}>
           <StatItem
             target={stat.target}
             suffix={stat.suffix}

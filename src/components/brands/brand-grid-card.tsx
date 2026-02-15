@@ -28,7 +28,7 @@ export function BrandGridCard({ brand, productsLabel }: Props) {
             </span>
           )}
           {/* Country badge */}
-          <span className="absolute right-2 top-2 rounded-sm bg-background/90 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+          <span className="absolute right-2 top-2 rounded-sm bg-background/90 px-1.5 py-0.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
             {brand.country}
           </span>
         </div>

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, ArrowRight } from "lucide-react";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 const navItems = [
   { key: "home", href: "/" },
@@ -41,11 +42,13 @@ export function SiteHeader() {
                 key={item.key}
                 href={item.href}
                 data-active={isActive}
-                className={`nav-underline py-1 text-sm font-medium transition-colors ${
+                aria-current={isActive ? "page" : undefined}
+                className={cn(
+                  "nav-underline py-1 text-sm font-medium transition-colors",
                   isActive
                     ? "text-foreground"
                     : "text-muted-foreground hover:text-foreground"
-                }`}
+                )}
               >
                 {t(item.key)}
               </Link>
@@ -83,11 +86,13 @@ export function SiteHeader() {
                       key={item.key}
                       href={item.href}
                       onClick={() => setOpen(false)}
-                      className={`border-l-2 px-4 py-2.5 text-sm font-medium transition-colors ${
+                      aria-current={isActive ? "page" : undefined}
+                      className={cn(
+                        "border-l-2 px-4 py-2.5 text-sm font-medium transition-colors",
                         isActive
                           ? "border-primary text-foreground"
                           : "border-transparent text-muted-foreground hover:border-border hover:text-foreground"
-                      }`}
+                      )}
                     >
                       {t(item.key)}
                     </Link>

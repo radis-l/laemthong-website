@@ -4,6 +4,7 @@ import { ContactForm } from "@/components/contact/contact-form";
 import { GoogleMap } from "@/components/contact/google-map";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { JsonLd } from "@/components/shared/json-ld";
+import { PageHero } from "@/components/shared/page-hero";
 import { getCompanyInfo } from "@/lib/db";
 import {
   getPageUrl,
@@ -55,22 +56,9 @@ export default async function ContactPage({ params, searchParams }: Props) {
   return (
     <>
       {company && <JsonLd data={buildLocalBusinessSchema(company, locale as Locale)} />}
-      <section className="border-b py-16 md:py-20">
-        <div className="mx-auto max-w-7xl px-6">
-          <p className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
-            {t("title")}
-          </p>
-          <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-            {t("title")}
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-            {t("description")}
-          </p>
-        </div>
-      </section>
+      <PageHero label={t("title")} title={t("title")} description={t("description")} />
 
-      <section className="py-12 md:py-16">
+      <section className="py-16 md:py-20">
         <div className="mx-auto max-w-7xl px-6">
           <div className="grid gap-10 lg:grid-cols-[1fr_380px]">
             {/* Form */}

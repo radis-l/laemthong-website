@@ -5,6 +5,8 @@ import { Building2, DollarSign, Wrench, Award, Users, Factory } from "lucide-rea
 import { SectionHeading } from "@/components/shared/section-heading";
 import { PlaceholderImage } from "@/components/shared/placeholder-image";
 import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
+import { STAGGER_DELAY } from "@/lib/constants";
+import { PageHero } from "@/components/shared/page-hero";
 import {
   getPageUrl,
   getAlternateLanguages,
@@ -64,21 +66,7 @@ export default async function AboutPage({ params }: Props) {
 
   return (
     <>
-      {/* Hero */}
-      <section className="border-b py-16 md:py-20">
-        <div className="mx-auto max-w-7xl px-6">
-          <p className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
-            {t("title")}
-          </p>
-          <h1 className="max-w-3xl text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-            {t("title")}
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-            {t("subtitle")}
-          </p>
-        </div>
-      </section>
+      <PageHero label={t("title")} title={t("title")} description={t("subtitle")} />
 
       {/* History */}
       <section className="py-20 md:py-28">
@@ -108,7 +96,7 @@ export default async function AboutPage({ params }: Props) {
                   { value: "1,000+", label: t("statProducts") },
                   { value: "500+", label: t("statClients") },
                 ].map((stat, i) => (
-                  <AnimateOnScroll key={stat.label} delay={i * 100}>
+                  <AnimateOnScroll key={stat.label} delay={i * STAGGER_DELAY}>
                     <div className="rounded-lg border p-5">
                       <div className="text-3xl font-light tracking-tight text-foreground">{stat.value}</div>
                       <div className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -171,7 +159,7 @@ export default async function AboutPage({ params }: Props) {
           <SectionHeading title={t("whyChooseUs")} label="Our Strengths" />
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             {reasons.map(({ key, icon: Icon }, i) => (
-              <AnimateOnScroll key={key} delay={i * 100}>
+              <AnimateOnScroll key={key} delay={i * STAGGER_DELAY}>
                 <div className="group">
                   <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg border transition-colors group-hover:border-primary group-hover:text-primary">
                     <Icon className="h-5 w-5" />

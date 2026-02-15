@@ -69,9 +69,10 @@ export function ContactForm({ locale, defaultProduct }: Props) {
             name="name"
             placeholder={t("namePlaceholder")}
             required
+            aria-describedby={state.errors?.name ? "name-error" : undefined}
           />
           {state.errors?.name && (
-            <p className="text-xs text-destructive">{state.errors.name[0]}</p>
+            <p id="name-error" className="text-xs text-destructive">{state.errors.name[0]}</p>
           )}
         </div>
 
@@ -83,9 +84,10 @@ export function ContactForm({ locale, defaultProduct }: Props) {
             type="email"
             placeholder={t("emailPlaceholder")}
             required
+            aria-describedby={state.errors?.email ? "email-error" : undefined}
           />
           {state.errors?.email && (
-            <p className="text-xs text-destructive">{state.errors.email[0]}</p>
+            <p id="email-error" className="text-xs text-destructive">{state.errors.email[0]}</p>
           )}
         </div>
       </div>
@@ -98,9 +100,10 @@ export function ContactForm({ locale, defaultProduct }: Props) {
             name="company"
             placeholder={t("companyPlaceholder")}
             required
+            aria-describedby={state.errors?.company ? "company-error" : undefined}
           />
           {state.errors?.company && (
-            <p className="text-xs text-destructive">
+            <p id="company-error" className="text-xs text-destructive">
               {state.errors.company[0]}
             </p>
           )}
@@ -147,9 +150,10 @@ export function ContactForm({ locale, defaultProduct }: Props) {
           placeholder={t("messagePlaceholder")}
           rows={5}
           required
+          aria-describedby={state.errors?.message ? "message-error" : undefined}
         />
         {state.errors?.message && (
-          <p className="text-xs text-destructive">{state.errors.message[0]}</p>
+          <p id="message-error" className="text-xs text-destructive">{state.errors.message[0]}</p>
         )}
       </div>
 

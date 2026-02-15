@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { FormErrorAlert } from "./form-error-alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
@@ -22,7 +22,7 @@ import {
   updateProductAction,
   type ProductFormState,
 } from "@/app/admin/actions/products";
-import { Loader2 } from "lucide-react";
+import { FormSubmitButton } from "./form-submit-button";
 import { toast } from "sonner";
 import type { DbProduct, DbBrand, DbCategory, LocalizedString } from "@/data/types";
 
@@ -83,18 +83,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
       <input type="hidden" name="categorySlug" value={categorySlug} />
       <input type="hidden" name="brandSlug" value={brandSlug} />
 
-      {state.message && (
-        <Alert variant="destructive">
-          <AlertDescription>{state.message}</AlertDescription>
-        </Alert>
-      )}
-      {state.errors && Object.keys(state.errors).length > 0 && (
-        <Alert variant="destructive">
-          <AlertDescription>
-            Please fix the highlighted errors and try again.
-          </AlertDescription>
-        </Alert>
-      )}
+      <FormErrorAlert message={state.message} errors={state.errors} />
 
       <Tabs defaultValue="basic">
         <TabsList>
@@ -447,23 +436,12 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
       </Tabs>
 
       <div className="flex gap-3 border-t pt-6">
-        <Button type="submit" disabled={isPending || imagesUploading}>
-          {isPending ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
-            </>
-          ) : imagesUploading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Uploading images...
-            </>
-          ) : isEditing ? (
-            "Update Product"
-          ) : (
-            "Create Product"
-          )}
-        </Button>
+        <FormSubmitButton
+          isPending={isPending}
+          isUploading={imagesUploading}
+          isEditing={isEditing}
+          entityName="Product"
+        />
       </div>
     </form>
   );

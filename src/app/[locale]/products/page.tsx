@@ -242,7 +242,7 @@ export default async function ProductsPage({ params, searchParams }: Props) {
         </div>
       </section>
 
-      <section className="py-10 md:py-14">
+      <section className="py-16 md:py-20">
         <div className="mx-auto max-w-7xl px-6">
           {/* Top filter bar */}
           <div className="space-y-4">

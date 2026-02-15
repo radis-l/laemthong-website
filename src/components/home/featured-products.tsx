@@ -9,6 +9,7 @@ import { ArrowRight } from "lucide-react";
 import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
 import type { Product, Locale } from "@/data/types";
 import { formatSlug } from "@/lib/format";
+import { STAGGER_DELAY } from "@/lib/constants";
 
 type Props = {
   products: Product[];
@@ -41,7 +42,7 @@ export function FeaturedProducts({ products }: Props) {
 
         <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {products.map((product, i) => (
-            <AnimateOnScroll key={product.slug} delay={i * 100}>
+            <AnimateOnScroll key={product.slug} delay={i * STAGGER_DELAY}>
               <Link
                 href={`/products/${product.slug}`}
                 className="group"

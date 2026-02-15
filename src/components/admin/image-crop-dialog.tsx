@@ -184,7 +184,7 @@ export function ImageCropDialog({
 
         <div
           ref={containerRef}
-          className="relative h-[350px] w-full overflow-hidden rounded-md"
+          className="relative h-80 w-full overflow-hidden rounded-md"
         >
           {ready && cropSize ? (
             <Cropper

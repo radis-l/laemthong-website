@@ -22,7 +22,7 @@ export function ProductCard({ product, locale, categoryName, variant = "grid" }:
         href={`/products/${product.slug}`}
         className="group flex items-center gap-4 rounded-lg border bg-card p-3 transition-all hover:shadow-md"
       >
-        <div className="relative h-[60px] w-20 shrink-0 overflow-hidden rounded-md bg-muted/50">
+        <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-md bg-muted/50">
           {product.images[0]?.startsWith("http") ? (
             <Image
               src={product.images[0]}

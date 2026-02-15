@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Input } from "@/components/ui/input";
+import { TableSearchBar } from "./table-search-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -22,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Pencil, Star, Search, Trash2, Loader2, X } from "lucide-react";
+import { Pencil, Star, Trash2, Loader2, X } from "lucide-react";
 import { TableThumbnail } from "@/components/admin/table-thumbnail";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
 import {
@@ -119,15 +119,11 @@ export function ProductsTable({
     <>
       {/* Search + Bulk Actions Bar */}
       <div className="flex items-center gap-4">
-        <div className="relative max-w-sm flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search products..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="pl-9"
-          />
-        </div>
+        <TableSearchBar
+          query={query}
+          onQueryChange={setQuery}
+          placeholder="Search products..."
+        />
 
         {selectedSlugs.size > 0 && (
           <div className="flex items-center gap-2">

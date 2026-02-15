@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 type Props = {
   title: string;
   label?: string;
@@ -15,7 +17,7 @@ export function SectionHeading({
 }: Props) {
   return (
     <div
-      className={`mb-12 ${align === "center" ? "text-center" : "text-left"} ${className ?? ""}`}
+      className={cn("mb-12", align === "center" ? "text-center" : "text-left", className)}
     >
       {label && (
         <p className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">

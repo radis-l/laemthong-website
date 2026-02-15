@@ -67,6 +67,8 @@ export function ProductImageGallery({
               key={i}
               type="button"
               onClick={() => setSelectedIndex(i)}
+              aria-label={`View image ${i + 1} of ${allImages.length}`}
+              aria-current={i === selectedIndex ? "true" : undefined}
               className={cn(
                 "relative aspect-square overflow-hidden rounded-lg border bg-muted transition-all",
                 i === selectedIndex

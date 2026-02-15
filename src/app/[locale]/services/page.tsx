@@ -3,17 +3,13 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { CheckCircle2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { CtaContactSection } from "@/components/shared/cta-contact-section";
+import { BreadcrumbBar } from "@/components/shared/breadcrumb-bar";
 import { JsonLd } from "@/components/shared/json-ld";
 import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
+import { PageHero } from "@/components/shared/page-hero";
 import { SERVICES } from "@/data/services";
+import { STAGGER_DELAY } from "@/lib/constants";
 import {
   getPageUrl,
   getAlternateLanguages,
@@ -72,40 +68,12 @@ export default async function ServicesPage({ params }: Props) {
         ])}
       />
 
-      {/* Breadcrumb */}
-      <div className="border-b bg-muted/30">
-        <div className="mx-auto max-w-7xl px-6 py-3">
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href="/">{tNav("home")}</Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>{t("title")}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </div>
-      </div>
+      <BreadcrumbBar items={[
+        { label: tNav("home"), href: "/" },
+        { label: t("title") },
+      ]} />
 
-      {/* Hero */}
-      <section className="border-b py-16 md:py-20">
-        <div className="mx-auto max-w-7xl px-6">
-          <p className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
-            {t("title")}
-          </p>
-          <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-            {t("title")}
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-            {t("subtitle")}
-          </p>
-        </div>
-      </section>
+      <PageHero label={t("title")} title={t("title")} description={t("subtitle")} />
 
       {/* All Services */}
       <section className="py-16 md:py-20">
@@ -120,7 +88,7 @@ export default async function ServicesPage({ params }: Props) {
                 <AnimateOnScroll
                   key={service.slug}
                   direction="up"
-                  delay={index * 100}
+                  delay={index * STAGGER_DELAY}
                 >
                   <div className="h-full overflow-hidden rounded-lg border bg-card p-8 shadow-sm transition-shadow hover:shadow-md">
                     <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg border">
@@ -159,38 +127,12 @@ export default async function ServicesPage({ params }: Props) {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-20 md:py-28">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="grid items-center gap-10 lg:grid-cols-2">
-            <div>
-              <h2 className="text-3xl font-bold tracking-tight text-foreground lg:text-4xl">
-                {t("ctaTitle")}
-              </h2>
-              <p className="mt-4 max-w-md text-lg leading-relaxed text-muted-foreground">
-                {t("ctaDescription")}
-              </p>
-            </div>
-            <div className="rounded-lg bg-foreground p-8 text-background md:p-10">
-              <p className="text-sm font-medium uppercase tracking-[0.15em] text-background/50">
-                {tCommon("getInTouch")}
-              </p>
-              <p className="mt-3 text-xl font-semibold text-background">
-                sales@laemthong-syndicate.com
-              </p>
-              <p className="mt-1 text-lg text-background/70">
-                +66-2-234-5678
-              </p>
-              <Button asChild variant="accent" size="lg" className="mt-6 gap-2">
-                <Link href="/contact">
-                  {t("ctaButton")}
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <CtaContactSection
+        title={t("ctaTitle")}
+        description={t("ctaDescription")}
+        getInTouchLabel={tCommon("getInTouch")}
+        buttonLabel={t("ctaButton")}
+      />
     </>
   );
 }

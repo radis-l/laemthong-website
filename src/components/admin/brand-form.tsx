@@ -1,10 +1,9 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { FormErrorAlert } from "./form-error-alert";
 import { BilingualTextarea } from "./bilingual-textarea";
 import { ImageUpload } from "./image-upload";
 import {
@@ -12,7 +11,7 @@ import {
   updateBrandAction,
   type BrandFormState,
 } from "@/app/admin/actions/brands";
-import { Loader2 } from "lucide-react";
+import { FormSubmitButton } from "./form-submit-button";
 import { toast } from "sonner";
 import type { DbBrand } from "@/data/types";
 
@@ -44,18 +43,7 @@ export function BrandForm({ brand }: BrandFormProps) {
       {isEditing && <input type="hidden" name="originalSlug" value={brand.slug} />}
       <input type="hidden" name="logo" value={logo} />
 
-      {state.message && (
-        <Alert variant="destructive">
-          <AlertDescription>{state.message}</AlertDescription>
-        </Alert>
-      )}
-      {state.errors && Object.keys(state.errors).length > 0 && (
-        <Alert variant="destructive">
-          <AlertDescription>
-            Please fix the highlighted errors and try again.
-          </AlertDescription>
-        </Alert>
-      )}
+      <FormErrorAlert message={state.message} errors={state.errors} />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
@@ -149,23 +137,12 @@ export function BrandForm({ brand }: BrandFormProps) {
       />
 
       <div className="flex gap-3">
-        <Button type="submit" disabled={isPending || isUploadingImage}>
-          {isPending ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
-            </>
-          ) : isUploadingImage ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Uploading image...
-            </>
-          ) : isEditing ? (
-            "Update Brand"
-          ) : (
-            "Create Brand"
-          )}
-        </Button>
+        <FormSubmitButton
+          isPending={isPending}
+          isUploading={isUploadingImage}
+          isEditing={isEditing}
+          entityName="Brand"
+        />
       </div>
     </form>
   );

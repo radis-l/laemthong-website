@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Input } from "@/components/ui/input";
+import { TableSearchBar } from "./table-search-bar";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Pencil, Search } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { TableThumbnail } from "@/components/admin/table-thumbnail";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
 import { deleteBrandAction } from "@/app/admin/actions/brands";
@@ -37,15 +37,11 @@ export function BrandsTable({ brands }: BrandsTableProps) {
 
   return (
     <>
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Search brands..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="pl-9"
-        />
-      </div>
+      <TableSearchBar
+        query={query}
+        onQueryChange={setQuery}
+        placeholder="Search brands..."
+      />
 
       <div className="rounded-xl border">
         <Table>

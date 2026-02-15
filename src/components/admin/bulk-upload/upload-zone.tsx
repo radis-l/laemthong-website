@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { Upload, FileText, FolderArchive, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { exportProductsAction } from "@/app/admin/(authenticated)/bulk-upload/actions";
 
 type UploadZoneProps = {
@@ -81,11 +82,12 @@ export function UploadZone({ onFilesSelected }: UploadZoneProps) {
           Product Data (CSV)
         </label>
         <div
-          className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+          className={cn(
+            "relative border-2 border-dashed rounded-lg p-8 text-center transition-colors",
             isDragging
               ? "border-primary bg-primary/5"
               : "border-muted-foreground/25 hover:border-muted-foreground/50"
-          }`}
+          )}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
@@ -121,11 +123,12 @@ export function UploadZone({ onFilesSelected }: UploadZoneProps) {
           Product Images (ZIP)
         </label>
         <div
-          className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+          className={cn(
+            "relative border-2 border-dashed rounded-lg p-8 text-center transition-colors",
             isDragging
               ? "border-primary bg-primary/5"
               : "border-muted-foreground/25 hover:border-muted-foreground/50"
-          }`}
+          )}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useMemo } from "react";
 import Image from "next/image";
 import {
   uploadImageAction,
@@ -59,11 +59,10 @@ export function ImageUpload({
     onUploadStateChange?.(state);
   }, [onUploadStateChange]);
 
-  const urls: string[] = Array.isArray(value)
-    ? value.filter(Boolean)
-    : value
-      ? [value]
-      : [];
+  const urls = useMemo<string[]>(
+    () => (Array.isArray(value) ? value.filter(Boolean) : value ? [value] : []),
+    [value]
+  );
 
   const canUpload = !!entitySlug;
   const atLimit = multiple && urls.length >= maxFiles;
@@ -101,17 +100,11 @@ export function ImageUpload({
         const url = await uploadFile(blob);
         if (!url) return;
 
-        const currentUrls: string[] = Array.isArray(value)
-          ? value.filter(Boolean)
-          : value
-            ? [value]
-            : [];
-
         if (multiple) {
-          onChange([...currentUrls, url]);
+          onChange([...urls, url]);
         } else {
-          if (currentUrls[0]) {
-            deleteImageAction(currentUrls[0]).catch(() => {});
+          if (urls[0]) {
+            deleteImageAction(urls[0]).catch(() => {});
           }
           onChange(url);
         }
@@ -121,7 +114,7 @@ export function ImageUpload({
         setUploadingState(false);
       }
     },
-    [multiple, value, onChange, uploadFile, setUploadingState]
+    [multiple, urls, onChange, uploadFile, setUploadingState]
   );
 
   const processNextInQueue = useCallback(
@@ -168,14 +161,8 @@ export function ImageUpload({
         return;
       }
 
-      const currentUrls: string[] = Array.isArray(value)
-        ? value.filter(Boolean)
-        : value
-          ? [value]
-          : [];
-
       const fileArray = Array.from(files);
-      if (multiple && currentUrls.length + fileArray.length > maxFiles) {
+      if (multiple && urls.length + fileArray.length > maxFiles) {
         toast.error(`Maximum ${maxFiles} images allowed.`);
         return;
       }
@@ -194,10 +181,10 @@ export function ImageUpload({
           ) as string[];
 
           if (multiple) {
-            onChange([...currentUrls, ...newUrls]);
+            onChange([...urls, ...newUrls]);
           } else if (newUrls.length > 0) {
-            if (currentUrls[0]) {
-              deleteImageAction(currentUrls[0]).catch(() => {});
+            if (urls[0]) {
+              deleteImageAction(urls[0]).catch(() => {});
             }
             onChange(newUrls[0]);
           }
@@ -216,24 +203,19 @@ export function ImageUpload({
         setCropSrc(objectUrl);
       }
     },
-    [canUpload, multiple, value, onChange, maxFiles, uploadFile, setUploadingState]
+    [canUpload, multiple, urls, onChange, maxFiles, uploadFile, setUploadingState]
   );
 
   const handleRemove = useCallback(
     async (urlToRemove: string) => {
       deleteImageAction(urlToRemove).catch(() => {});
       if (multiple) {
-        const currentUrls: string[] = Array.isArray(value)
-          ? value.filter(Boolean)
-          : value
-            ? [value]
-            : [];
-        onChange(currentUrls.filter((u) => u !== urlToRemove));
+        onChange(urls.filter((u) => u !== urlToRemove));
       } else {
         onChange("");
       }
     },
-    [multiple, value, onChange]
+    [multiple, urls, onChange]
   );
 
   const handleDrop = useCallback(

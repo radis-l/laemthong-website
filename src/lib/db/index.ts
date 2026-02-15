@@ -23,8 +23,6 @@ export {
   getCategorySlugsWithDates,
 } from "./categories";
 
-export { getAllServices } from "./services";
-
 export { getCompanyInfo } from "./company";
 
 export { saveContactInquiry } from "./contact";

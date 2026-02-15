@@ -33,15 +33,6 @@ export async function getCategoryBySlug(slug: string): Promise<Category | undefi
   return toCategory(data as DbCategory);
 }
 
-export async function getAllCategorySlugs(): Promise<string[]> {
-  const supabase = createSupabaseClient();
-  const { data, error } = await supabase
-    .from("categories")
-    .select("slug");
-  if (error) return [];
-  return data.map((row) => row.slug);
-}
-
 export async function getCategorySlugsWithDates(): Promise<
   { slug: string; updatedAt: string }[]
 > {

@@ -34,15 +34,6 @@ export async function getBrandBySlug(slug: string): Promise<Brand | undefined> {
   return toBrand(data as DbBrand);
 }
 
-export async function getAllBrandSlugs(): Promise<string[]> {
-  const supabase = createSupabaseClient();
-  const { data, error } = await supabase
-    .from("brands")
-    .select("slug");
-  if (error) return [];
-  return data.map((row) => row.slug);
-}
-
 export async function getBrandSlugsWithDates(): Promise<
   { slug: string; updatedAt: string }[]
 > {

@@ -128,17 +128,6 @@ export async function getProductsByCategory(categorySlug: string): Promise<Produ
   return (data as DbProduct[]).map(toProduct);
 }
 
-export async function getProductsByBrand(brandSlug: string): Promise<Product[]> {
-  const supabase = createSupabaseClient();
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("brand_slug", brandSlug)
-    .order("sort_order");
-  if (error) return [];
-  return (data as DbProduct[]).map(toProduct);
-}
-
 export async function getFeaturedProducts(): Promise<Product[]> {
   const supabase = createSupabaseClient();
   const { data, error } = await supabase

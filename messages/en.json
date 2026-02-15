@@ -74,7 +74,17 @@
     "productCount": "{count} {count, plural, one {product} other {products}}",
     "noProductsLabel": "No Results",
     "noProductsDescription": "No products match your current filters. Try adjusting your search or clearing filters to see all products.",
-    "backToProducts": "Back to Products"
+    "backToProducts": "Back to Products",
+    "sortLabel": "Sort by",
+    "sortDefault": "Default",
+    "sortNameAsc": "Name A → Z",
+    "sortNameDesc": "Name Z → A",
+    "sortNewest": "Newest",
+    "viewGrid": "Grid view",
+    "viewList": "List view",
+    "page": "Page",
+    "previousPage": "Previous",
+    "nextPage": "Next"
   },
   "brands": {
     "title": "Brands We Carry",

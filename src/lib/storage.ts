@@ -44,11 +44,7 @@ export async function deleteImage(publicUrl: string): Promise<void> {
   const path = extractPathFromUrl(publicUrl);
   if (!path) return;
 
-  const { error } = await supabase.storage.from(BUCKET).remove([path]);
-
-  if (error) {
-    console.error(`Failed to delete image: ${error.message}`);
-  }
+  await supabase.storage.from(BUCKET).remove([path]);
 }
 
 /**
@@ -68,12 +64,9 @@ export async function deleteImageFolder(
   if (listError || !files || files.length === 0) return;
 
   const paths = files.map((f) => `${prefix}/${f.name}`);
-  const { error } = await supabase.storage.from(BUCKET).remove(paths);
-
-  if (error) {
-    console.error(`Failed to delete folder: ${error.message}`);
-  }
+  await supabase.storage.from(BUCKET).remove(paths);
 }
+
 
 function extractPathFromUrl(publicUrl: string): string | null {
   const marker = `/storage/v1/object/public/${BUCKET}/`;

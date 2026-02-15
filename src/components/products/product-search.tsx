@@ -27,6 +27,7 @@ export function ProductSearch({ currentQuery = "" }: { currentQuery?: string }) 
       } else {
         params.delete("q");
       }
+      params.delete("page");
       const qs = params.toString();
       router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
     },

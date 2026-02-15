@@ -1,5 +1,6 @@
 export {
   getAllProducts,
+  getFilteredProducts,
   getProductBySlug,
   getProductsByCategory,
   getProductsByBrand,
@@ -7,6 +8,8 @@ export {
   getAllProductSlugs,
   getProductSlugsWithDates,
 } from "./products";
+
+export type { ProductSort, ProductFilter, PaginatedProducts } from "./products";
 
 export {
   getAllBrands,

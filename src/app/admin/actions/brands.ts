@@ -103,7 +103,7 @@ export async function updateBrandAction(
 export async function deleteBrandAction(slug: string): Promise<BrandFormState> {
   try {
     await adminDeleteBrand(slug);
-    deleteImageFolder("brands", slug).catch(console.error);
+    deleteImageFolder("brands", slug).catch(() => {});
   } catch {
     return { message: "Failed to delete brand. It may have associated products." };
   }

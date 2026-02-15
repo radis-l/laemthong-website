@@ -1,12 +1,14 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import { getAllProducts, getAllCategories, getAllBrands } from "@/lib/db";
+import { getFilteredProducts, getAllCategories, getAllBrands } from "@/lib/db";
+import type { ProductSort } from "@/lib/db";
 import { ProductCard } from "@/components/products/product-card";
 import { ProductSearch } from "@/components/products/product-search";
+import { ProductPagination } from "@/components/products/product-pagination";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, LayoutGrid, List } from "lucide-react";
 import {
   getPageUrl,
   getAlternateLanguages,
@@ -17,14 +19,39 @@ import type { Locale } from "@/data/types";
 
 type Props = {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ category?: string; brand?: string; q?: string }>;
+  searchParams: Promise<{
+    category?: string;
+    brand?: string;
+    q?: string;
+    page?: string;
+    sort?: string;
+    view?: string;
+  }>;
 };
 
-function buildProductsUrl(params: { category?: string; brand?: string; q?: string }): string {
+const VALID_SORTS: ProductSort[] = ["default", "name-asc", "name-desc", "newest"];
+const SORT_KEYS: Record<ProductSort, string> = {
+  default: "sortDefault",
+  "name-asc": "sortNameAsc",
+  "name-desc": "sortNameDesc",
+  newest: "sortNewest",
+};
+
+function buildProductsUrl(params: {
+  category?: string;
+  brand?: string;
+  q?: string;
+  page?: number;
+  sort?: string;
+  view?: string;
+}): string {
   const sp = new URLSearchParams();
   if (params.category) sp.set("category", params.category);
   if (params.brand) sp.set("brand", params.brand);
   if (params.q) sp.set("q", params.q);
+  if (params.page && params.page > 1) sp.set("page", String(params.page));
+  if (params.sort && params.sort !== "default") sp.set("sort", params.sort);
+  if (params.view && params.view !== "grid") sp.set("view", params.view);
   const qs = sp.toString();
   return `/products${qs ? `?${qs}` : ""}`;
 }
@@ -57,36 +84,34 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductsPage({ params, searchParams }: Props) {
   const { locale } = await params;
-  const { category, brand, q } = await searchParams;
+  const { category, brand, q, page: pageParam, sort: sortParam, view: viewParam } = await searchParams;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "products" });
   const loc = locale as Locale;
 
-  const [allProducts, categories, brands] = await Promise.all([
-    getAllProducts(),
+  const pageNum = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+  const sort: ProductSort = VALID_SORTS.includes(sortParam as ProductSort)
+    ? (sortParam as ProductSort)
+    : "default";
+  const view = viewParam === "list" ? "list" : "grid";
+
+  const [result, categories, brands] = await Promise.all([
+    getFilteredProducts({
+      category,
+      brand,
+      search: q,
+      locale: loc,
+      sort,
+      page: pageNum,
+      perPage: 24,
+    }),
     getAllCategories(),
     getAllBrands(),
   ]);
 
-  const searchQuery = q?.trim().toLowerCase() ?? "";
+  const { products, total, totalPages } = result;
 
-  const filteredProducts = allProducts.filter((p) => {
-    if (category && p.categorySlug !== category) return false;
-    if (brand && p.brandSlug !== brand) return false;
-    if (searchQuery) {
-      const name = p.name[loc].toLowerCase();
-      const shortDesc = p.shortDescription[loc].toLowerCase();
-      const desc = p.description[loc].toLowerCase();
-      if (
-        !name.includes(searchQuery) &&
-        !shortDesc.includes(searchQuery) &&
-        !desc.includes(searchQuery)
-      ) {
-        return false;
-      }
-    }
-    return true;
-  });
+  const categoryMap = new Map(categories.map((c) => [c.slug, c]));
 
   return (
     <>
@@ -122,7 +147,7 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                 {t("filterByCategory")}:
               </span>
               <Link
-                href={buildProductsUrl({ brand, q })}
+                href={buildProductsUrl({ brand, q, sort: sortParam, view: viewParam })}
                 className={`shrink-0 rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
                   !category
                     ? "border-foreground bg-foreground text-background"
@@ -134,7 +159,7 @@ export default async function ProductsPage({ params, searchParams }: Props) {
               {categories.map((cat) => (
                 <Link
                   key={cat.slug}
-                  href={buildProductsUrl({ category: cat.slug, brand, q })}
+                  href={buildProductsUrl({ category: cat.slug, brand, q, sort: sortParam, view: viewParam })}
                   className={`shrink-0 rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
                     category === cat.slug
                       ? "border-foreground bg-foreground text-background"
@@ -152,7 +177,7 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                 {t("filterByBrand")}:
               </span>
               <Link
-                href={buildProductsUrl({ category, q })}
+                href={buildProductsUrl({ category, q, sort: sortParam, view: viewParam })}
                 className={`shrink-0 rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
                   !brand
                     ? "border-foreground bg-foreground text-background"
@@ -164,7 +189,7 @@ export default async function ProductsPage({ params, searchParams }: Props) {
               {brands.map((b) => (
                 <Link
                   key={b.slug}
-                  href={buildProductsUrl({ category, brand: b.slug, q })}
+                  href={buildProductsUrl({ category, brand: b.slug, q, sort: sortParam, view: viewParam })}
                   className={`shrink-0 rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
                     brand === b.slug
                       ? "border-foreground bg-foreground text-background"
@@ -183,10 +208,10 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                   {t("activeFilters")}:
                 </span>
                 {category && (() => {
-                  const cat = categories.find((c) => c.slug === category);
+                  const cat = categoryMap.get(category);
                   return cat ? (
                     <Link
-                      href={buildProductsUrl({ brand, q })}
+                      href={buildProductsUrl({ brand, q, sort: sortParam, view: viewParam })}
                       className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground/5 px-3 py-1 text-sm text-foreground transition-colors hover:bg-foreground/10"
                     >
                       {cat.name[loc]}
@@ -198,7 +223,7 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                   const br = brands.find((b) => b.slug === brand);
                   return br ? (
                     <Link
-                      href={buildProductsUrl({ category, q })}
+                      href={buildProductsUrl({ category, q, sort: sortParam, view: viewParam })}
                       className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground/5 px-3 py-1 text-sm text-foreground transition-colors hover:bg-foreground/10"
                     >
                       {br.name}
@@ -208,7 +233,7 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                 })()}
                 {q && (
                   <Link
-                    href={buildProductsUrl({ category, brand })}
+                    href={buildProductsUrl({ category, brand, sort: sortParam, view: viewParam })}
                     className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground/5 px-3 py-1 text-sm text-foreground transition-colors hover:bg-foreground/10"
                   >
                     &ldquo;{q}&rdquo;
@@ -225,30 +250,93 @@ export default async function ProductsPage({ params, searchParams }: Props) {
             )}
           </div>
 
-          {/* Results info */}
+          {/* Results bar with sort + view toggle */}
           <div className="mt-8 mb-6 flex items-center justify-between border-b pb-4">
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
               {q
-                ? `${t("searchResultsFor", { query: q })} (${filteredProducts.length})`
-                : t("productCount", { count: filteredProducts.length })}
+                ? `${t("searchResultsFor", { query: q })} (${total})`
+                : t("productCount", { count: total })}
             </p>
+
+            <div className="flex items-center gap-3">
+              {/* Sort dropdown */}
+              <div className="flex items-center gap-2">
+                <label htmlFor="sort-select" className="hidden text-xs text-muted-foreground sm:inline">
+                  {t("sortLabel")}:
+                </label>
+                <SortSelect
+                  current={sort}
+                  buildUrl={(s) => buildProductsUrl({ category, brand, q, sort: s, view: viewParam })}
+                  labels={Object.fromEntries(
+                    VALID_SORTS.map((s) => [s, t(SORT_KEYS[s])])
+                  ) as Record<ProductSort, string>}
+                />
+              </div>
+
+              {/* View toggle */}
+              <div className="flex items-center rounded-lg border">
+                <Link
+                  href={buildProductsUrl({ category, brand, q, page: pageNum, sort: sortParam, view: "grid" })}
+                  className={`inline-flex h-8 w-8 items-center justify-center rounded-l-lg transition-colors ${
+                    view === "grid"
+                      ? "bg-foreground text-background"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                  aria-label={t("viewGrid")}
+                >
+                  <LayoutGrid className="h-3.5 w-3.5" />
+                </Link>
+                <Link
+                  href={buildProductsUrl({ category, brand, q, page: pageNum, sort: sortParam, view: "list" })}
+                  className={`inline-flex h-8 w-8 items-center justify-center rounded-r-lg transition-colors ${
+                    view === "list"
+                      ? "bg-foreground text-background"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                  aria-label={t("viewList")}
+                >
+                  <List className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </div>
           </div>
 
-          {/* Product grid */}
-          {filteredProducts.length > 0 ? (
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filteredProducts.map((product) => {
-                const cat = categories.find((c) => c.slug === product.categorySlug);
-                return (
-                  <ProductCard
-                    key={product.slug}
-                    product={product}
-                    locale={loc}
-                    categoryName={cat?.name[loc]}
-                  />
-                );
-              })}
-            </div>
+          {/* Product grid/list */}
+          {products.length > 0 ? (
+            <>
+              {view === "list" ? (
+                <div className="space-y-2">
+                  {products.map((product) => (
+                    <ProductCard
+                      key={product.slug}
+                      product={product}
+                      locale={loc}
+                      categoryName={categoryMap.get(product.categorySlug)?.name[loc]}
+                      variant="list"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {products.map((product) => (
+                    <ProductCard
+                      key={product.slug}
+                      product={product}
+                      locale={loc}
+                      categoryName={categoryMap.get(product.categorySlug)?.name[loc]}
+                    />
+                  ))}
+                </div>
+              )}
+
+              <ProductPagination
+                currentPage={pageNum}
+                totalPages={totalPages}
+                buildUrl={(p) => buildProductsUrl({ category, brand, q, page: p, sort: sortParam, view: viewParam })}
+                previousLabel={t("previousPage")}
+                nextLabel={t("nextPage")}
+              />
+            </>
           ) : (
             <div className="flex flex-col items-center py-20 text-center">
               <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
@@ -272,5 +360,47 @@ export default async function ProductsPage({ params, searchParams }: Props) {
         </div>
       </section>
     </>
+  );
+}
+
+function SortSelect({
+  current,
+  buildUrl,
+  labels,
+}: {
+  current: ProductSort;
+  buildUrl: (sort: string) => string;
+  labels: Record<ProductSort, string>;
+}) {
+  return (
+    <div className="relative">
+      <select
+        id="sort-select"
+        defaultValue={current}
+        className="h-8 cursor-pointer appearance-none rounded-lg border bg-background pr-8 pl-3 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50"
+        // Client-side navigation on change
+        // Using a data attribute + inline script to avoid a client component
+        data-sort-urls={JSON.stringify(
+          Object.fromEntries(VALID_SORTS.map((s) => [s, buildUrl(s)]))
+        )}
+      >
+        {VALID_SORTS.map((s) => (
+          <option key={s} value={s}>
+            {labels[s]}
+          </option>
+        ))}
+      </select>
+      <SortSelectScript />
+    </div>
+  );
+}
+
+function SortSelectScript() {
+  return (
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `document.addEventListener('change',function(e){var s=e.target;if(s.id==='sort-select'){var u=JSON.parse(s.dataset.sortUrls);if(u[s.value])window.location.href=u[s.value]}})`,
+      }}
+    />
   );
 }

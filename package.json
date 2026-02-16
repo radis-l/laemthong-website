@@ -10,7 +10,8 @@
     "mock-data:cleanup": "dotenv -e .env.local -- tsx scripts/execute-mock-data.ts",
     "mock-data:seed": "dotenv -e .env.local -- tsx scripts/seed-mock-data.ts",
     "mock-data:verify": "dotenv -e .env.local -- tsx scripts/verify-mock-data.ts",
-    "catalog:reset": "dotenv -e .env.local -- tsx scripts/reset-catalog-data.ts"
+    "catalog:reset": "dotenv -e .env.local -- tsx scripts/reset-catalog-data.ts",
+    "placeholder-images": "dotenv -e .env.local -- tsx scripts/upload-placeholder-images.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

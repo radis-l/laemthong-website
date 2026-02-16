@@ -206,6 +206,9 @@ export function CategoryForm({ category }: CategoryFormProps) {
           defaultValue={category?.sort_order ?? 0}
           min={0}
         />
+        <p className="text-sm text-muted-foreground">
+          Leave blank to auto-assign. Items are numbered 10, 20, 30... to allow manual insertion.
+        </p>
       </div>
 
       <div className="flex gap-3">

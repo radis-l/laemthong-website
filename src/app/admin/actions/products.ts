@@ -57,7 +57,7 @@ export async function createProductAction(
   // Auto-generate slug from English name if not provided
   const slug = validated.data.slug || slugify(validated.data.nameEn);
 
-  // Auto-calculate sort order as MAX + 1 if not provided
+  // Auto-calculate sort order with gap of 10 if not provided
   let sortOrder = validated.data.sortOrder ?? 0;
   if (validated.data.sortOrder === undefined) {
     const supabase = createSupabaseAdminClient();
@@ -67,7 +67,7 @@ export async function createProductAction(
       .order("sort_order", { ascending: false })
       .limit(1)
       .single();
-    sortOrder = (data?.sort_order ?? -1) + 1;
+    sortOrder = (data?.sort_order ?? -10) + 10;
   }
 
   // Handle image migration from temporary slug to final slug

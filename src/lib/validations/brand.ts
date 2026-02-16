@@ -11,7 +11,7 @@ export const brandSchema = z.object({
   descriptionEn: z.string().min(1, "English description is required"),
   website: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
   country: z.string().min(1, "Country is required"),
-  sortOrder: z.coerce.number().int().min(0),
+  sortOrder: z.coerce.number().int().min(0).optional(),
 });
 
 export type BrandInput = z.infer<typeof brandSchema>;

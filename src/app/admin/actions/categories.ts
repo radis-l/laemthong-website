@@ -9,6 +9,7 @@ import {
   adminDeleteCategory,
 } from "@/lib/db/admin";
 import { deleteImageFolder } from "@/lib/storage";
+import { createSupabaseAdminClient } from "@/lib/supabase";
 import type { DbCategory } from "@/data/types";
 
 export type CategoryFormState = {
@@ -38,6 +39,20 @@ export async function createCategoryAction(
   }
 
   const skipRedirect = formData.get("_skipRedirect") === "true";
+
+  // Auto-calculate sort order with gap of 10 if not provided
+  let sortOrder = validated.data.sortOrder ?? 0;
+  if (validated.data.sortOrder === undefined) {
+    const supabase = createSupabaseAdminClient();
+    const { data } = await supabase
+      .from("categories")
+      .select("sort_order")
+      .order("sort_order", { ascending: false })
+      .limit(1)
+      .single();
+    sortOrder = (data?.sort_order ?? -10) + 10;
+  }
+
   let newCategory: DbCategory;
 
   try {
@@ -50,7 +65,7 @@ export async function createCategoryAction(
       },
       image: validated.data.image || "",
       icon: validated.data.icon,
-      sort_order: validated.data.sortOrder,
+      sort_order: sortOrder,
     });
   } catch {
     return { message: "Failed to create category. The slug might already exist." };
@@ -87,18 +102,25 @@ export async function updateCategoryAction(
     return { errors: validated.error.flatten().fieldErrors };
   }
 
+  // Build update object
+  const updateData: Parameters<typeof adminUpdateCategory>[1] = {
+    slug: validated.data.slug,
+    name: { th: validated.data.nameTh, en: validated.data.nameEn },
+    description: {
+      th: validated.data.descriptionTh,
+      en: validated.data.descriptionEn,
+    },
+    image: validated.data.image || "",
+    icon: validated.data.icon,
+  };
+
+  // Only update sort_order if provided
+  if (validated.data.sortOrder !== undefined) {
+    updateData.sort_order = validated.data.sortOrder;
+  }
+
   try {
-    await adminUpdateCategory(originalSlug, {
-      slug: validated.data.slug,
-      name: { th: validated.data.nameTh, en: validated.data.nameEn },
-      description: {
-        th: validated.data.descriptionTh,
-        en: validated.data.descriptionEn,
-      },
-      image: validated.data.image || "",
-      icon: validated.data.icon,
-      sort_order: validated.data.sortOrder,
-    });
+    await adminUpdateCategory(originalSlug, updateData);
   } catch {
     return { message: "Failed to update category." };
   }

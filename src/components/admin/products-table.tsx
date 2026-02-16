@@ -31,6 +31,23 @@ import {
   deleteProductAction,
   bulkDeleteProductsAction,
 } from "@/app/admin/actions/products";
+import { reorderProducts } from "@/app/admin/actions/reorder";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { SortableTableRow } from "./sortable-table-row";
 import { toast } from "sonner";
 import type { DbProduct } from "@/data/types";
 
@@ -64,6 +81,11 @@ export function ProductsTable({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const [items, setItems] = useState(products);
+
+  // Update local items when products prop changes
+  useMemo(() => setItems(products), [products]);
+
   const brandMap = useMemo(() => new Map(brandEntries), [brandEntries]);
   const categoryMap = useMemo(
     () => new Map(categoryEntries),
@@ -72,6 +94,42 @@ export function ProductsTable({
 
   const currentSort = (searchParams.get("sort") as SortColumn) || "sort_order";
   const currentDir = searchParams.get("dir") || "asc";
+  const canReorder = currentSort === "sort_order" && currentDir === "asc";
+
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id || !canReorder) return;
+
+    const oldIndex = items.findIndex((item) => item.slug === active.id);
+    const newIndex = items.findIndex((item) => item.slug === over.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reordered = arrayMove(items, oldIndex, newIndex);
+
+    // Update UI optimistically
+    setItems(reordered);
+
+    // Persist to server
+    startTransition(async () => {
+      try {
+        await reorderProducts(reordered.map((p) => p.slug));
+        toast.success("Products reordered successfully");
+      } catch (error) {
+        toast.error("Failed to reorder products");
+        setItems(items); // Revert on error
+      }
+    });
+  };
 
   const handleSort = useCallback(
     (column: SortColumn) => {
@@ -177,118 +235,201 @@ export function ProductsTable({
       )}
 
       <div className="rounded-xl border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-10">
-                <Checkbox
-                  checked={allPageSelected && products.length > 0}
-                  onCheckedChange={toggleSelectAll}
-                  aria-label="Select all"
-                />
-              </TableHead>
-              <TableHead className="w-12"></TableHead>
-              <TableHead>
-                <button
-                  type="button"
-                  onClick={() => handleSort("name")}
-                  disabled={isPending}
-                  className="inline-flex items-center font-medium hover:text-foreground"
-                >
-                  Name (EN)
-                  <SortIcon column="name" />
-                </button>
-              </TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Brand</TableHead>
-              <TableHead className="w-16">
-                <button
-                  type="button"
-                  onClick={() => handleSort("sort_order")}
-                  disabled={isPending}
-                  className="inline-flex items-center font-medium hover:text-foreground"
-                >
-                  Order
-                  <SortIcon column="sort_order" />
-                </button>
-              </TableHead>
-              <TableHead className="w-24 text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {products.length === 0 ? (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell
-                  colSpan={7}
-                  className="h-24 text-center text-muted-foreground"
-                >
-                  {total === 0 ? "No products yet." : "No products match your filters."}
-                </TableCell>
+                <TableHead className="w-10">
+                  <Checkbox
+                    checked={allPageSelected && items.length > 0}
+                    onCheckedChange={toggleSelectAll}
+                    aria-label="Select all"
+                  />
+                </TableHead>
+                {canReorder && <TableHead className="w-10"></TableHead>}
+                <TableHead className="w-12"></TableHead>
+                <TableHead>
+                  <button
+                    type="button"
+                    onClick={() => handleSort("name")}
+                    disabled={isPending}
+                    className="inline-flex items-center font-medium hover:text-foreground"
+                  >
+                    Name (EN)
+                    <SortIcon column="name" />
+                  </button>
+                </TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Brand</TableHead>
+                <TableHead className="w-16">
+                  <button
+                    type="button"
+                    onClick={() => handleSort("sort_order")}
+                    disabled={isPending}
+                    className="inline-flex items-center font-medium hover:text-foreground"
+                  >
+                    Order
+                    <SortIcon column="sort_order" />
+                  </button>
+                </TableHead>
+                <TableHead className="w-24 text-right">Actions</TableHead>
               </TableRow>
-            ) : (
-              products.map((product) => (
-                <TableRow
-                  key={product.slug}
-                  className={
-                    selectedSlugs.has(product.slug) ? "bg-muted/50" : ""
-                  }
-                >
-                  <TableCell>
-                    <Checkbox
-                      checked={selectedSlugs.has(product.slug)}
-                      onCheckedChange={() => toggleSelect(product.slug)}
-                      aria-label={`Select ${product.name.en}`}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <TableThumbnail
-                      src={product.images[0]}
-                      alt={product.name.en}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{product.name.en}</span>
-                      {product.featured && (
-                        <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-                      )}
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      {product.slug}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">
-                      {categoryMap.get(product.category_slug) ??
-                        product.category_slug}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {brandMap.get(product.brand_slug) ?? product.brand_slug}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {product.sort_order}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="icon" asChild>
-                        <Link href={`/admin/products/${product.slug}/edit`}>
-                          <Pencil className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                      <DeleteDialog
-                        title={`Delete "${product.name.en}"?`}
-                        description="This action cannot be undone."
-                        onDelete={deleteProductAction.bind(null, product.slug)}
-                      />
-                    </div>
+            </TableHeader>
+            <TableBody>
+              {items.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={canReorder ? 8 : 7}
+                    className="h-24 text-center text-muted-foreground"
+                  >
+                    {total === 0 ? "No products yet." : "No products match your filters."}
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : canReorder ? (
+                <SortableContext
+                  items={items.map((p) => p.slug)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {items.map((product) => (
+                    <SortableTableRow
+                      key={product.slug}
+                      id={product.slug}
+                      disabled={isPending}
+                    >
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedSlugs.has(product.slug)}
+                          onCheckedChange={() => toggleSelect(product.slug)}
+                          aria-label={`Select ${product.name.en}`}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <TableThumbnail
+                          src={product.images[0]}
+                          alt={product.name.en}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{product.name.en}</span>
+                          {product.featured && (
+                            <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                          )}
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {product.slug}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">
+                          {categoryMap.get(product.category_slug) ??
+                            product.category_slug}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {brandMap.get(product.brand_slug) ?? product.brand_slug}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {product.sort_order}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          {isPending ? (
+                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                          ) : (
+                            <>
+                              <Button variant="ghost" size="icon" asChild>
+                                <Link href={`/admin/products/${product.slug}/edit`}>
+                                  <Pencil className="h-4 w-4" />
+                                </Link>
+                              </Button>
+                              <DeleteDialog
+                                title={`Delete "${product.name.en}"?`}
+                                description="This action cannot be undone."
+                                onDelete={deleteProductAction.bind(null, product.slug)}
+                              />
+                            </>
+                          )}
+                        </div>
+                      </TableCell>
+                    </SortableTableRow>
+                  ))}
+                </SortableContext>
+              ) : (
+                items.map((product) => (
+                  <TableRow
+                    key={product.slug}
+                    className={
+                      selectedSlugs.has(product.slug) ? "bg-muted/50" : ""
+                    }
+                  >
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedSlugs.has(product.slug)}
+                        onCheckedChange={() => toggleSelect(product.slug)}
+                        aria-label={`Select ${product.name.en}`}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TableThumbnail
+                        src={product.images[0]}
+                        alt={product.name.en}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{product.name.en}</span>
+                        {product.featured && (
+                          <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                        )}
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        {product.slug}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">
+                        {categoryMap.get(product.category_slug) ??
+                          product.category_slug}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {brandMap.get(product.brand_slug) ?? product.brand_slug}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {product.sort_order}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button variant="ghost" size="icon" asChild>
+                          <Link href={`/admin/products/${product.slug}/edit`}>
+                            <Pencil className="h-4 w-4" />
+                          </Link>
+                        </Button>
+                        <DeleteDialog
+                          title={`Delete "${product.name.en}"?`}
+                          description="This action cannot be undone."
+                          onDelete={deleteProductAction.bind(null, product.slug)}
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </DndContext>
       </div>
+
+      {!canReorder && items.length > 0 && (
+        <p className="text-sm text-muted-foreground">
+          Drag to reorder is only available when sorted by Order (ascending). Click "Order" column to enable drag and drop.
+        </p>
+      )}
 
       {/* Pagination */}
       <PaginationControls

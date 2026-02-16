@@ -188,20 +188,6 @@ export function BrandForm({ brand }: BrandFormProps) {
         aspectRatioLabel="1:1 square"
       />
 
-      <div className="space-y-2">
-        <Label htmlFor="sortOrder">Sort Order</Label>
-        <Input
-          id="sortOrder"
-          name="sortOrder"
-          type="number"
-          defaultValue={brand?.sort_order ?? 0}
-          min={0}
-        />
-        <p className="text-sm text-muted-foreground">
-          Leave blank to auto-assign. Items are numbered 10, 20, 30... to allow manual insertion.
-        </p>
-      </div>
-
       <BilingualTextarea
         label="Description"
         nameTh="descriptionTh"

@@ -204,20 +204,6 @@ export function CategoryForm({ category }: CategoryFormProps) {
         aspectRatioLabel="4:3 landscape"
       />
 
-      <div className="space-y-2">
-        <Label htmlFor="sortOrder">Sort Order</Label>
-        <Input
-          id="sortOrder"
-          name="sortOrder"
-          type="number"
-          defaultValue={category?.sort_order ?? 0}
-          min={0}
-        />
-        <p className="text-sm text-muted-foreground">
-          Leave blank to auto-assign. Items are numbered 10, 20, 30... to allow manual insertion.
-        </p>
-      </div>
-
       <div className="flex gap-3">
         <FormSubmitButton
           isPending={isPending}

@@ -84,7 +84,7 @@ export default async function ServicesPage({ params }: Props) {
                   direction="up"
                   delay={index * STAGGER_DELAY}
                 >
-                  <div className="h-full overflow-hidden rounded-lg border bg-card p-8 shadow-sm transition-shadow hover:shadow-md">
+                  <div className="h-full overflow-hidden rounded-lg border bg-card p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg">
                     <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg border">
                       <Icon className="h-6 w-6" />
                     </div>

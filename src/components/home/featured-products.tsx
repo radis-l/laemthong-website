@@ -48,8 +48,8 @@ export function FeaturedProducts({ products, categoryIconMap = {} }: Props) {
                 href={`/products/${product.slug}`}
                 className="group"
               >
-                <div className="overflow-hidden rounded-lg bg-muted/50">
-                  <div className="relative aspect-[4/3] overflow-hidden">
+                <div className="overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg">
+                  <div className="relative aspect-[4/3] overflow-hidden bg-muted/50">
                     {product.images[0]?.startsWith("http") ? (
                       <Image
                         src={product.images[0]}
@@ -66,17 +66,18 @@ export function FeaturedProducts({ products, categoryIconMap = {} }: Props) {
                       />
                     )}
                   </div>
-                </div>
-                <div className="mt-4">
-                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    {formatSlug(product.brandSlug)}
-                  </p>
-                  <h3 className="mt-1 text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
-                    {product.name[locale]}
-                  </h3>
-                  <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-                    {product.shortDescription[locale]}
-                  </p>
+                  <div className="h-px w-full bg-border transition-colors duration-300 group-hover:bg-primary" />
+                  <div className="px-4 py-3">
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      {formatSlug(product.brandSlug)}
+                    </p>
+                    <h3 className="mt-1 font-semibold text-foreground transition-colors group-hover:text-primary">
+                      {product.name[locale]}
+                    </h3>
+                    <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                      {product.shortDescription[locale]}
+                    </p>
+                  </div>
                 </div>
               </Link>
             </AnimateOnScroll>

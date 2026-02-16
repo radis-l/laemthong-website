@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
 import { CtaContactSection } from "@/components/shared/cta-contact-section";
 import { JsonLd } from "@/components/shared/json-ld";
 import { PageHero } from "@/components/shared/page-hero";
+import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
 import { getAllBrands, getProductCountsByBrand } from "@/lib/db";
-import { BrandFilterPanel } from "@/components/brands/brand-filter-panel";
+import { BrandGridCard } from "@/components/brands/brand-grid-card";
+import { STAGGER_DELAY } from "@/lib/constants";
 import {
   getPageUrl,
   getAlternateLanguages,
@@ -70,14 +71,25 @@ export default async function BrandsPage({ params }: Props) {
 
       <PageHero label={t("title")} title={t("title")} description={t("description")} />
 
-      {/* Brand filter + cards */}
+      {/* Brand cards */}
       <section className="py-16 md:py-20">
         <div className="mx-auto max-w-7xl px-6">
-          <BrandFilterPanel
-            brands={brands}
-            productCounts={productCounts}
-            locale={locale as Locale}
-          />
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {brands.map((brand, index) => (
+              <AnimateOnScroll
+                key={brand.slug}
+                direction="up"
+                delay={Math.min(index * STAGGER_DELAY, 400)}
+              >
+                <BrandGridCard
+                  brand={brand}
+                  productsLabel={t("products", {
+                    count: productCounts[brand.slug] ?? 0,
+                  })}
+                />
+              </AnimateOnScroll>
+            ))}
+          </div>
         </div>
       </section>
 

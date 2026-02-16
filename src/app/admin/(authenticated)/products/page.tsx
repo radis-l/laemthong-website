@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
-  adminGetAllProducts,
+  adminGetProducts,
   adminGetAllBrands,
   adminGetAllCategories,
+  type AdminProductsQuery,
 } from "@/lib/db/admin";
 import { Button } from "@/components/ui/button";
 import { Plus, Upload } from "lucide-react";
@@ -13,9 +14,28 @@ export const metadata: Metadata = {
   title: "Products",
 };
 
-export default async function AdminProductsPage() {
-  const [products, brands, categories] = await Promise.all([
-    adminGetAllProducts(),
+type Props = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function AdminProductsPage({ searchParams }: Props) {
+  const params = await searchParams;
+
+  const query: AdminProductsQuery = {
+    page: params.page ? Number(params.page) : 1,
+    pageSize: 20,
+    search: typeof params.search === "string" ? params.search : undefined,
+    category: typeof params.category === "string" ? params.category : undefined,
+    brand: typeof params.brand === "string" ? params.brand : undefined,
+    sortBy:
+      params.sort === "name" || params.sort === "sort_order" || params.sort === "updated_at"
+        ? params.sort
+        : "sort_order",
+    sortDir: params.dir === "desc" ? "desc" : "asc",
+  };
+
+  const [result, brands, categories] = await Promise.all([
+    adminGetProducts(query),
     adminGetAllBrands(),
     adminGetAllCategories(),
   ]);
@@ -32,7 +52,7 @@ export default async function AdminProductsPage() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">Products</h1>
           <p className="text-sm text-muted-foreground">
-            Manage product catalog ({products.length})
+            Manage product catalog ({result.total.toLocaleString()})
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -52,9 +72,13 @@ export default async function AdminProductsPage() {
       </div>
 
       <ProductsTable
-        products={products}
+        products={result.products}
         brandEntries={brandEntries}
         categoryEntries={categoryEntries}
+        total={result.total}
+        page={result.page}
+        pageSize={result.pageSize}
+        totalPages={result.totalPages}
       />
     </div>
   );

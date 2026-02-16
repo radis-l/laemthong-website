@@ -9,9 +9,11 @@ import {
   adminDeleteBrand,
 } from "@/lib/db/admin";
 import { deleteImageFolder } from "@/lib/storage";
+import type { DbBrand } from "@/data/types";
 
 export type BrandFormState = {
   success?: boolean;
+  brand?: DbBrand;
   errors?: Record<string, string[]>;
   message?: string;
 };
@@ -35,8 +37,11 @@ export async function createBrandAction(
     return { errors: validated.error.flatten().fieldErrors };
   }
 
+  const skipRedirect = formData.get("_skipRedirect") === "true";
+  let newBrand: DbBrand;
+
   try {
-    await adminCreateBrand({
+    newBrand = await adminCreateBrand({
       slug: validated.data.slug,
       name: validated.data.name,
       logo: validated.data.logo || "",
@@ -54,6 +59,11 @@ export async function createBrandAction(
 
   revalidatePath("/admin/brands");
   revalidatePath("/", "layout");
+
+  if (skipRedirect) {
+    return { success: true, brand: newBrand };
+  }
+
   redirect("/admin/brands");
 }
 

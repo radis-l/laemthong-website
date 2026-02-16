@@ -6,7 +6,7 @@ import { FeaturedProducts } from "@/components/home/featured-products";
 import { BrandShowcase } from "@/components/home/brand-showcase";
 import { CtaSection } from "@/components/home/cta-section";
 import { JsonLd } from "@/components/shared/json-ld";
-import { getFeaturedProducts, getAllBrands, getCompanyInfo } from "@/lib/db";
+import { getFeaturedProducts, getAllBrands, getAllCategories, getCompanyInfo } from "@/lib/db";
 import {
   getPageUrl,
   getAlternateLanguages,
@@ -54,11 +54,16 @@ export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [featuredProducts, brands, company] = await Promise.all([
+  const [featuredProducts, brands, categories, company] = await Promise.all([
     getFeaturedProducts(),
     getAllBrands(),
+    getAllCategories(),
     getCompanyInfo(),
   ]);
+
+  const categoryIconMap = Object.fromEntries(
+    categories.map((c) => [c.slug, c.icon])
+  );
 
   return (
     <>
@@ -66,7 +71,7 @@ export default async function HomePage({ params }: Props) {
       <JsonLd data={buildWebSiteSchema(locale as Locale)} />
       <HeroSection />
       <UspSection />
-      <FeaturedProducts products={featuredProducts} />
+      <FeaturedProducts products={featuredProducts} categoryIconMap={categoryIconMap} />
       <BrandShowcase brands={brands} />
       <CtaSection />
     </>

@@ -9,9 +9,11 @@ import {
   adminDeleteCategory,
 } from "@/lib/db/admin";
 import { deleteImageFolder } from "@/lib/storage";
+import type { DbCategory } from "@/data/types";
 
 export type CategoryFormState = {
   success?: boolean;
+  category?: DbCategory;
   errors?: Record<string, string[]>;
   message?: string;
 };
@@ -35,8 +37,11 @@ export async function createCategoryAction(
     return { errors: validated.error.flatten().fieldErrors };
   }
 
+  const skipRedirect = formData.get("_skipRedirect") === "true";
+  let newCategory: DbCategory;
+
   try {
-    await adminCreateCategory({
+    newCategory = await adminCreateCategory({
       slug: validated.data.slug,
       name: { th: validated.data.nameTh, en: validated.data.nameEn },
       description: {
@@ -53,6 +58,11 @@ export async function createCategoryAction(
 
   revalidatePath("/admin/categories");
   revalidatePath("/", "layout");
+
+  if (skipRedirect) {
+    return { success: true, category: newCategory };
+  }
+
   redirect("/admin/categories");
 }
 

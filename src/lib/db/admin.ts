@@ -28,10 +28,15 @@ export async function adminGetBrandBySlug(
 
 export async function adminCreateBrand(
   brand: Omit<DbBrand, "updated_at">
-): Promise<void> {
+): Promise<DbBrand> {
   const supabase = createSupabaseAdminClient();
-  const { error } = await supabase.from("brands").insert(brand);
+  const { data, error } = await supabase
+    .from("brands")
+    .insert(brand)
+    .select()
+    .single();
   if (error) throw error;
+  return data as DbBrand;
 }
 
 export async function adminUpdateBrand(
@@ -79,10 +84,15 @@ export async function adminGetCategoryBySlug(
 
 export async function adminCreateCategory(
   category: Omit<DbCategory, "updated_at">
-): Promise<void> {
+): Promise<DbCategory> {
   const supabase = createSupabaseAdminClient();
-  const { error } = await supabase.from("categories").insert(category);
+  const { data, error } = await supabase
+    .from("categories")
+    .insert(category)
+    .select()
+    .single();
   if (error) throw error;
+  return data as DbCategory;
 }
 
 export async function adminUpdateCategory(
@@ -107,6 +117,76 @@ export async function adminDeleteCategory(slug: string): Promise<void> {
 }
 
 // ─── Products ────────────────────────────────────────────────────────────────
+
+export interface AdminProductsQuery {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  category?: string;
+  brand?: string;
+  sortBy?: "name" | "sort_order" | "updated_at";
+  sortDir?: "asc" | "desc";
+}
+
+export interface AdminProductsResult {
+  products: DbProduct[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export async function adminGetProducts(
+  query: AdminProductsQuery = {}
+): Promise<AdminProductsResult> {
+  const {
+    page = 1,
+    pageSize = 20,
+    search,
+    category,
+    brand,
+    sortBy = "sort_order",
+    sortDir = "asc",
+  } = query;
+
+  const supabase = createSupabaseAdminClient();
+  let q = supabase.from("products").select("*", { count: "exact" });
+
+  // Search across name (en/th) and slug
+  if (search) {
+    const term = `%${search}%`;
+    q = q.or(`name->>en.ilike.${term},name->>th.ilike.${term},slug.ilike.${term}`);
+  }
+
+  // Filters
+  if (category) q = q.eq("category_slug", category);
+  if (brand) q = q.eq("brand_slug", brand);
+
+  // Sorting
+  const sortColumn =
+    sortBy === "name" ? "name->en" : sortBy === "updated_at" ? "updated_at" : "sort_order";
+  q = q.order(sortColumn, { ascending: sortDir === "asc" });
+
+  // Pagination
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+  q = q.range(from, to);
+
+  const { data, error, count } = await q;
+
+  if (error) {
+    return { products: [], total: 0, page, pageSize, totalPages: 0 };
+  }
+
+  const total = count ?? 0;
+  return {
+    products: data as DbProduct[],
+    total,
+    page,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize),
+  };
+}
 
 export async function adminGetAllProducts(): Promise<DbProduct[]> {
   const supabase = createSupabaseAdminClient();

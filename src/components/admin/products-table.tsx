@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useTransition } from "react";
 import Link from "next/link";
-import { TableSearchBar } from "./table-search-bar";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -22,14 +22,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Pencil, Star, Trash2, Loader2, X } from "lucide-react";
+import { Pencil, Star, Trash2, Loader2, X, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { TableThumbnail } from "@/components/admin/table-thumbnail";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
+import { ProductsTableToolbar } from "@/components/admin/products-table-toolbar";
+import { PaginationControls } from "@/components/admin/pagination-controls";
 import {
   deleteProductAction,
   bulkDeleteProductsAction,
 } from "@/app/admin/actions/products";
-import { matchesSearch } from "@/lib/search";
 import { toast } from "sonner";
 import type { DbProduct } from "@/data/types";
 
@@ -37,14 +38,28 @@ interface ProductsTableProps {
   products: DbProduct[];
   brandEntries: [string, string][];
   categoryEntries: [string, string][];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 }
+
+type SortColumn = "name" | "sort_order" | "updated_at";
 
 export function ProductsTable({
   products,
   brandEntries,
   categoryEntries,
+  total,
+  page,
+  pageSize,
+  totalPages,
 }: ProductsTableProps) {
-  const [query, setQuery] = useState("");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
+
   const [selectedSlugs, setSelectedSlugs] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -55,37 +70,48 @@ export function ProductsTable({
     [categoryEntries]
   );
 
-  const filtered = useMemo(() => {
-    return products.filter((p) => {
-      const brandName = brandMap.get(p.brand_slug) ?? p.brand_slug;
-      const categoryName = categoryMap.get(p.category_slug) ?? p.category_slug;
-      return matchesSearch(
-        query,
-        p.name.en,
-        p.name.th,
-        p.slug,
-        brandName,
-        categoryName
-      );
-    });
-  }, [products, query, brandMap, categoryMap]);
+  const currentSort = (searchParams.get("sort") as SortColumn) || "sort_order";
+  const currentDir = searchParams.get("dir") || "asc";
 
-  const hasItems = products.length > 0;
-  const hasResults = filtered.length > 0;
-  const isFiltering = query.trim().length > 0;
+  const handleSort = useCallback(
+    (column: SortColumn) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (currentSort === column) {
+        // Toggle direction
+        params.set("dir", currentDir === "asc" ? "desc" : "asc");
+      } else {
+        params.set("sort", column);
+        params.set("dir", "asc");
+      }
+      params.delete("page");
+      startTransition(() => {
+        router.replace(`${pathname}?${params.toString()}`);
+      });
+    },
+    [router, pathname, searchParams, currentSort, currentDir]
+  );
 
-  const allFilteredSelected =
-    filtered.length > 0 &&
-    filtered.every((p) => selectedSlugs.has(p.slug));
+  const SortIcon = ({ column }: { column: SortColumn }) => {
+    if (currentSort !== column) return <ArrowUpDown className="ml-1 h-3 w-3" />;
+    return currentDir === "asc" ? (
+      <ArrowUp className="ml-1 h-3 w-3" />
+    ) : (
+      <ArrowDown className="ml-1 h-3 w-3" />
+    );
+  };
+
+  const allPageSelected =
+    products.length > 0 &&
+    products.every((p) => selectedSlugs.has(p.slug));
 
   const toggleSelectAll = () => {
-    if (allFilteredSelected) {
+    if (allPageSelected) {
       const newSet = new Set(selectedSlugs);
-      for (const p of filtered) newSet.delete(p.slug);
+      for (const p of products) newSet.delete(p.slug);
       setSelectedSlugs(newSet);
     } else {
       const newSet = new Set(selectedSlugs);
-      for (const p of filtered) newSet.add(p.slug);
+      for (const p of products) newSet.add(p.slug);
       setSelectedSlugs(newSet);
     }
   };
@@ -116,39 +142,39 @@ export function ProductsTable({
   };
 
   return (
-    <>
-      {/* Search + Bulk Actions Bar */}
+    <div className="space-y-4">
+      {/* Toolbar: Search + Filters */}
       <div className="flex items-center gap-4">
-        <TableSearchBar
-          query={query}
-          onQueryChange={setQuery}
-          placeholder="Search products..."
+        <ProductsTableToolbar
+          brandEntries={brandEntries}
+          categoryEntries={categoryEntries}
         />
-
-        {selectedSlugs.size > 0 && (
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">
-              {selectedSlugs.size} selected
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setSelectedSlugs(new Set())}
-            >
-              <X className="mr-1 h-3 w-3" />
-              Deselect
-            </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => setShowDeleteDialog(true)}
-            >
-              <Trash2 className="mr-1 h-3 w-3" />
-              Delete {selectedSlugs.size}
-            </Button>
-          </div>
-        )}
       </div>
+
+      {/* Bulk Actions Bar */}
+      {selectedSlugs.size > 0 && (
+        <div className="flex items-center gap-2 rounded-lg border bg-muted/50 px-4 py-2">
+          <span className="text-sm font-medium">
+            {selectedSlugs.size} selected
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSelectedSlugs(new Set())}
+          >
+            <X className="mr-1 h-3 w-3" />
+            Deselect
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => setShowDeleteDialog(true)}
+          >
+            <Trash2 className="mr-1 h-3 w-3" />
+            Delete {selectedSlugs.size}
+          </Button>
+        </div>
+      )}
 
       <div className="rounded-xl border">
         <Table>
@@ -156,40 +182,51 @@ export function ProductsTable({
             <TableRow>
               <TableHead className="w-10">
                 <Checkbox
-                  checked={allFilteredSelected && filtered.length > 0}
+                  checked={allPageSelected && products.length > 0}
                   onCheckedChange={toggleSelectAll}
                   aria-label="Select all"
                 />
               </TableHead>
               <TableHead className="w-12"></TableHead>
-              <TableHead>Name (EN)</TableHead>
+              <TableHead>
+                <button
+                  type="button"
+                  onClick={() => handleSort("name")}
+                  disabled={isPending}
+                  className="inline-flex items-center font-medium hover:text-foreground"
+                >
+                  Name (EN)
+                  <SortIcon column="name" />
+                </button>
+              </TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Brand</TableHead>
-              <TableHead className="w-16 text-center">Order</TableHead>
+              <TableHead className="w-16">
+                <button
+                  type="button"
+                  onClick={() => handleSort("sort_order")}
+                  disabled={isPending}
+                  className="inline-flex items-center font-medium hover:text-foreground"
+                >
+                  Order
+                  <SortIcon column="sort_order" />
+                </button>
+              </TableHead>
               <TableHead className="w-24 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {!hasItems ? (
+            {products.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={7}
                   className="h-24 text-center text-muted-foreground"
                 >
-                  No products yet.
-                </TableCell>
-              </TableRow>
-            ) : !hasResults ? (
-              <TableRow>
-                <TableCell
-                  colSpan={7}
-                  className="h-24 text-center text-muted-foreground"
-                >
-                  No products match your search.
+                  {total === 0 ? "No products yet." : "No products match your filters."}
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((product) => (
+              products.map((product) => (
                 <TableRow
                   key={product.slug}
                   className={
@@ -253,11 +290,13 @@ export function ProductsTable({
         </Table>
       </div>
 
-      {hasItems && isFiltering && (
-        <p className="text-sm text-muted-foreground">
-          Showing {filtered.length} of {products.length} products
-        </p>
-      )}
+      {/* Pagination */}
+      <PaginationControls
+        currentPage={page}
+        totalPages={totalPages}
+        total={total}
+        pageSize={pageSize}
+      />
 
       {/* Bulk Delete Confirmation Dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
@@ -289,6 +328,6 @@ export function ProductsTable({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }

@@ -12,6 +12,8 @@ interface BilingualInputProps {
   required?: boolean;
   errorTh?: string;
   errorEn?: string;
+  onChangeEn?: (value: string) => void;
+  helperText?: string;
 }
 
 export function BilingualInput({
@@ -23,15 +25,20 @@ export function BilingualInput({
   required,
   errorTh,
   errorEn,
+  onChangeEn,
+  helperText,
 }: BilingualInputProps) {
   return (
     <div className="space-y-2">
       <Label>
         {label} {required && "*"}
       </Label>
-      <div className="grid gap-3 sm:grid-cols-2">
+      {helperText && (
+        <p className="text-xs text-muted-foreground -mt-1">{helperText}</p>
+      )}
+      <div className="grid gap-2 sm:grid-cols-2">
         <div>
-          <div className="mb-1 text-xs text-muted-foreground">TH Thai</div>
+          <div className="mb-0.5 text-xs text-muted-foreground">TH</div>
           <Input
             name={nameTh}
             defaultValue={defaultValueTh}
@@ -43,12 +50,13 @@ export function BilingualInput({
           )}
         </div>
         <div>
-          <div className="mb-1 text-xs text-muted-foreground">EN English</div>
+          <div className="mb-0.5 text-xs text-muted-foreground">EN</div>
           <Input
             name={nameEn}
             defaultValue={defaultValueEn}
             placeholder={`${label} (English)`}
             required={required}
+            onChange={onChangeEn ? (e) => onChangeEn(e.target.value) : undefined}
           />
           {errorEn && (
             <p className="mt-1 text-xs text-destructive">{errorEn}</p>

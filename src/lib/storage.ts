@@ -57,7 +57,7 @@ export async function deleteImageFolder(
   const supabase = createSupabaseAdminClient();
   const prefix = `${folder}/${entitySlug}`;
 
-  const { data: files, error: listError } = await supabase.storage
+  const { data: files, error: listError} = await supabase.storage
     .from(BUCKET)
     .list(prefix);
 
@@ -67,6 +67,50 @@ export async function deleteImageFolder(
   await supabase.storage.from(BUCKET).remove(paths);
 }
 
+/**
+ * Move all images from one entity folder to another (e.g., temp slug to final slug).
+ * Returns array of new public URLs in the same order as the original URLs.
+ */
+export async function moveImageFolder(
+  folder: ImageFolder,
+  fromEntitySlug: string,
+  toEntitySlug: string
+): Promise<string[]> {
+  const supabase = createSupabaseAdminClient();
+  const fromPrefix = `${folder}/${fromEntitySlug}`;
+  const toPrefix = `${folder}/${toEntitySlug}`;
+
+  // List all files in the source folder
+  const { data: files, error: listError } = await supabase.storage
+    .from(BUCKET)
+    .list(fromPrefix);
+
+  if (listError || !files || files.length === 0) {
+    return [];
+  }
+
+  const newUrls: string[] = [];
+
+  // Move each file to the new folder
+  for (const file of files) {
+    const fromPath = `${fromPrefix}/${file.name}`;
+    const toPath = `${toPrefix}/${file.name}`;
+
+    // Copy file to new location
+    const { error: moveError } = await supabase.storage
+      .from(BUCKET)
+      .move(fromPath, toPath);
+
+    if (!moveError) {
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from(BUCKET).getPublicUrl(toPath);
+      newUrls.push(publicUrl);
+    }
+  }
+
+  return newUrls;
+}
 
 function extractPathFromUrl(publicUrl: string): string | null {
   const marker = `/storage/v1/object/public/${BUCKET}/`;

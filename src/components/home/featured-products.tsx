@@ -13,9 +13,10 @@ import { STAGGER_DELAY } from "@/lib/constants";
 
 type Props = {
   products: Product[];
+  categoryIconMap?: Record<string, string>;
 };
 
-export function FeaturedProducts({ products }: Props) {
+export function FeaturedProducts({ products, categoryIconMap = {} }: Props) {
   const t = useTranslations("home");
   const tCommon = useTranslations("common");
   const locale = useLocale() as Locale;
@@ -59,7 +60,7 @@ export function FeaturedProducts({ products }: Props) {
                       />
                     ) : (
                       <PlaceholderImage
-                        icon={getCategoryIcon(product.categorySlug)}
+                        icon={getCategoryIcon(categoryIconMap[product.categorySlug])}
                         variant="product"
                         aspect="aspect-[4/3]"
                       />

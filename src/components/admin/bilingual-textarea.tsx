@@ -13,6 +13,7 @@ interface BilingualTextareaProps {
   errorTh?: string;
   errorEn?: string;
   rows?: number;
+  helperText?: string;
 }
 
 export function BilingualTextarea({
@@ -25,15 +26,19 @@ export function BilingualTextarea({
   errorTh,
   errorEn,
   rows = 4,
+  helperText,
 }: BilingualTextareaProps) {
   return (
     <div className="space-y-2">
       <Label>
         {label} {required && "*"}
       </Label>
-      <div className="grid gap-3 sm:grid-cols-2">
+      {helperText && (
+        <p className="text-xs text-muted-foreground -mt-1">{helperText}</p>
+      )}
+      <div className="grid gap-2 sm:grid-cols-2">
         <div>
-          <div className="mb-1 text-xs text-muted-foreground">TH Thai</div>
+          <div className="mb-0.5 text-xs text-muted-foreground">TH</div>
           <Textarea
             name={nameTh}
             defaultValue={defaultValueTh}
@@ -46,7 +51,7 @@ export function BilingualTextarea({
           )}
         </div>
         <div>
-          <div className="mb-1 text-xs text-muted-foreground">EN English</div>
+          <div className="mb-0.5 text-xs text-muted-foreground">EN</div>
           <Textarea
             name={nameEn}
             defaultValue={defaultValueEn}

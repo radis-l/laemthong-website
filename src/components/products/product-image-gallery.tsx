@@ -9,13 +9,13 @@ import { cn } from "@/lib/utils";
 type Props = {
   images: string[];
   productName: string;
-  categorySlug: string;
+  categoryIcon?: string;
 };
 
 export function ProductImageGallery({
   images,
   productName,
-  categorySlug,
+  categoryIcon,
 }: Props) {
   const allImages = images.filter((u) => u.startsWith("http"));
 
@@ -26,7 +26,7 @@ export function ProductImageGallery({
       <div>
         <div className="relative aspect-[4/3] overflow-hidden rounded-lg border bg-muted">
           <PlaceholderImage
-            icon={getCategoryIcon(categorySlug)}
+            icon={getCategoryIcon(categoryIcon)}
             variant="product"
             aspect="aspect-[4/3]"
             className="h-full"

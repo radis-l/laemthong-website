@@ -1,15 +1,30 @@
 "use client";
 
 import { useState, useCallback, useRef, useMemo } from "react";
-import Image from "next/image";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  rectSortingStrategy,
+  sortableKeyboardCoordinates,
+} from "@dnd-kit/sortable";
 import {
   uploadImageAction,
   deleteImageAction,
 } from "@/app/admin/actions/upload";
 import { ImageCropDialog } from "@/components/admin/image-crop-dialog";
+import { SortableImageItem } from "@/components/admin/sortable-image-item";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Loader2, Upload, X, ImagePlus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, Upload, X, ImagePlus } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { ImageFolder } from "@/lib/storage";
@@ -254,12 +269,56 @@ export function ImageUpload({
   // Compute aspect class for preview (static strings for Tailwind JIT)
   const aspectClass = aspectRatio === 1 ? "aspect-square" : "aspect-[4/3]";
 
+  // DnD sensors for drag-to-reorder
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (over && active.id !== over.id) {
+        const oldIndex = urls.indexOf(active.id as string);
+        const newIndex = urls.indexOf(over.id as string);
+        if (oldIndex !== -1 && newIndex !== -1) {
+          moveImage(oldIndex, newIndex);
+        }
+      }
+    },
+    [urls, moveImage]
+  );
+
   return (
     <div className="space-y-2">
       {label && <Label>{label}</Label>}
 
       {/* Preview grid */}
-      {urls.length > 0 && (
+      {urls.length > 0 && reorderable && multiple ? (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext items={urls} strategy={rectSortingStrategy}>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              {urls.map((url, index) => (
+                <SortableImageItem
+                  key={url}
+                  id={url}
+                  url={url}
+                  index={index}
+                  isPrimary={index === 0}
+                  showPrimaryBadge={showPrimaryBadge}
+                  aspectClass={aspectClass}
+                  multiple={multiple}
+                  onRemove={handleRemove}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+      ) : urls.length > 0 ? (
         <div
           className={cn(
             "grid gap-3",
@@ -298,34 +357,10 @@ export function ImageUpload({
                   <span className="sr-only">Remove</span>
                 </button>
               </div>
-              {reorderable && urls.length > 1 && (
-                <div className="absolute bottom-1.5 right-1.5 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                  {index > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => moveImage(index, index - 1)}
-                      className="rounded-full bg-foreground/80 p-1 text-background backdrop-blur-sm"
-                    >
-                      <ChevronLeft className="h-3.5 w-3.5" />
-                      <span className="sr-only">Move left</span>
-                    </button>
-                  )}
-                  {index < urls.length - 1 && (
-                    <button
-                      type="button"
-                      onClick={() => moveImage(index, index + 1)}
-                      className="rounded-full bg-foreground/80 p-1 text-background backdrop-blur-sm"
-                    >
-                      <ChevronRight className="h-3.5 w-3.5" />
-                      <span className="sr-only">Move right</span>
-                    </button>
-                  )}
-                </div>
-              )}
             </div>
           ))}
         </div>
-      )}
+      ) : null}
 
       {/* Dropzone */}
       {showDropzone && (

@@ -17,6 +17,7 @@ import { TableThumbnail } from "@/components/admin/table-thumbnail";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
 import { deleteCategoryAction } from "@/app/admin/actions/categories";
 import { matchesSearch } from "@/lib/search";
+import { getCategoryIcon } from "@/lib/category-icons";
 import type { DbCategory } from "@/data/types";
 
 interface CategoriesTableProps {
@@ -90,7 +91,15 @@ export function CategoriesTable({ categories }: CategoriesTableProps) {
                     {cat.slug}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {cat.icon}
+                    {(() => {
+                      const Icon = getCategoryIcon(cat.icon);
+                      return (
+                        <span className="flex items-center gap-1.5">
+                          <Icon className="h-4 w-4" />
+                          {cat.icon}
+                        </span>
+                      );
+                    })()}
                   </TableCell>
                   <TableCell className="text-center">
                     {cat.sort_order}

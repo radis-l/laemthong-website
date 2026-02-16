@@ -10,10 +10,11 @@ type Props = {
   product: Product;
   locale: Locale;
   categoryName?: string;
+  categoryIcon?: string;
   variant?: "grid" | "list";
 };
 
-export function ProductCard({ product, locale, categoryName, variant = "grid" }: Props) {
+export function ProductCard({ product, locale, categoryName, categoryIcon, variant = "grid" }: Props) {
   const brandLabel = formatSlug(product.brandSlug);
 
   if (variant === "list") {
@@ -33,7 +34,7 @@ export function ProductCard({ product, locale, categoryName, variant = "grid" }:
             />
           ) : (
             <PlaceholderImage
-              icon={getCategoryIcon(product.categorySlug)}
+              icon={getCategoryIcon(categoryIcon)}
               variant="product"
               aspect="aspect-[4/3]"
             />
@@ -77,7 +78,7 @@ export function ProductCard({ product, locale, categoryName, variant = "grid" }:
             />
           ) : (
             <PlaceholderImage
-              icon={getCategoryIcon(product.categorySlug)}
+              icon={getCategoryIcon(categoryIcon)}
               variant="product"
               aspect="aspect-[4/3]"
             />

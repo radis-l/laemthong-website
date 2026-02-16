@@ -10,16 +10,13 @@ async function reorderEntities(
 ) {
   const supabase = createSupabaseAdminClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
-
   for (const [index, slug] of slugs.entries()) {
-    await supabase
+    const { error } = await supabase
       .from(table)
       .update({ sort_order: (index + 1) * 10 })
       .eq("slug", slug);
+
+    if (error) throw error;
   }
 
   revalidatePath(adminPath);

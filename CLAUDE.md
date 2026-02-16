@@ -44,7 +44,7 @@ npm run lint        # ESLint check
 - **Styling**: Tailwind CSS 4.0 + shadcn/ui (new-york style, neutral base, lucide icons)
 - **i18n**: next-intl 4.x (locales: th [default], en)
 - **Forms**: react-hook-form + zod validation + server actions
-- **Email**: Resend (contact form - integration ready, currently commented out)
+- **Email**: Resend (dependency installed, not yet integrated)
 - **Database**: Supabase (PostgreSQL with RLS, JSONB for bilingual data)
 - **Deployment**: Vercel
 - **Carousel**: embla-carousel-react
@@ -64,9 +64,8 @@ src/
 │       ├── layout.tsx          # Locale layout (Inter font, header, footer)
 │       ├── page.tsx            # Homepage
 │       ├── about/              # About page
-│       ├── products/           # Product listing + [slug] detail
-│       ├── brands/             # Brand listing + [slug] detail
-│       ├── categories/[slug]/  # Category detail
+│       ├── products/           # Product listing + [slug] detail + ?category=&brand= filters
+│       ├── brands/             # Brand discovery listing
 │       ├── services/           # Services listing
 │       ├── contact/            # Contact page + server action
 │       └── not-found.tsx       # Locale-specific 404
@@ -215,7 +214,8 @@ This project has a `.mcp.json` that provides **Supabase MCP** at the project lev
 - All bilingual fields stored as JSONB `{"th": "...", "en": "..."}`
 - RLS: public SELECT on catalog tables, public INSERT on contact_inquiries
 - Data access layer at `src/lib/db/` maps DB rows (snake_case) to app types (camelCase)
-- SQL migrations at `supabase/migrations/20250101000000_init.sql`, seed data at `supabase/seed.sql`
+- SQL migrations at `supabase/migrations/` (init + unify_product_images + add_fk_cascade)
+- Mock data: `supabase/mock-data-seed.sql` + scripts in `scripts/` (see `npm run mock-data:seed`)
 - Storage bucket: `images` (public, 5MB limit, folders: `products/`, `brands/`, `categories/`)
 
 ---

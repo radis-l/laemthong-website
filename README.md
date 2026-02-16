@@ -40,7 +40,7 @@ Corporate website for **Laemthong Syndicate** - Thailand's leading importer and 
    cp .env.example .env.local
    ```
 4. Fill in your Supabase credentials in `.env.local`
-5. Run the database migration (`supabase/migrations/`) and seed data (`supabase/seed.sql`)
+5. Run the database migrations (`supabase/migrations/`) and optionally seed mock data (`npm run mock-data:seed`)
 6. Start the dev server:
    ```bash
    npm run dev
@@ -72,8 +72,12 @@ supabase/              # Database migration + seed SQL
 ## Scripts
 
 ```bash
-npm run dev     # Development server
-npm run build   # Production build
-npm run start   # Start production server
-npm run lint    # ESLint
+npm run dev              # Development server
+npm run build            # Production build
+npm run start            # Start production server
+npm run lint             # ESLint
+npm run mock-data:seed   # Seed mock data
+npm run mock-data:verify # Verify mock data
+npm run mock-data:cleanup # Run cleanup SQL
+npm run catalog:reset    # Full catalog reset
 ```

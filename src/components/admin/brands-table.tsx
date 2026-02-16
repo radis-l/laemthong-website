@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useTransition } from "react";
+import { useState, useMemo, useTransition, useEffect } from "react";
 import Link from "next/link";
 import { TableSearchBar } from "./table-search-bar";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {
 import { Pencil, Loader2 } from "lucide-react";
 import { TableThumbnail } from "@/components/admin/table-thumbnail";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
+import { EmptyTableState } from "@/components/admin/empty-table-state";
 import { deleteBrandAction } from "@/app/admin/actions/brands";
 import { reorderBrands } from "@/app/admin/actions/reorder";
 import { matchesSearch } from "@/lib/search";
@@ -35,19 +36,34 @@ import {
 } from "@dnd-kit/sortable";
 import { SortableTableRow } from "./sortable-table-row";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import type { DbBrand } from "@/data/types";
 
+interface BrandWithCount extends DbBrand {
+  productCount: number;
+}
+
 interface BrandsTableProps {
-  brands: DbBrand[];
+  brands: BrandWithCount[];
 }
 
 export function BrandsTable({ brands }: BrandsTableProps) {
   const [query, setQuery] = useState("");
   const [items, setItems] = useState(brands);
   const [isPending, startTransition] = useTransition();
+  const [isScrolled, setIsScrolled] = useState(false);
 
   // Update local items when brands prop changes
   useMemo(() => setItems(brands), [brands]);
+
+  // Track scroll for sticky header border
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 100);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const filtered = useMemo(
     () => items.filter((b) => matchesSearch(query, b.name, b.slug, b.country)),
@@ -108,36 +124,32 @@ export function BrandsTable({ brands }: BrandsTableProps) {
           onDragEnd={handleDragEnd}
         >
           <Table>
-            <TableHeader>
+            <TableHeader
+              className={cn(
+                "sticky top-0 z-10 bg-background",
+                isScrolled && "border-b-2 border-primary"
+              )}
+            >
               <TableRow>
                 <TableHead className="w-10"></TableHead>
                 <TableHead className="w-12"></TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Country</TableHead>
-                <TableHead>Slug</TableHead>
-                <TableHead className="w-16 text-center">Order</TableHead>
                 <TableHead className="w-24 text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {!hasItems ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="h-24 text-center text-muted-foreground"
-                  >
-                    No brands yet.
-                  </TableCell>
-                </TableRow>
+                <EmptyTableState
+                  title="No brands yet"
+                  description="Add your first brand to get started"
+                  action={{ label: "Add Brand", href: "/admin/brands/new" }}
+                />
               ) : !hasResults ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="h-24 text-center text-muted-foreground"
-                  >
-                    No brands match your search.
-                  </TableCell>
-                </TableRow>
+                <EmptyTableState
+                  title="No brands match your search"
+                  description="Try adjusting your search term"
+                />
               ) : (
                 <SortableContext
                   items={filtered.map((b) => b.slug)}
@@ -152,14 +164,15 @@ export function BrandsTable({ brands }: BrandsTableProps) {
                       <TableCell>
                         <TableThumbnail src={brand.logo} alt={brand.name} />
                       </TableCell>
-                      <TableCell className="font-medium">{brand.name}</TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="font-medium">{brand.name}</div>
+                          <div className="text-xs text-muted-foreground tabular-nums">
+                            {brand.productCount} products • #{brand.sort_order}
+                          </div>
+                        </div>
+                      </TableCell>
                       <TableCell>{brand.country}</TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {brand.slug}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {brand.sort_order}
-                      </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
                           {isPending ? (

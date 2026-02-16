@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { adminGetAllCategories } from "@/lib/db/admin";
+import { createSupabaseAdminClient } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { CategoriesTable } from "@/components/admin/categories-table";
@@ -11,6 +12,19 @@ export const metadata: Metadata = {
 
 export default async function AdminCategoriesPage() {
   const categories = await adminGetAllCategories();
+  const supabase = createSupabaseAdminClient();
+
+  // Fetch product counts for each category
+  const categoriesWithCounts = await Promise.all(
+    categories.map(async (category) => {
+      const { count } = await supabase
+        .from("products")
+        .select("*", { count: "exact", head: true })
+        .eq("category_slug", category.slug);
+
+      return { ...category, productCount: count ?? 0 };
+    })
+  );
 
   return (
     <div className="space-y-6">
@@ -29,7 +43,7 @@ export default async function AdminCategoriesPage() {
         </Button>
       </div>
 
-      <CategoriesTable categories={categories} />
+      <CategoriesTable categories={categoriesWithCounts} />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useTransition } from "react";
+import { useState, useMemo, useCallback, useTransition, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -22,11 +22,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Pencil, Star, Trash2, Loader2, X, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Pencil, Trash2, Loader2, X, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { TableThumbnail } from "@/components/admin/table-thumbnail";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
 import { ProductsTableToolbar } from "@/components/admin/products-table-toolbar";
 import { PaginationControls } from "@/components/admin/pagination-controls";
+import { EmptyTableState } from "@/components/admin/empty-table-state";
 import {
   deleteProductAction,
   bulkDeleteProductsAction,
@@ -49,6 +56,7 @@ import {
 } from "@dnd-kit/sortable";
 import { SortableTableRow } from "./sortable-table-row";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import type { DbProduct } from "@/data/types";
 
 interface ProductsTableProps {
@@ -80,8 +88,18 @@ export function ProductsTable({
   const [selectedSlugs, setSelectedSlugs] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const [items, setItems] = useState(products);
+
+  // Track scroll for sticky header border
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 100);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Update local items when products prop changes
   useMemo(() => setItems(products), [products]);
@@ -241,7 +259,12 @@ export function ProductsTable({
           onDragEnd={handleDragEnd}
         >
           <Table>
-            <TableHeader>
+            <TableHeader
+              className={cn(
+                "sticky top-0 z-10 bg-background",
+                isScrolled && "border-b-2 border-primary"
+              )}
+            >
               <TableRow>
                 <TableHead className="w-10">
                   <Checkbox
@@ -265,30 +288,23 @@ export function ProductsTable({
                 </TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Brand</TableHead>
-                <TableHead className="w-16">
-                  <button
-                    type="button"
-                    onClick={() => handleSort("sort_order")}
-                    disabled={isPending}
-                    className="inline-flex items-center font-medium hover:text-foreground"
-                  >
-                    Order
-                    <SortIcon column="sort_order" />
-                  </button>
-                </TableHead>
                 <TableHead className="w-24 text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {items.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={canReorder ? 8 : 7}
-                    className="h-24 text-center text-muted-foreground"
-                  >
-                    {total === 0 ? "No products yet." : "No products match your filters."}
-                  </TableCell>
-                </TableRow>
+                total === 0 ? (
+                  <EmptyTableState
+                    title="No products yet"
+                    description="Add your first product to get started"
+                    action={{ label: "Add Product", href: "/admin/products/new" }}
+                  />
+                ) : (
+                  <EmptyTableState
+                    title={`No results for your search`}
+                    description="Try adjusting your filters or search term"
+                  />
+                )
               ) : canReorder ? (
                 <SortableContext
                   items={items.map((p) => p.slug)}
@@ -317,12 +333,12 @@ export function ProductsTable({
                         <div className="flex items-center gap-2">
                           <span className="font-medium">{product.name.en}</span>
                           {product.featured && (
-                            <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                            <span className="inline-flex items-center gap-1 ml-2 text-xs text-primary">
+                              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                              Featured
+                            </span>
                           )}
                         </div>
-                        <span className="text-xs text-muted-foreground">
-                          {product.slug}
-                        </span>
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary">
@@ -332,9 +348,6 @@ export function ProductsTable({
                       </TableCell>
                       <TableCell className="text-muted-foreground">
                         {brandMap.get(product.brand_slug) ?? product.brand_slug}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {product.sort_order}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
@@ -384,12 +397,12 @@ export function ProductsTable({
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{product.name.en}</span>
                         {product.featured && (
-                          <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                          <span className="inline-flex items-center gap-1 ml-2 text-xs text-primary">
+                            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                            Featured
+                          </span>
                         )}
                       </div>
-                      <span className="text-xs text-muted-foreground">
-                        {product.slug}
-                      </span>
                     </TableCell>
                     <TableCell>
                       <Badge variant="secondary">
@@ -399,9 +412,6 @@ export function ProductsTable({
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {brandMap.get(product.brand_slug) ?? product.brand_slug}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {product.sort_order}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">

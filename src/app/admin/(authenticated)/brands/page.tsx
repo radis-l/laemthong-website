@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { adminGetAllBrands } from "@/lib/db/admin";
+import { createSupabaseAdminClient } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { BrandsTable } from "@/components/admin/brands-table";
@@ -11,6 +12,19 @@ export const metadata: Metadata = {
 
 export default async function AdminBrandsPage() {
   const brands = await adminGetAllBrands();
+  const supabase = createSupabaseAdminClient();
+
+  // Fetch product counts for each brand
+  const brandsWithCounts = await Promise.all(
+    brands.map(async (brand) => {
+      const { count } = await supabase
+        .from("products")
+        .select("*", { count: "exact", head: true })
+        .eq("brand_slug", brand.slug);
+
+      return { ...brand, productCount: count ?? 0 };
+    })
+  );
 
   return (
     <div className="space-y-6">
@@ -29,7 +43,7 @@ export default async function AdminBrandsPage() {
         </Button>
       </div>
 
-      <BrandsTable brands={brands} />
+      <BrandsTable brands={brandsWithCounts} />
     </div>
   );
 }

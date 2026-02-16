@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useTransition } from "react";
+import { useState, useMemo, useTransition, useEffect } from "react";
 import Link from "next/link";
 import { TableSearchBar } from "./table-search-bar";
 import { Button } from "@/components/ui/button";
@@ -12,9 +12,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Pencil, Loader2 } from "lucide-react";
 import { TableThumbnail } from "@/components/admin/table-thumbnail";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
+import { EmptyTableState } from "@/components/admin/empty-table-state";
 import { deleteCategoryAction } from "@/app/admin/actions/categories";
 import { reorderCategories } from "@/app/admin/actions/reorder";
 import { matchesSearch } from "@/lib/search";
@@ -36,19 +43,34 @@ import {
 } from "@dnd-kit/sortable";
 import { SortableTableRow } from "./sortable-table-row";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import type { DbCategory } from "@/data/types";
 
+interface CategoryWithCount extends DbCategory {
+  productCount: number;
+}
+
 interface CategoriesTableProps {
-  categories: DbCategory[];
+  categories: CategoryWithCount[];
 }
 
 export function CategoriesTable({ categories }: CategoriesTableProps) {
   const [query, setQuery] = useState("");
   const [items, setItems] = useState(categories);
   const [isPending, startTransition] = useTransition();
+  const [isScrolled, setIsScrolled] = useState(false);
 
   // Update local items when categories prop changes
   useMemo(() => setItems(categories), [categories]);
+
+  // Track scroll for sticky header border
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 100);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const filtered = useMemo(
     () =>
@@ -112,37 +134,32 @@ export function CategoriesTable({ categories }: CategoriesTableProps) {
           onDragEnd={handleDragEnd}
         >
           <Table>
-            <TableHeader>
+            <TableHeader
+              className={cn(
+                "sticky top-0 z-10 bg-background",
+                isScrolled && "border-b-2 border-primary"
+              )}
+            >
               <TableRow>
                 <TableHead className="w-10"></TableHead>
                 <TableHead className="w-12"></TableHead>
-                <TableHead>Name (EN)</TableHead>
-                <TableHead>Name (TH)</TableHead>
-                <TableHead>Slug</TableHead>
+                <TableHead>Name</TableHead>
                 <TableHead>Icon</TableHead>
-                <TableHead className="w-16 text-center">Order</TableHead>
                 <TableHead className="w-24 text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {!hasItems ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={8}
-                    className="h-24 text-center text-muted-foreground"
-                  >
-                    No categories yet.
-                  </TableCell>
-                </TableRow>
+                <EmptyTableState
+                  title="No categories yet"
+                  description="Add your first category to get started"
+                  action={{ label: "Add Category", href: "/admin/categories/new" }}
+                />
               ) : !hasResults ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={8}
-                    className="h-24 text-center text-muted-foreground"
-                  >
-                    No categories match your search.
-                  </TableCell>
-                </TableRow>
+                <EmptyTableState
+                  title="No categories match your search"
+                  description="Try adjusting your search term"
+                />
               ) : (
                 <SortableContext
                   items={filtered.map((c) => c.slug)}
@@ -157,24 +174,28 @@ export function CategoriesTable({ categories }: CategoriesTableProps) {
                       <TableCell>
                         <TableThumbnail src={cat.image} alt={cat.name.en} />
                       </TableCell>
-                      <TableCell className="font-medium">{cat.name.en}</TableCell>
-                      <TableCell>{cat.name.th}</TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {cat.slug}
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="font-medium">{cat.name.en}</div>
+                          <div className="text-xs text-muted-foreground tabular-nums">
+                            {cat.name.th} • {cat.productCount} products • #{cat.sort_order}
+                          </div>
+                        </div>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {(() => {
-                          const Icon = getCategoryIcon(cat.icon);
-                          return (
-                            <span className="flex items-center gap-1.5">
-                              <Icon className="h-4 w-4" />
-                              {cat.icon}
-                            </span>
-                          );
-                        })()}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {cat.sort_order}
+                      <TableCell>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              {(() => {
+                                const Icon = getCategoryIcon(cat.icon);
+                                return <Icon className="h-6 w-6 text-muted-foreground" />;
+                              })()}
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="text-xs">{cat.icon}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">

@@ -1,8 +1,11 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { HelpCircle } from "lucide-react";
 import { FormErrorAlert } from "./form-error-alert";
 import { BilingualInput } from "./bilingual-input";
 import { BilingualTextarea } from "./bilingual-textarea";
@@ -14,6 +17,10 @@ import {
 } from "@/app/admin/actions/categories";
 import { FormSubmitButton } from "./form-submit-button";
 import { toast } from "sonner";
+import { slugify } from "@/lib/utils";
+import { AVAILABLE_ICONS, ICON_MAP } from "@/lib/category-icons";
+import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
+import { useUnsavedChangesContext } from "./unsaved-changes-provider";
 import type { DbCategory } from "@/data/types";
 
 interface CategoryFormProps {
@@ -31,7 +38,42 @@ export function CategoryForm({ category }: CategoryFormProps) {
 
   const [image, setImage] = useState<string>(category?.image ?? "");
   const [currentSlug, setCurrentSlug] = useState(category?.slug ?? "");
+  const [useCustomSlug, setUseCustomSlug] = useState(false);
+  const [nameEn, setNameEn] = useState(category?.name.en ?? "");
+  const [selectedIcon, setSelectedIcon] = useState(category?.icon ?? "Wrench");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+  // On mount/edit: detect if slug is custom (differs from auto-generated)
+  useEffect(() => {
+    if (isEditing && category) {
+      const autoSlug = slugify(category.name.en);
+      const isCustom = category.slug !== autoSlug;
+      setUseCustomSlug(isCustom);
+    }
+  }, [isEditing, category]);
+
+  // Auto-generate slug when English name changes (only if not in custom mode)
+  useEffect(() => {
+    if (!useCustomSlug) {
+      setCurrentSlug(slugify(nameEn));
+    }
+  }, [nameEn, useCustomSlug]);
+
+  // Dirty state tracking for unsaved changes warning
+  const initialState = useRef({
+    slug: category?.slug ?? "",
+    image: category?.image ?? "",
+    icon: category?.icon ?? "Wrench",
+  });
+
+  const isDirty =
+    currentSlug !== initialState.current.slug ||
+    image !== initialState.current.image ||
+    selectedIcon !== initialState.current.icon;
+
+  useUnsavedChanges(isDirty);
+  const { setIsDirty } = useUnsavedChangesContext();
+  useEffect(() => { setIsDirty(isDirty); }, [isDirty, setIsDirty]);
 
   useEffect(() => {
     if (state.success) {
@@ -44,39 +86,11 @@ export function CategoryForm({ category }: CategoryFormProps) {
       {isEditing && (
         <input type="hidden" name="originalSlug" value={category.slug} />
       )}
+      <input type="hidden" name="slug" value={currentSlug} />
       <input type="hidden" name="image" value={image} />
+      <input type="hidden" name="icon" value={selectedIcon} />
 
       <FormErrorAlert message={state.message} errors={state.errors} />
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="slug">Slug *</Label>
-          <Input
-            id="slug"
-            name="slug"
-            defaultValue={category?.slug}
-            placeholder="category-name"
-            required
-            onChange={(e) => setCurrentSlug(e.target.value)}
-          />
-          {state.errors?.slug && (
-            <p className="text-xs text-destructive">{state.errors.slug[0]}</p>
-          )}
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="icon">Icon (Lucide name) *</Label>
-          <Input
-            id="icon"
-            name="icon"
-            defaultValue={category?.icon}
-            placeholder="e.g. Zap, Shield, Wrench"
-            required
-          />
-          {state.errors?.icon && (
-            <p className="text-xs text-destructive">{state.errors.icon[0]}</p>
-          )}
-        </div>
-      </div>
 
       <BilingualInput
         label="Name"
@@ -87,7 +101,80 @@ export function CategoryForm({ category }: CategoryFormProps) {
         required
         errorTh={state.errors?.nameTh?.[0]}
         errorEn={state.errors?.nameEn?.[0]}
+        onChangeEn={setNameEn}
       />
+
+      {/* Slug field with custom toggle */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label htmlFor="slug-display" className="flex items-center gap-2">
+            Slug
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p>The URL-friendly version of the name. Used in web addresses (e.g., &quot;hydraulic-systems&quot; → /categories/hydraulic-systems). Auto-generated from the English name unless customized.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </Label>
+
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="custom-slug"
+              checked={useCustomSlug}
+              onCheckedChange={setUseCustomSlug}
+            />
+            <Label htmlFor="custom-slug" className="text-sm text-muted-foreground cursor-pointer">
+              Use custom slug
+            </Label>
+          </div>
+        </div>
+
+        <Input
+          id="slug-display"
+          value={currentSlug}
+          onChange={(e) => setCurrentSlug(e.target.value)}
+          disabled={!useCustomSlug}
+          className={!useCustomSlug ? "bg-muted cursor-not-allowed" : ""}
+          placeholder="auto-generated-from-name"
+        />
+
+        {state.errors?.slug && (
+          <p className="text-sm text-destructive">{state.errors.slug[0]}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label>Icon *</Label>
+        <div className="grid grid-cols-5 gap-2 sm:grid-cols-10">
+          {AVAILABLE_ICONS.map((name) => {
+            const Icon = ICON_MAP[name];
+            const isActive = selectedIcon === name;
+            return (
+              <button
+                key={name}
+                type="button"
+                onClick={() => setSelectedIcon(name)}
+                title={name}
+                className={`flex flex-col items-center gap-1 rounded-lg border p-2 text-xs transition-colors ${
+                  isActive
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border hover:border-foreground/30"
+                }`}
+              >
+                <Icon className="h-5 w-5" />
+                <span className="truncate w-full text-center text-[10px]">{name}</span>
+              </button>
+            );
+          })}
+        </div>
+        {state.errors?.icon && (
+          <p className="text-xs text-destructive">{state.errors.icon[0]}</p>
+        )}
+      </div>
 
       <BilingualTextarea
         label="Description"

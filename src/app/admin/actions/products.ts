@@ -8,7 +8,9 @@ import {
   adminUpdateProduct,
   adminDeleteProduct,
 } from "@/lib/db/admin";
-import { deleteImageFolder } from "@/lib/storage";
+import { deleteImageFolder, moveImageFolder } from "@/lib/storage";
+import { slugify } from "@/lib/utils";
+import { createSupabaseAdminClient } from "@/lib/supabase";
 import type { LocalizedString } from "@/data/types";
 
 export type ProductFormState = {
@@ -31,7 +33,7 @@ export async function createProductAction(
   formData: FormData
 ): Promise<ProductFormState> {
   const validated = productSchema.safeParse({
-    slug: formData.get("slug"),
+    slug: formData.get("slug") || undefined,
     nameTh: formData.get("nameTh"),
     nameEn: formData.get("nameEn"),
     shortDescriptionTh: formData.get("shortDescriptionTh"),
@@ -45,16 +47,52 @@ export async function createProductAction(
     features: formData.get("features") || undefined,
     documents: formData.get("documents") || undefined,
     featured: formData.get("featured") || undefined,
-    sortOrder: formData.get("sortOrder"),
+    sortOrder: formData.get("sortOrder") || undefined,
   });
 
   if (!validated.success) {
     return { errors: validated.error.flatten().fieldErrors };
   }
 
+  // Auto-generate slug from English name if not provided
+  const slug = validated.data.slug || slugify(validated.data.nameEn);
+
+  // Auto-calculate sort order as MAX + 1 if not provided
+  let sortOrder = validated.data.sortOrder ?? 0;
+  if (validated.data.sortOrder === undefined) {
+    const supabase = createSupabaseAdminClient();
+    const { data } = await supabase
+      .from("products")
+      .select("sort_order")
+      .order("sort_order", { ascending: false })
+      .limit(1)
+      .single();
+    sortOrder = (data?.sort_order ?? -1) + 1;
+  }
+
+  // Handle image migration from temporary slug to final slug
+  let images = parseJsonOrDefault<string[]>(validated.data.images, []);
+  if (images.length > 0 && images[0].includes('/products/temp-')) {
+    // Extract temp slug from first image URL
+    const tempSlugMatch = images[0].match(/\/products\/(temp-\d+)\//);
+    if (tempSlugMatch) {
+      const tempSlug = tempSlugMatch[1];
+      // Move images from temp folder to final slug folder
+      try {
+        const newUrls = await moveImageFolder("products", tempSlug, slug);
+        if (newUrls.length > 0) {
+          images = newUrls;
+        }
+      } catch (error) {
+        // If move fails, keep temp URLs (images are still accessible)
+        console.error("Failed to move images from temp folder:", error);
+      }
+    }
+  }
+
   try {
     await adminCreateProduct({
-      slug: validated.data.slug,
+      slug,
       category_slug: validated.data.categorySlug,
       brand_slug: validated.data.brandSlug,
       name: { th: validated.data.nameTh, en: validated.data.nameEn },
@@ -66,7 +104,7 @@ export async function createProductAction(
         th: validated.data.descriptionTh,
         en: validated.data.descriptionEn,
       },
-      images: parseJsonOrDefault<string[]>(validated.data.images, []),
+      images,
       specifications: parseJsonOrDefault<
         { label: LocalizedString; value: LocalizedString }[]
       >(validated.data.specifications, []),
@@ -79,7 +117,7 @@ export async function createProductAction(
         []
       ),
       featured: validated.data.featured === "on",
-      sort_order: validated.data.sortOrder,
+      sort_order: sortOrder,
     });
   } catch {
     return {
@@ -99,7 +137,7 @@ export async function updateProductAction(
   const originalSlug = formData.get("originalSlug") as string;
 
   const validated = productSchema.safeParse({
-    slug: formData.get("slug"),
+    slug: formData.get("slug") || undefined,
     nameTh: formData.get("nameTh"),
     nameEn: formData.get("nameEn"),
     shortDescriptionTh: formData.get("shortDescriptionTh"),
@@ -113,42 +151,66 @@ export async function updateProductAction(
     features: formData.get("features") || undefined,
     documents: formData.get("documents") || undefined,
     featured: formData.get("featured") || undefined,
-    sortOrder: formData.get("sortOrder"),
+    sortOrder: formData.get("sortOrder") || undefined,
   });
 
   if (!validated.success) {
     return { errors: validated.error.flatten().fieldErrors };
   }
 
+  // Use original slug if not provided (fallback)
+  const slug = validated.data.slug || originalSlug;
+
+  // Handle image migration if slug changed
+  let images = parseJsonOrDefault<string[]>(validated.data.images, []);
+  if (slug !== originalSlug && images.length > 0) {
+    try {
+      const newUrls = await moveImageFolder("products", originalSlug, slug);
+      if (newUrls.length > 0) {
+        images = newUrls; // Use migrated URLs
+      }
+    } catch (error) {
+      console.error("Failed to migrate product images on slug change:", error);
+      // Continue with old URLs - images still accessible under old slug
+    }
+  }
+
+  // Build update object, only including sortOrder if provided
+  const updateData: Parameters<typeof adminUpdateProduct>[1] = {
+    slug,
+    category_slug: validated.data.categorySlug,
+    brand_slug: validated.data.brandSlug,
+    name: { th: validated.data.nameTh, en: validated.data.nameEn },
+    short_description: {
+      th: validated.data.shortDescriptionTh,
+      en: validated.data.shortDescriptionEn,
+    },
+    description: {
+      th: validated.data.descriptionTh,
+      en: validated.data.descriptionEn,
+    },
+    images,
+    specifications: parseJsonOrDefault<
+      { label: LocalizedString; value: LocalizedString }[]
+    >(validated.data.specifications, []),
+    features: parseJsonOrDefault<LocalizedString[]>(
+      validated.data.features,
+      []
+    ),
+    documents: parseJsonOrDefault<{ name: string; url: string }[]>(
+      validated.data.documents,
+      []
+    ),
+    featured: validated.data.featured === "on",
+  };
+
+  // Only update sort_order if provided
+  if (validated.data.sortOrder !== undefined) {
+    updateData.sort_order = validated.data.sortOrder;
+  }
+
   try {
-    await adminUpdateProduct(originalSlug, {
-      slug: validated.data.slug,
-      category_slug: validated.data.categorySlug,
-      brand_slug: validated.data.brandSlug,
-      name: { th: validated.data.nameTh, en: validated.data.nameEn },
-      short_description: {
-        th: validated.data.shortDescriptionTh,
-        en: validated.data.shortDescriptionEn,
-      },
-      description: {
-        th: validated.data.descriptionTh,
-        en: validated.data.descriptionEn,
-      },
-      images: parseJsonOrDefault<string[]>(validated.data.images, []),
-      specifications: parseJsonOrDefault<
-        { label: LocalizedString; value: LocalizedString }[]
-      >(validated.data.specifications, []),
-      features: parseJsonOrDefault<LocalizedString[]>(
-        validated.data.features,
-        []
-      ),
-      documents: parseJsonOrDefault<{ name: string; url: string }[]>(
-        validated.data.documents,
-        []
-      ),
-      featured: validated.data.featured === "on",
-      sort_order: validated.data.sortOrder,
-    });
+    await adminUpdateProduct(originalSlug, updateData);
   } catch {
     return { message: "Failed to update product." };
   }

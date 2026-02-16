@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { useActionState, useEffect, useRef, useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { FormErrorAlert } from "./form-error-alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { CheckCircle2, AlertCircle, Circle, HelpCircle } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -17,6 +18,11 @@ import {
 import { BilingualInput } from "./bilingual-input";
 import { BilingualTextarea } from "./bilingual-textarea";
 import { ImageUpload } from "./image-upload";
+import { ProductSpecificationsSection } from "./product-specifications-section";
+import { ProductFeaturesSection } from "./product-features-section";
+import { ProductDocumentsSection } from "./product-documents-section";
+import { QuickCreateCategoryDialog } from "./quick-create-category-dialog";
+import { QuickCreateBrandDialog } from "./quick-create-brand-dialog";
 import {
   createProductAction,
   updateProductAction,
@@ -24,6 +30,11 @@ import {
 } from "@/app/admin/actions/products";
 import { FormSubmitButton } from "./form-submit-button";
 import { toast } from "sonner";
+import { slugify } from "@/lib/utils";
+import { getCategoryIcon } from "@/lib/category-icons";
+import Image from "next/image";
+import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
+import { useUnsavedChangesContext } from "./unsaved-changes-provider";
 import type { DbProduct, DbBrand, DbCategory, LocalizedString } from "@/data/types";
 
 interface ProductFormProps {
@@ -44,6 +55,28 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
   // Complex state for JSON fields
   const [images, setImages] = useState<string[]>(product?.images ?? []);
   const [currentSlug, setCurrentSlug] = useState(product?.slug ?? "");
+  const [useCustomSlug, setUseCustomSlug] = useState(false);
+  const [nameEn, setNameEn] = useState(product?.name.en ?? "");
+
+  // Temporary slug for image uploads during creation (before final slug is known)
+  const [tempSlug] = useState(`temp-${Date.now()}`);
+
+  // On mount/edit: detect if slug is custom (differs from auto-generated)
+  useEffect(() => {
+    if (isEditing && product) {
+      const autoSlug = slugify(product.name.en);
+      const isCustom = product.slug !== autoSlug;
+      setUseCustomSlug(isCustom);
+    }
+  }, [isEditing, product]);
+
+  // Auto-generate slug when English name changes (only if not in custom mode)
+  useEffect(() => {
+    if (!useCustomSlug) {
+      setCurrentSlug(slugify(nameEn));
+    }
+  }, [nameEn, useCustomSlug]);
+
   const [specifications, setSpecifications] = useState<
     { label: LocalizedString; value: LocalizedString }[]
   >(product?.specifications ?? []);
@@ -58,7 +91,37 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
   const [categorySlug, setCategorySlug] = useState(product?.category_slug ?? "");
   const [brandSlug, setBrandSlug] = useState(product?.brand_slug ?? "");
 
+  // Dynamic lists for quick-create
+  const [categoriesList, setCategoriesList] = useState(categories);
+  const [brandsList, setBrandsList] = useState(brands);
+
   const [imagesUploading, setImagesUploading] = useState(false);
+
+  // Dirty state tracking for unsaved changes warning
+  const initialState = useRef({
+    slug: product?.slug ?? "",
+    images: JSON.stringify(product?.images ?? []),
+    specifications: JSON.stringify(product?.specifications ?? []),
+    features: JSON.stringify(product?.features ?? []),
+    documents: JSON.stringify(product?.documents ?? []),
+    categorySlug: product?.category_slug ?? "",
+    brandSlug: product?.brand_slug ?? "",
+    featured: product?.featured ?? false,
+  });
+
+  const isDirty =
+    currentSlug !== initialState.current.slug ||
+    JSON.stringify(images) !== initialState.current.images ||
+    JSON.stringify(specifications) !== initialState.current.specifications ||
+    JSON.stringify(features) !== initialState.current.features ||
+    JSON.stringify(documents) !== initialState.current.documents ||
+    categorySlug !== initialState.current.categorySlug ||
+    brandSlug !== initialState.current.brandSlug ||
+    featured !== initialState.current.featured;
+
+  useUnsavedChanges(isDirty);
+  const { setIsDirty } = useUnsavedChangesContext();
+  useEffect(() => { setIsDirty(isDirty); }, [isDirty, setIsDirty]);
 
   useEffect(() => {
     if (state.success) {
@@ -66,11 +129,49 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
     }
   }, [state.success, isEditing]);
 
+  // Tab completion and error status
+  type TabStatus = 'complete' | 'error' | 'incomplete';
+  const tabStatus = useMemo<Record<string, TabStatus>>(() => {
+    const errors = state.errors || {};
+
+    // Check which tabs have errors
+    const basicErrors = ['nameTh', 'nameEn', 'shortDescriptionTh', 'shortDescriptionEn', 'categorySlug', 'brandSlug'];
+    const descriptionErrors = ['descriptionTh', 'descriptionEn'];
+
+    const hasBasicError = basicErrors.some(field => errors[field]);
+    const hasDescriptionError = descriptionErrors.some(field => errors[field]);
+
+    // Check tab completion (for non-error states)
+    // Basic tab: required fields filled
+    const isBasicComplete = categorySlug && brandSlug;
+
+    // Description tab: required fields filled (TH & EN descriptions)
+    const isDescriptionComplete = true; // No easy way to check textarea content without refs
+
+    return {
+      basic: hasBasicError ? 'error' : isBasicComplete ? 'complete' : 'incomplete',
+      description: hasDescriptionError ? 'error' : isDescriptionComplete ? 'complete' : 'incomplete',
+      images: 'complete' as TabStatus, // Images are optional
+      details: 'complete' as TabStatus, // All details are optional
+    };
+  }, [state.errors, categorySlug, brandSlug]);
+
+  const getTabIcon = (status: 'complete' | 'error' | 'incomplete') => {
+    if (status === 'complete') {
+      return <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />;
+    }
+    if (status === 'error') {
+      return <AlertCircle className="h-3.5 w-3.5 text-destructive" />;
+    }
+    return <Circle className="h-3.5 w-3.5 text-muted-foreground" />;
+  };
+
   return (
     <form action={formAction} className="space-y-6">
       {isEditing && (
         <input type="hidden" name="originalSlug" value={product.slug} />
       )}
+      <input type="hidden" name="slug" value={currentSlug} />
       <input type="hidden" name="images" value={JSON.stringify(images)} />
       <input
         type="hidden"
@@ -87,44 +188,28 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
 
       <Tabs defaultValue="basic">
         <TabsList>
-          <TabsTrigger value="basic">Basic Info</TabsTrigger>
-          <TabsTrigger value="images">Images</TabsTrigger>
-          <TabsTrigger value="details">Details</TabsTrigger>
+          <TabsTrigger value="basic" className="gap-2">
+            {getTabIcon(tabStatus.basic)}
+            Basic Info
+          </TabsTrigger>
+          <TabsTrigger value="description" className="gap-2">
+            {getTabIcon(tabStatus.description)}
+            Description
+          </TabsTrigger>
+          <TabsTrigger value="images" className="gap-2">
+            {getTabIcon(tabStatus.images)}
+            Images
+          </TabsTrigger>
+          <TabsTrigger value="details" className="gap-2">
+            {getTabIcon(tabStatus.details)}
+            Details
+          </TabsTrigger>
         </TabsList>
 
         {/* Tab 1: Basic Info */}
         <TabsContent value="basic" forceMount className="data-[state=inactive]:hidden space-y-6 pt-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="slug">Slug *</Label>
-              <Input
-                id="slug"
-                name="slug"
-                defaultValue={product?.slug}
-                placeholder="product-name"
-                required
-                onChange={(e) => setCurrentSlug(e.target.value)}
-              />
-              {state.errors?.slug && (
-                <p className="text-xs text-destructive">
-                  {state.errors.slug[0]}
-                </p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="sortOrder">Sort Order</Label>
-              <Input
-                id="sortOrder"
-                name="sortOrder"
-                type="number"
-                defaultValue={product?.sort_order ?? 0}
-                min={0}
-              />
-            </div>
-          </div>
-
           <BilingualInput
-            label="Name"
+            label="Product Name"
             nameTh="nameTh"
             nameEn="nameEn"
             defaultValueTh={product?.name.th}
@@ -132,7 +217,58 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
             required
             errorTh={state.errors?.nameTh?.[0]}
             errorEn={state.errors?.nameEn?.[0]}
+            onChangeEn={setNameEn}
+            helperText="The display name of the product in both languages"
           />
+
+          {/* Slug field with custom toggle */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="slug-display" className="flex items-center gap-2">
+                Slug
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p>The URL-friendly version of the name. Used in web addresses (e.g., &quot;hydraulic-pump&quot; → /products/hydraulic-pump). Auto-generated from the English name unless customized.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </Label>
+
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="custom-slug"
+                  checked={useCustomSlug}
+                  onCheckedChange={setUseCustomSlug}
+                />
+                <Label htmlFor="custom-slug" className="text-sm text-muted-foreground cursor-pointer">
+                  Use custom slug
+                </Label>
+              </div>
+            </div>
+
+            <Input
+              id="slug-display"
+              value={currentSlug}
+              onChange={(e) => setCurrentSlug(e.target.value)}
+              disabled={!useCustomSlug}
+              className={!useCustomSlug ? "bg-muted cursor-not-allowed" : ""}
+              placeholder="auto-generated-from-name"
+            />
+
+            {isEditing && useCustomSlug && (
+              <p className="text-xs text-amber-600">
+                ⚠️ Changing the slug will migrate product images to the new URL path
+              </p>
+            )}
+
+            {state.errors?.slug && (
+              <p className="text-sm text-destructive">{state.errors.slug[0]}</p>
+            )}
+          </div>
 
           <BilingualTextarea
             label="Short Description"
@@ -144,18 +280,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
             rows={2}
             errorTh={state.errors?.shortDescriptionTh?.[0]}
             errorEn={state.errors?.shortDescriptionEn?.[0]}
-          />
-
-          <BilingualTextarea
-            label="Full Description"
-            nameTh="descriptionTh"
-            nameEn="descriptionEn"
-            defaultValueTh={product?.description.th}
-            defaultValueEn={product?.description.en}
-            required
-            rows={5}
-            errorTh={state.errors?.descriptionTh?.[0]}
-            errorEn={state.errors?.descriptionEn?.[0]}
+            helperText="Brief summary shown in product cards (1-2 sentences)"
           />
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -166,14 +291,32 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
                 onValueChange={setCategorySlug}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
+                  <SelectValue placeholder="Select category">
+                    {categorySlug && (() => {
+                      const cat = categoriesList.find(c => c.slug === categorySlug);
+                      if (!cat) return null;
+                      const Icon = getCategoryIcon(cat.icon);
+                      return (
+                        <div className="flex items-center gap-2">
+                          <Icon className="h-4 w-4 text-muted-foreground" />
+                          <span>{cat.name.en}</span>
+                        </div>
+                      );
+                    })()}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.slug} value={cat.slug}>
-                      {cat.name.en}
-                    </SelectItem>
-                  ))}
+                  {categoriesList.map((cat) => {
+                    const Icon = getCategoryIcon(cat.icon);
+                    return (
+                      <SelectItem key={cat.slug} value={cat.slug}>
+                        <div className="flex items-center gap-2">
+                          <Icon className="h-4 w-4" />
+                          <span>{cat.name.en}</span>
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
               {state.errors?.categorySlug && (
@@ -181,6 +324,15 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
                   {state.errors.categorySlug[0]}
                 </p>
               )}
+              <p className="text-xs text-muted-foreground">
+                The product category for organization and filtering
+              </p>
+              <QuickCreateCategoryDialog
+                onSuccess={(newCat) => {
+                  setCategoriesList([...categoriesList, newCat]);
+                  setCategorySlug(newCat.slug);
+                }}
+              />
             </div>
             <div className="space-y-2">
               <Label>Brand *</Label>
@@ -189,12 +341,50 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
                 onValueChange={setBrandSlug}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select brand" />
+                  <SelectValue placeholder="Select brand">
+                    {brandSlug && (() => {
+                      const brand = brandsList.find(b => b.slug === brandSlug);
+                      if (!brand) return null;
+                      return (
+                        <div className="flex items-center gap-2">
+                          {brand.logo ? (
+                            <div className="relative h-4 w-4 rounded-sm overflow-hidden bg-muted">
+                              <Image
+                                src={brand.logo}
+                                alt={brand.name}
+                                fill
+                                className="object-contain"
+                                sizes="16px"
+                              />
+                            </div>
+                          ) : (
+                            <div className="h-4 w-4 rounded-sm bg-muted" />
+                          )}
+                          <span>{brand.name}</span>
+                        </div>
+                      );
+                    })()}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {brands.map((b) => (
+                  {brandsList.map((b) => (
                     <SelectItem key={b.slug} value={b.slug}>
-                      {b.name}
+                      <div className="flex items-center gap-2">
+                        {b.logo ? (
+                          <div className="relative h-5 w-5 rounded-sm overflow-hidden bg-muted">
+                            <Image
+                              src={b.logo}
+                              alt={b.name}
+                              fill
+                              className="object-contain"
+                              sizes="20px"
+                            />
+                          </div>
+                        ) : (
+                          <div className="h-5 w-5 rounded-sm bg-muted" />
+                        )}
+                        <span>{b.name}</span>
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -204,234 +394,88 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
                   {state.errors.brandSlug[0]}
                 </p>
               )}
+              <p className="text-xs text-muted-foreground">
+                The manufacturer or brand of this product
+              </p>
+              <QuickCreateBrandDialog
+                onSuccess={(newBrand) => {
+                  setBrandsList([...brandsList, newBrand]);
+                  setBrandSlug(newBrand.slug);
+                }}
+              />
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Switch
-              id="featured"
-              checked={featured}
-              onCheckedChange={setFeatured}
-            />
-            <Label htmlFor="featured">Featured product</Label>
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <Switch
+                id="featured"
+                checked={featured}
+                onCheckedChange={setFeatured}
+              />
+              <Label htmlFor="featured">Featured product</Label>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Featured products appear in the homepage hero section
+            </p>
           </div>
         </TabsContent>
 
-        {/* Tab 2: Images */}
-        <TabsContent value="images" forceMount className="data-[state=inactive]:hidden space-y-6 pt-4">
-          <ImageUpload
-            label="Product Images"
-            value={images}
-            onChange={(urls) => setImages(urls as string[])}
-            onUploadStateChange={setImagesUploading}
-            folder="products"
-            entitySlug={currentSlug}
-            multiple
-            maxFiles={10}
-            aspectRatio={4 / 3}
-            reorderable
-            showPrimaryBadge
+        {/* Tab 2: Description */}
+        <TabsContent value="description" forceMount className="data-[state=inactive]:hidden space-y-6 pt-4">
+          <BilingualTextarea
+            label="Full Description"
+            nameTh="descriptionTh"
+            nameEn="descriptionEn"
+            defaultValueTh={product?.description.th}
+            defaultValueEn={product?.description.en}
+            required
+            rows={10}
+            errorTh={state.errors?.descriptionTh?.[0]}
+            errorEn={state.errors?.descriptionEn?.[0]}
+            helperText="Detailed product information for the product detail page"
           />
-          <p className="text-xs text-muted-foreground">
-            First image is used as the product thumbnail. Use the arrows to reorder.
-          </p>
         </TabsContent>
 
-        {/* Tab 3: Details */}
+        {/* Tab 3: Images */}
+        <TabsContent value="images" forceMount className="data-[state=inactive]:hidden space-y-6 pt-4">
+          <div className="space-y-3">
+            <div>
+              <Label>Product Images (Optional)</Label>
+              <p className="text-xs text-muted-foreground mt-1">
+                Upload product photos. First image is used as the thumbnail. Drag to reorder. Maximum 10 images.
+              </p>
+            </div>
+            <ImageUpload
+              label=""
+              value={images}
+              onChange={(urls) => setImages(urls as string[])}
+              onUploadStateChange={setImagesUploading}
+              folder="products"
+              entitySlug={isEditing ? currentSlug : tempSlug}
+              multiple
+              maxFiles={10}
+              aspectRatio={4 / 3}
+              reorderable
+              showPrimaryBadge
+            />
+          </div>
+        </TabsContent>
+
+        {/* Tab 4: Details */}
         <TabsContent value="details" forceMount className="data-[state=inactive]:hidden space-y-8 pt-4">
-          {/* Specifications */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label>Specifications</Label>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setSpecifications([
-                    ...specifications,
-                    {
-                      label: { th: "", en: "" },
-                      value: { th: "", en: "" },
-                    },
-                  ])
-                }
-              >
-                Add Spec
-              </Button>
-            </div>
-            {specifications.map((spec, i) => (
-              <div key={i} className="rounded-lg border p-3 space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-medium text-muted-foreground">
-                    Spec #{i + 1}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      setSpecifications(specifications.filter((_, j) => j !== i))
-                    }
-                  >
-                    Remove
-                  </Button>
-                </div>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  <Input
-                    placeholder="Label (TH)"
-                    value={spec.label.th}
-                    onChange={(e) => {
-                      const updated = [...specifications];
-                      updated[i] = {
-                        ...updated[i],
-                        label: { ...updated[i].label, th: e.target.value },
-                      };
-                      setSpecifications(updated);
-                    }}
-                  />
-                  <Input
-                    placeholder="Label (EN)"
-                    value={spec.label.en}
-                    onChange={(e) => {
-                      const updated = [...specifications];
-                      updated[i] = {
-                        ...updated[i],
-                        label: { ...updated[i].label, en: e.target.value },
-                      };
-                      setSpecifications(updated);
-                    }}
-                  />
-                </div>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  <Input
-                    placeholder="Value (TH)"
-                    value={spec.value.th}
-                    onChange={(e) => {
-                      const updated = [...specifications];
-                      updated[i] = {
-                        ...updated[i],
-                        value: { ...updated[i].value, th: e.target.value },
-                      };
-                      setSpecifications(updated);
-                    }}
-                  />
-                  <Input
-                    placeholder="Value (EN)"
-                    value={spec.value.en}
-                    onChange={(e) => {
-                      const updated = [...specifications];
-                      updated[i] = {
-                        ...updated[i],
-                        value: { ...updated[i].value, en: e.target.value },
-                      };
-                      setSpecifications(updated);
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Features */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label>Features</Label>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setFeatures([...features, { th: "", en: "" }])
-                }
-              >
-                Add Feature
-              </Button>
-            </div>
-            {features.map((feature, i) => (
-              <div key={i} className="flex gap-2">
-                <Input
-                  placeholder="Feature (TH)"
-                  value={feature.th}
-                  onChange={(e) => {
-                    const updated = [...features];
-                    updated[i] = { ...updated[i], th: e.target.value };
-                    setFeatures(updated);
-                  }}
-                />
-                <Input
-                  placeholder="Feature (EN)"
-                  value={feature.en}
-                  onChange={(e) => {
-                    const updated = [...features];
-                    updated[i] = { ...updated[i], en: e.target.value };
-                    setFeatures(updated);
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() =>
-                    setFeatures(features.filter((_, j) => j !== i))
-                  }
-                >
-                  <span className="sr-only">Remove</span>
-                  &times;
-                </Button>
-              </div>
-            ))}
-          </div>
-
-          {/* Documents */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label>Documents</Label>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setDocuments([...documents, { name: "", url: "" }])
-                }
-              >
-                Add Document
-              </Button>
-            </div>
-            {documents.map((doc, i) => (
-              <div key={i} className="flex gap-2">
-                <Input
-                  placeholder="Document name"
-                  value={doc.name}
-                  onChange={(e) => {
-                    const updated = [...documents];
-                    updated[i] = { ...updated[i], name: e.target.value };
-                    setDocuments(updated);
-                  }}
-                />
-                <Input
-                  placeholder="URL"
-                  value={doc.url}
-                  onChange={(e) => {
-                    const updated = [...documents];
-                    updated[i] = { ...updated[i], url: e.target.value };
-                    setDocuments(updated);
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() =>
-                    setDocuments(documents.filter((_, j) => j !== i))
-                  }
-                >
-                  <span className="sr-only">Remove</span>
-                  &times;
-                </Button>
-              </div>
-            ))}
-          </div>
+          <ProductSpecificationsSection
+            specifications={specifications}
+            onSpecificationsChange={setSpecifications}
+          />
+          <ProductFeaturesSection
+            features={features}
+            onFeaturesChange={setFeatures}
+          />
+          <ProductDocumentsSection
+            documents={documents}
+            onDocumentsChange={setDocuments}
+          />
         </TabsContent>
       </Tabs>
 

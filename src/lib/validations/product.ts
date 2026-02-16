@@ -18,7 +18,7 @@ export const productSchema = z.object({
   features: z.string().optional(), // JSON string of LocalizedString[]
   documents: z.string().optional(), // JSON string of doc array
   featured: z.string().optional(),
-  sortOrder: z.coerce.number().int().min(0),
+  sortOrder: z.coerce.number().int().min(0).optional(), // Auto-calculated if not provided
 });
 
 export type ProductInput = z.infer<typeof productSchema>;

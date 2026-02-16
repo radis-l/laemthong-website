@@ -93,6 +93,7 @@ export function BrandsTable({ brands }: BrandsTableProps) {
     if (oldIndex === -1 || newIndex === -1) return;
 
     const reordered = arrayMove(items, oldIndex, newIndex);
+    const originalItems = items; // Capture original before state update
 
     // Update UI optimistically
     setItems(reordered);
@@ -104,7 +105,7 @@ export function BrandsTable({ brands }: BrandsTableProps) {
         toast.success("Brands reordered successfully");
       } catch (error) {
         toast.error("Failed to reorder brands");
-        setItems(items); // Revert on error
+        setItems(originalItems); // Revert on error
       }
     });
   };

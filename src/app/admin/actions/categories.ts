@@ -8,7 +8,7 @@ import {
   adminUpdateCategory,
   adminDeleteCategory,
 } from "@/lib/db/admin";
-import { deleteImageFolder } from "@/lib/storage";
+import { deleteImageFolder, moveImageFolder } from "@/lib/storage";
 import { createSupabaseAdminClient } from "@/lib/supabase";
 import type { DbCategory } from "@/data/types";
 
@@ -67,8 +67,22 @@ export async function createCategoryAction(
       icon: validated.data.icon,
       sort_order: sortOrder,
     });
-  } catch {
-    return { message: "Failed to create category. The slug might already exist." };
+  } catch (error) {
+    // Check for unique constraint violation (slug already exists)
+    if (error instanceof Error && error.message.includes("duplicate key")) {
+      return {
+        message:
+          "A category with this slug already exists. Please choose a different name or slug.",
+        errors: { slug: ["This slug is already in use"] },
+      };
+    }
+
+    // Generic fallback for other database errors
+    console.error("Failed to create category:", error);
+    return {
+      message:
+        "Failed to create category. Please check your connection and try again.",
+    };
   }
 
   revalidatePath("/admin/categories");
@@ -102,15 +116,31 @@ export async function updateCategoryAction(
     return { errors: validated.error.flatten().fieldErrors };
   }
 
+  const slug = validated.data.slug;
+
+  // Handle image migration if slug changed
+  let image = validated.data.image || "";
+  if (slug !== originalSlug && image) {
+    try {
+      const newUrls = await moveImageFolder("categories", originalSlug, slug);
+      if (newUrls.length > 0) {
+        image = newUrls[0]; // Use migrated URL (single image)
+      }
+    } catch (error) {
+      console.error("Failed to migrate category image on slug change:", error);
+      // Continue with old URL - image still accessible under old slug
+    }
+  }
+
   // Build update object
   const updateData: Parameters<typeof adminUpdateCategory>[1] = {
-    slug: validated.data.slug,
+    slug: slug,
     name: { th: validated.data.nameTh, en: validated.data.nameEn },
     description: {
       th: validated.data.descriptionTh,
       en: validated.data.descriptionEn,
     },
-    image: validated.data.image || "",
+    image: image,
     icon: validated.data.icon,
   };
 
@@ -121,8 +151,22 @@ export async function updateCategoryAction(
 
   try {
     await adminUpdateCategory(originalSlug, updateData);
-  } catch {
-    return { message: "Failed to update category." };
+  } catch (error) {
+    // Check for unique constraint violation (slug already exists)
+    if (error instanceof Error && error.message.includes("duplicate key")) {
+      return {
+        message:
+          "A category with this slug already exists. Please choose a different slug.",
+        errors: { slug: ["This slug is already in use"] },
+      };
+    }
+
+    // Generic fallback for other database errors
+    console.error("Failed to update category:", error);
+    return {
+      message:
+        "Failed to update category. Please check your connection and try again.",
+    };
   }
 
   revalidatePath("/admin/categories");
@@ -136,9 +180,17 @@ export async function deleteCategoryAction(
   try {
     await adminDeleteCategory(slug);
     deleteImageFolder("categories", slug).catch(() => {});
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("foreign key")) {
+      return {
+        message:
+          "Cannot delete this category because it has associated products. Please reassign or delete those products first.",
+      };
+    }
+
+    console.error("Failed to delete category:", error);
     return {
-      message: "Failed to delete category. It may have associated products.",
+      message: "Failed to delete category. Please try again.",
     };
   }
 

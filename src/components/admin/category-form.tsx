@@ -142,6 +142,12 @@ export function CategoryForm({ category }: CategoryFormProps) {
           placeholder="auto-generated-from-name"
         />
 
+        {isEditing && useCustomSlug && (
+          <p className="text-xs text-amber-600">
+            ⚠️ Changing the slug will migrate category images to the new URL path
+          </p>
+        )}
+
         {state.errors?.slug && (
           <p className="text-sm text-destructive">{state.errors.slug[0]}</p>
         )}
@@ -195,6 +201,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
         folder="categories"
         entitySlug={currentSlug}
         aspectRatio={4 / 3}
+        aspectRatioLabel="4:3 landscape"
       />
 
       <div className="space-y-2">

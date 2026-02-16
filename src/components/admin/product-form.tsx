@@ -456,6 +456,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
               multiple
               maxFiles={10}
               aspectRatio={4 / 3}
+              aspectRatioLabel="4:3 landscape"
               reorderable
               showPrimaryBadge
             />

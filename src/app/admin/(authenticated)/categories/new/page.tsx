@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { CategoryForm } from "@/components/admin/category-form";
 import { AdminBreadcrumb } from "@/components/admin/admin-breadcrumb";
+import { AdminPageTitle } from "@/components/admin/admin-page-title";
 import { UnsavedChangesProvider } from "@/components/admin/unsaved-changes-provider";
 
 export const metadata: Metadata = {
@@ -13,18 +14,18 @@ export default function NewCategoryPage() {
       <div className="space-y-6">
         <div>
           <AdminBreadcrumb
-          items={[
-            { label: "Categories", href: "/admin/categories" },
-            { label: "New Category" },
-          ]}
-        />
-        <h1 className="mt-2 text-2xl font-bold text-foreground">
-          New Category
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Add a new product category.
-        </p>
-      </div>
+            items={[
+              { label: "Categories", href: "/admin/categories" },
+              { label: "New Category" },
+            ]}
+          />
+          <div className="mt-2">
+            <AdminPageTitle
+              title="New Category"
+              description="Add a new product category."
+            />
+          </div>
+        </div>
 
         <div className="max-w-3xl rounded-xl border bg-card p-6">
           <CategoryForm />

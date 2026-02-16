@@ -119,9 +119,21 @@ export async function createProductAction(
       featured: validated.data.featured === "on",
       sort_order: sortOrder,
     });
-  } catch {
+  } catch (error) {
+    // Check for unique constraint violation (slug already exists)
+    if (error instanceof Error && error.message.includes("duplicate key")) {
+      return {
+        message:
+          "A product with this slug already exists. Please choose a different name or slug.",
+        errors: { slug: ["This slug is already in use"] },
+      };
+    }
+
+    // Generic fallback for other database errors
+    console.error("Failed to create product:", error);
     return {
-      message: "Failed to create product. The slug might already exist.",
+      message:
+        "Failed to create product. Please check your connection and try again.",
     };
   }
 
@@ -211,8 +223,22 @@ export async function updateProductAction(
 
   try {
     await adminUpdateProduct(originalSlug, updateData);
-  } catch {
-    return { message: "Failed to update product." };
+  } catch (error) {
+    // Check for unique constraint violation (slug already exists)
+    if (error instanceof Error && error.message.includes("duplicate key")) {
+      return {
+        message:
+          "A product with this slug already exists. Please choose a different slug.",
+        errors: { slug: ["This slug is already in use"] },
+      };
+    }
+
+    // Generic fallback for other database errors
+    console.error("Failed to update product:", error);
+    return {
+      message:
+        "Failed to update product. Please check your connection and try again.",
+    };
   }
 
   revalidatePath("/admin/products");
@@ -226,8 +252,11 @@ export async function deleteProductAction(
   try {
     await adminDeleteProduct(slug);
     deleteImageFolder("products", slug).catch(() => {});
-  } catch {
-    return { message: "Failed to delete product." };
+  } catch (error) {
+    console.error("Failed to delete product:", error);
+    return {
+      message: "Failed to delete product. Please try again.",
+    };
   }
 
   revalidatePath("/admin/products");

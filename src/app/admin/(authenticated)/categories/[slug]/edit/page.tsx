@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { adminGetCategoryBySlug } from "@/lib/db/admin";
 import { CategoryForm } from "@/components/admin/category-form";
 import { AdminBreadcrumb } from "@/components/admin/admin-breadcrumb";
+import { AdminPageTitle } from "@/components/admin/admin-page-title";
 import { UnsavedChangesProvider } from "@/components/admin/unsaved-changes-provider";
 
 type Props = {
@@ -29,12 +30,12 @@ export default async function EditCategoryPage({ params }: Props) {
               { label: `Edit "${category.name.en}"` },
             ]}
           />
-          <h1 className="mt-2 text-2xl font-bold text-foreground">
-            Edit {category.name.en}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Update category details.
-          </p>
+          <div className="mt-2">
+            <AdminPageTitle
+              title={`Edit ${category.name.en}`}
+              description="Update category details."
+            />
+          </div>
         </div>
 
         <div className="max-w-3xl rounded-xl border bg-card p-6">

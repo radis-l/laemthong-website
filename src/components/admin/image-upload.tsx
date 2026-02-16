@@ -38,6 +38,7 @@ interface ImageUploadProps {
   label?: string;
   maxFiles?: number;
   aspectRatio?: number;
+  aspectRatioLabel?: string;
   onUploadStateChange?: (isUploading: boolean) => void;
   reorderable?: boolean;
   showPrimaryBadge?: boolean;
@@ -56,6 +57,7 @@ export function ImageUpload({
   label,
   maxFiles = 10,
   aspectRatio = 4 / 3,
+  aspectRatioLabel,
   onUploadStateChange,
   reorderable = false,
   showPrimaryBadge = false,
@@ -395,6 +397,11 @@ export function ImageUpload({
                   ? "Click or drag to upload"
                   : "Enter a slug first to enable upload"}
               </p>
+              {aspectRatioLabel && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Required aspect ratio: {aspectRatioLabel}
+                </p>
+              )}
               <p className="mt-1 text-xs text-muted-foreground/70">
                 JPEG, PNG, WebP, AVIF, SVG &middot; Max 5MB
               </p>

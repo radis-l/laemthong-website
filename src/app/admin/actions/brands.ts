@@ -8,7 +8,7 @@ import {
   adminUpdateBrand,
   adminDeleteBrand,
 } from "@/lib/db/admin";
-import { deleteImageFolder } from "@/lib/storage";
+import { deleteImageFolder, moveImageFolder } from "@/lib/storage";
 import { createSupabaseAdminClient } from "@/lib/supabase";
 import type { DbBrand } from "@/data/types";
 
@@ -68,8 +68,22 @@ export async function createBrandAction(
       country: validated.data.country,
       sort_order: sortOrder,
     });
-  } catch {
-    return { message: "Failed to create brand. The slug might already exist." };
+  } catch (error) {
+    // Check for unique constraint violation (slug already exists)
+    if (error instanceof Error && error.message.includes("duplicate key")) {
+      return {
+        message:
+          "A brand with this slug already exists. Please choose a different name or slug.",
+        errors: { slug: ["This slug is already in use"] },
+      };
+    }
+
+    // Generic fallback for other database errors
+    console.error("Failed to create brand:", error);
+    return {
+      message:
+        "Failed to create brand. Please check your connection and try again.",
+    };
   }
 
   revalidatePath("/admin/brands");
@@ -103,11 +117,27 @@ export async function updateBrandAction(
     return { errors: validated.error.flatten().fieldErrors };
   }
 
+  const slug = validated.data.slug;
+
+  // Handle logo migration if slug changed
+  let logo = validated.data.logo || "";
+  if (slug !== originalSlug && logo) {
+    try {
+      const newUrls = await moveImageFolder("brands", originalSlug, slug);
+      if (newUrls.length > 0) {
+        logo = newUrls[0]; // Use migrated URL (single logo)
+      }
+    } catch (error) {
+      console.error("Failed to migrate brand logo on slug change:", error);
+      // Continue with old URL - logo still accessible under old slug
+    }
+  }
+
   // Build update object
   const updateData: Parameters<typeof adminUpdateBrand>[1] = {
-    slug: validated.data.slug,
+    slug: slug,
     name: validated.data.name,
-    logo: validated.data.logo || "",
+    logo: logo,
     description: {
       th: validated.data.descriptionTh,
       en: validated.data.descriptionEn,
@@ -123,8 +153,22 @@ export async function updateBrandAction(
 
   try {
     await adminUpdateBrand(originalSlug, updateData);
-  } catch {
-    return { message: "Failed to update brand." };
+  } catch (error) {
+    // Check for unique constraint violation (slug already exists)
+    if (error instanceof Error && error.message.includes("duplicate key")) {
+      return {
+        message:
+          "A brand with this slug already exists. Please choose a different slug.",
+        errors: { slug: ["This slug is already in use"] },
+      };
+    }
+
+    // Generic fallback for other database errors
+    console.error("Failed to update brand:", error);
+    return {
+      message:
+        "Failed to update brand. Please check your connection and try again.",
+    };
   }
 
   revalidatePath("/admin/brands");
@@ -136,8 +180,18 @@ export async function deleteBrandAction(slug: string): Promise<BrandFormState> {
   try {
     await adminDeleteBrand(slug);
     deleteImageFolder("brands", slug).catch(() => {});
-  } catch {
-    return { message: "Failed to delete brand. It may have associated products." };
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("foreign key")) {
+      return {
+        message:
+          "Cannot delete this brand because it has associated products. Please reassign or delete those products first.",
+      };
+    }
+
+    console.error("Failed to delete brand:", error);
+    return {
+      message: "Failed to delete brand. Please try again.",
+    };
   }
 
   revalidatePath("/admin/brands");

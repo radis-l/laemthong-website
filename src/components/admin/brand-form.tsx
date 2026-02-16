@@ -137,6 +137,12 @@ export function BrandForm({ brand }: BrandFormProps) {
           placeholder="auto-generated-from-name"
         />
 
+        {isEditing && useCustomSlug && (
+          <p className="text-xs text-amber-600">
+            ⚠️ Changing the slug will migrate the brand logo to the new URL path
+          </p>
+        )}
+
         {state.errors?.slug && (
           <p className="text-sm text-destructive">{state.errors.slug[0]}</p>
         )}
@@ -179,6 +185,7 @@ export function BrandForm({ brand }: BrandFormProps) {
         folder="brands"
         entitySlug={currentSlug}
         aspectRatio={1}
+        aspectRatioLabel="1:1 square"
       />
 
       <div className="space-y-2">

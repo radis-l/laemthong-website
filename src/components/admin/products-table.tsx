@@ -28,7 +28,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Pencil, Trash2, Loader2, X, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Pencil, Trash2, Loader2, X } from "lucide-react";
 import { TableThumbnail } from "@/components/admin/table-thumbnail";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
 import { ProductsTableToolbar } from "@/components/admin/products-table-toolbar";
@@ -69,8 +69,6 @@ interface ProductsTableProps {
   totalPages: number;
 }
 
-type SortColumn = "name" | "sort_order" | "updated_at";
-
 export function ProductsTable({
   products,
   brandEntries,
@@ -110,9 +108,13 @@ export function ProductsTable({
     [categoryEntries]
   );
 
-  const currentSort = (searchParams.get("sort") as SortColumn) || "sort_order";
-  const currentDir = searchParams.get("dir") || "asc";
-  const canReorder = currentSort === "sort_order" && currentDir === "asc";
+  // Check if any filters are active - disable drag while filtering
+  const isFiltering = !!(
+    searchParams.get("search") ||
+    searchParams.get("category") ||
+    searchParams.get("brand")
+  );
+  const canReorder = !isFiltering;
 
   // Drag and drop sensors
   const sensors = useSensors(
@@ -150,32 +152,13 @@ export function ProductsTable({
     });
   };
 
-  const handleSort = useCallback(
-    (column: SortColumn) => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (currentSort === column) {
-        // Toggle direction
-        params.set("dir", currentDir === "asc" ? "desc" : "asc");
-      } else {
-        params.set("sort", column);
-        params.set("dir", "asc");
-      }
-      params.delete("page");
-      startTransition(() => {
-        router.replace(`${pathname}?${params.toString()}`);
-      });
-    },
-    [router, pathname, searchParams, currentSort, currentDir]
-  );
-
-  const SortIcon = ({ column }: { column: SortColumn }) => {
-    if (currentSort !== column) return <ArrowUpDown className="ml-1 h-3 w-3" />;
-    return currentDir === "asc" ? (
-      <ArrowUp className="ml-1 h-3 w-3" />
-    ) : (
-      <ArrowDown className="ml-1 h-3 w-3" />
-    );
-  };
+  const clearAllFilters = useCallback(() => {
+    const params = new URLSearchParams();
+    params.set("page", "1"); // Reset to first page
+    startTransition(() => {
+      router.replace(`${pathname}?${params.toString()}`);
+    });
+  }, [router, pathname]);
 
   const allPageSelected =
     products.length > 0 &&
@@ -274,19 +257,9 @@ export function ProductsTable({
                     aria-label="Select all"
                   />
                 </TableHead>
-                {canReorder && <TableHead className="w-10"></TableHead>}
+                <TableHead className="w-10"></TableHead>
                 <TableHead className="w-12"></TableHead>
-                <TableHead>
-                  <button
-                    type="button"
-                    onClick={() => handleSort("name")}
-                    disabled={isPending}
-                    className="inline-flex items-center font-medium hover:text-foreground"
-                  >
-                    Name (EN)
-                    <SortIcon column="name" />
-                  </button>
-                </TableHead>
+                <TableHead>Name (EN)</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Brand</TableHead>
                 <TableHead className="w-24 text-right">Actions</TableHead>
@@ -306,7 +279,7 @@ export function ProductsTable({
                     description="Try adjusting your filters or search term"
                   />
                 )
-              ) : canReorder ? (
+              ) : (
                 <SortableContext
                   items={items.map((p) => p.slug)}
                   strategy={verticalListSortingStrategy}
@@ -315,7 +288,7 @@ export function ProductsTable({
                     <SortableTableRow
                       key={product.slug}
                       id={product.slug}
-                      disabled={isPending}
+                      disabled={!canReorder || isPending}
                     >
                       <TableCell>
                         <Checkbox
@@ -333,8 +306,11 @@ export function ProductsTable({
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <span className="font-medium">{product.name.en}</span>
+                          <span className="text-xs text-muted-foreground tabular-nums">
+                            #{product.sort_order}
+                          </span>
                           {product.featured && (
-                            <span className="inline-flex items-center gap-1 ml-2 text-xs text-primary">
+                            <span className="inline-flex items-center gap-1 text-xs text-primary">
                               <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                               Featured
                             </span>
@@ -373,63 +349,6 @@ export function ProductsTable({
                     </SortableTableRow>
                   ))}
                 </SortableContext>
-              ) : (
-                items.map((product) => (
-                  <TableRow
-                    key={product.slug}
-                    className={
-                      selectedSlugs.has(product.slug) ? "bg-muted/50" : ""
-                    }
-                  >
-                    <TableCell>
-                      <Checkbox
-                        checked={selectedSlugs.has(product.slug)}
-                        onCheckedChange={() => toggleSelect(product.slug)}
-                        aria-label={`Select ${product.name.en}`}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <TableThumbnail
-                        src={product.images[0]}
-                        alt={product.name.en}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{product.name.en}</span>
-                        {product.featured && (
-                          <span className="inline-flex items-center gap-1 ml-2 text-xs text-primary">
-                            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                            Featured
-                          </span>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">
-                        {categoryMap.get(product.category_slug) ??
-                          product.category_slug}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {brandMap.get(product.brand_slug) ?? product.brand_slug}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="icon" asChild>
-                          <Link href={`/admin/products/${product.slug}/edit`}>
-                            <Pencil className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                        <DeleteDialog
-                          title={`Delete "${product.name.en}"?`}
-                          description="This action cannot be undone."
-                          onDelete={deleteProductAction.bind(null, product.slug)}
-                        />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
               )}
             </TableBody>
           </Table>
@@ -437,9 +356,18 @@ export function ProductsTable({
       </div>
 
       {!canReorder && items.length > 0 && (
-        <p className="text-sm text-muted-foreground">
-          Drag to reorder is only available when sorted by Order (ascending). Click "Order" column to enable drag and drop.
-        </p>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span>Drag to reorder is disabled while filtering.</span>
+          <Button
+            variant="link"
+            size="sm"
+            onClick={clearAllFilters}
+            className="h-auto p-0 text-sm underline"
+          >
+            Clear all filters
+          </Button>
+          <span>to enable drag and drop.</span>
+        </div>
       )}
 
       {/* Pagination */}

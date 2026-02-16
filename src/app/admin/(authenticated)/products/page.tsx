@@ -27,11 +27,6 @@ export default async function AdminProductsPage({ searchParams }: Props) {
     search: typeof params.search === "string" ? params.search : undefined,
     category: typeof params.category === "string" ? params.category : undefined,
     brand: typeof params.brand === "string" ? params.brand : undefined,
-    sortBy:
-      params.sort === "name" || params.sort === "sort_order" || params.sort === "updated_at"
-        ? params.sort
-        : "sort_order",
-    sortDir: params.dir === "desc" ? "desc" : "asc",
   };
 
   const [result, brands, categories] = await Promise.all([

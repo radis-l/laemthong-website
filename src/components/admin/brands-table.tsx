@@ -204,9 +204,18 @@ export function BrandsTable({ brands }: BrandsTableProps) {
       </div>
 
       {isFiltering && hasResults && (
-        <p className="text-sm text-muted-foreground">
-          Drag to reorder is disabled while searching. Clear search to reorder brands.
-        </p>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span>Drag to reorder is disabled while searching.</span>
+          <Button
+            variant="link"
+            size="sm"
+            onClick={() => setQuery("")}
+            className="h-auto p-0 text-sm underline"
+          >
+            Clear search
+          </Button>
+          <span>to enable drag and drop.</span>
+        </div>
       )}
 
       {hasItems && isFiltering && (

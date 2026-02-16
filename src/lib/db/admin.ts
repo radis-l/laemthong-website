@@ -124,8 +124,6 @@ export interface AdminProductsQuery {
   search?: string;
   category?: string;
   brand?: string;
-  sortBy?: "name" | "sort_order" | "updated_at";
-  sortDir?: "asc" | "desc";
 }
 
 export interface AdminProductsResult {
@@ -145,8 +143,6 @@ export async function adminGetProducts(
     search,
     category,
     brand,
-    sortBy = "sort_order",
-    sortDir = "asc",
   } = query;
 
   const supabase = createSupabaseAdminClient();
@@ -162,10 +158,8 @@ export async function adminGetProducts(
   if (category) q = q.eq("category_slug", category);
   if (brand) q = q.eq("brand_slug", brand);
 
-  // Sorting
-  const sortColumn =
-    sortBy === "name" ? "name->en" : sortBy === "updated_at" ? "updated_at" : "sort_order";
-  q = q.order(sortColumn, { ascending: sortDir === "asc" });
+  // Always sort by sort_order ascending
+  q = q.order("sort_order", { ascending: true });
 
   // Pagination
   const from = (page - 1) * pageSize;

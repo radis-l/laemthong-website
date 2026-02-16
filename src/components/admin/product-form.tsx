@@ -7,11 +7,12 @@ import { Switch } from "@/components/ui/switch";
 import { FormErrorAlert } from "./form-error-alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckCircle2, AlertCircle, Circle, HelpCircle } from "lucide-react";
+import { CheckCircle2, AlertCircle, Circle, HelpCircle, Plus } from "lucide-react";
 import {
   Select,
   SelectContent,
   SelectItem,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -88,6 +89,9 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
   );
   const [featured, setFeatured] = useState(product?.featured ?? false);
 
+  const [descriptionTh, setDescriptionTh] = useState(product?.description.th ?? "");
+  const [descriptionEn, setDescriptionEn] = useState(product?.description.en ?? "");
+
   const [categorySlug, setCategorySlug] = useState(product?.category_slug ?? "");
   const [brandSlug, setBrandSlug] = useState(product?.brand_slug ?? "");
 
@@ -96,6 +100,8 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
   const [brandsList, setBrandsList] = useState(brands);
 
   const [imagesUploading, setImagesUploading] = useState(false);
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+  const [brandDialogOpen, setBrandDialogOpen] = useState(false);
 
   // Dirty state tracking for unsaved changes warning
   const initialState = useRef({
@@ -107,6 +113,8 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
     categorySlug: product?.category_slug ?? "",
     brandSlug: product?.brand_slug ?? "",
     featured: product?.featured ?? false,
+    descriptionTh: product?.description.th ?? "",
+    descriptionEn: product?.description.en ?? "",
   });
 
   const isDirty =
@@ -117,7 +125,9 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
     JSON.stringify(documents) !== initialState.current.documents ||
     categorySlug !== initialState.current.categorySlug ||
     brandSlug !== initialState.current.brandSlug ||
-    featured !== initialState.current.featured;
+    featured !== initialState.current.featured ||
+    descriptionTh !== initialState.current.descriptionTh ||
+    descriptionEn !== initialState.current.descriptionEn;
 
   useUnsavedChanges(isDirty);
   const { setIsDirty } = useUnsavedChangesContext();
@@ -142,19 +152,18 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
     const hasDescriptionError = descriptionErrors.some(field => errors[field]);
 
     // Check tab completion (for non-error states)
-    // Basic tab: required fields filled
     const isBasicComplete = categorySlug && brandSlug;
-
-    // Description tab: required fields filled (TH & EN descriptions)
-    const isDescriptionComplete = true; // No easy way to check textarea content without refs
+    const isDescriptionComplete = descriptionTh.trim().length > 0 && descriptionEn.trim().length > 0;
+    const isImagesAdded = images.length > 0;
+    const isDetailsAdded = specifications.length > 0 || features.length > 0 || documents.length > 0;
 
     return {
       basic: hasBasicError ? 'error' : isBasicComplete ? 'complete' : 'incomplete',
       description: hasDescriptionError ? 'error' : isDescriptionComplete ? 'complete' : 'incomplete',
-      images: 'complete' as TabStatus, // Images are optional
-      details: 'complete' as TabStatus, // All details are optional
+      images: isImagesAdded ? 'complete' : 'incomplete',
+      details: isDetailsAdded ? 'complete' : 'incomplete',
     };
-  }, [state.errors, categorySlug, brandSlug]);
+  }, [state.errors, categorySlug, brandSlug, descriptionTh, descriptionEn, images, specifications, features, documents]);
 
   const getTabIcon = (status: 'complete' | 'error' | 'incomplete') => {
     if (status === 'complete') {
@@ -288,7 +297,13 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
               <Label>Category *</Label>
               <Select
                 value={categorySlug}
-                onValueChange={setCategorySlug}
+                onValueChange={(val) => {
+                  if (val === "__create_new__") {
+                    setCategoryDialogOpen(true);
+                  } else {
+                    setCategorySlug(val);
+                  }
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select category">
@@ -317,6 +332,13 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
                       </SelectItem>
                     );
                   })}
+                  <SelectSeparator />
+                  <SelectItem value="__create_new__" className="text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <Plus className="h-4 w-4" />
+                      <span>Add New Category</span>
+                    </div>
+                  </SelectItem>
                 </SelectContent>
               </Select>
               {state.errors?.categorySlug && (
@@ -328,6 +350,8 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
                 The product category for organization and filtering
               </p>
               <QuickCreateCategoryDialog
+                open={categoryDialogOpen}
+                onOpenChange={setCategoryDialogOpen}
                 onSuccess={(newCat) => {
                   setCategoriesList([...categoriesList, newCat]);
                   setCategorySlug(newCat.slug);
@@ -338,7 +362,13 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
               <Label>Brand *</Label>
               <Select
                 value={brandSlug}
-                onValueChange={setBrandSlug}
+                onValueChange={(val) => {
+                  if (val === "__create_new__") {
+                    setBrandDialogOpen(true);
+                  } else {
+                    setBrandSlug(val);
+                  }
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select brand">
@@ -387,6 +417,13 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
                       </div>
                     </SelectItem>
                   ))}
+                  <SelectSeparator />
+                  <SelectItem value="__create_new__" className="text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <Plus className="h-4 w-4" />
+                      <span>Add New Brand</span>
+                    </div>
+                  </SelectItem>
                 </SelectContent>
               </Select>
               {state.errors?.brandSlug && (
@@ -398,6 +435,8 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
                 The manufacturer or brand of this product
               </p>
               <QuickCreateBrandDialog
+                open={brandDialogOpen}
+                onOpenChange={setBrandDialogOpen}
                 onSuccess={(newBrand) => {
                   setBrandsList([...brandsList, newBrand]);
                   setBrandSlug(newBrand.slug);
@@ -434,6 +473,8 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
             errorTh={state.errors?.descriptionTh?.[0]}
             errorEn={state.errors?.descriptionEn?.[0]}
             helperText="Detailed product information for the product detail page"
+            onChangeTh={setDescriptionTh}
+            onChangeEn={setDescriptionEn}
           />
         </TabsContent>
 

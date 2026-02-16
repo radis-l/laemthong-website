@@ -6,12 +6,10 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus } from "lucide-react";
 import { BilingualInput } from "./bilingual-input";
 import { AVAILABLE_ICONS, ICON_MAP } from "@/lib/category-icons";
 import {
@@ -23,13 +21,16 @@ import { toast } from "sonner";
 import type { DbCategory } from "@/data/types";
 
 interface QuickCreateCategoryDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onSuccess: (category: DbCategory) => void;
 }
 
 export function QuickCreateCategoryDialog({
+  open,
+  onOpenChange,
   onSuccess,
 }: QuickCreateCategoryDialogProps) {
-  const [open, setOpen] = useState(false);
   const [slug, setSlug] = useState("");
   const [selectedIcon, setSelectedIcon] = useState("Wrench");
   const [state, formAction, isPending] = useActionState<CategoryFormState, FormData>(
@@ -41,21 +42,16 @@ export function QuickCreateCategoryDialog({
     if (state.success && state.category) {
       toast.success("Category created");
       onSuccess(state.category);
-      setOpen(false);
+      onOpenChange(false);
       // Reset form
       setSlug("");
       setSelectedIcon("Wrench");
     }
-  }, [state.success, state.category, onSuccess]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.success, state.category]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="w-full mt-2">
-          <Plus className="h-3.5 w-3.5 mr-1.5" />
-          Add New Category
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Quick Add Category</DialogTitle>
@@ -127,7 +123,7 @@ export function QuickCreateCategoryDialog({
             <Button
               type="button"
               variant="outline"
-              onClick={() => setOpen(false)}
+              onClick={() => onOpenChange(false)}
               disabled={isPending}
             >
               Cancel

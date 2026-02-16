@@ -6,12 +6,10 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus } from "lucide-react";
 import { ImageUpload } from "./image-upload";
 import {
   createBrandAction,
@@ -22,13 +20,16 @@ import { toast } from "sonner";
 import type { DbBrand } from "@/data/types";
 
 interface QuickCreateBrandDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onSuccess: (brand: DbBrand) => void;
 }
 
 export function QuickCreateBrandDialog({
+  open,
+  onOpenChange,
   onSuccess,
 }: QuickCreateBrandDialogProps) {
-  const [open, setOpen] = useState(false);
   const [slug, setSlug] = useState("");
   const [name, setName] = useState("");
   const [logo, setLogo] = useState("");
@@ -41,22 +42,17 @@ export function QuickCreateBrandDialog({
     if (state.success && state.brand) {
       toast.success("Brand created");
       onSuccess(state.brand);
-      setOpen(false);
+      onOpenChange(false);
       // Reset form
       setSlug("");
       setName("");
       setLogo("");
     }
-  }, [state.success, state.brand, onSuccess]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.success, state.brand]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="w-full mt-2">
-          <Plus className="h-3.5 w-3.5 mr-1.5" />
-          Add New Brand
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Quick Add Brand</DialogTitle>
@@ -128,7 +124,7 @@ export function QuickCreateBrandDialog({
             <Button
               type="button"
               variant="outline"
-              onClick={() => setOpen(false)}
+              onClick={() => onOpenChange(false)}
               disabled={isPending}
             >
               Cancel

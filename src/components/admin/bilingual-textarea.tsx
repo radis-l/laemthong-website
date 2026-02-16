@@ -14,6 +14,8 @@ interface BilingualTextareaProps {
   errorEn?: string;
   rows?: number;
   helperText?: string;
+  onChangeTh?: (value: string) => void;
+  onChangeEn?: (value: string) => void;
 }
 
 export function BilingualTextarea({
@@ -27,6 +29,8 @@ export function BilingualTextarea({
   errorEn,
   rows = 4,
   helperText,
+  onChangeTh,
+  onChangeEn,
 }: BilingualTextareaProps) {
   return (
     <div className="space-y-2">
@@ -45,6 +49,7 @@ export function BilingualTextarea({
             placeholder={`${label} (Thai)`}
             required={required}
             rows={rows}
+            onChange={onChangeTh ? (e) => onChangeTh(e.target.value) : undefined}
           />
           {errorTh && (
             <p className="mt-1 text-xs text-destructive">{errorTh}</p>
@@ -58,6 +63,7 @@ export function BilingualTextarea({
             placeholder={`${label} (English)`}
             required={required}
             rows={rows}
+            onChange={onChangeEn ? (e) => onChangeEn(e.target.value) : undefined}
           />
           {errorEn && (
             <p className="mt-1 text-xs text-destructive">{errorEn}</p>

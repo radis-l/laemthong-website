@@ -85,7 +85,6 @@ export async function* importProducts(
           },
           description: { th: "", en: "" },
           image: "",
-          icon: "Package",
           sort_order: 999,
         });
       }
@@ -224,7 +223,6 @@ export async function* importImagesOnly(
             name: { th: "ยังไม่จัดหมวดหมู่", en: "Uncategorized" },
             description: { th: "", en: "" },
             image: "",
-            icon: "Package",
             sort_order: 999,
           });
         }

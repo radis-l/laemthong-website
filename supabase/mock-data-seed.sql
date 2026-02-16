@@ -6,30 +6,26 @@
 -- ========================================
 -- Categories (4)
 -- ========================================
-INSERT INTO categories (slug, name, description, image, icon, sort_order) VALUES
+INSERT INTO categories (slug, name, description, image, sort_order) VALUES
 ('machine',
  '{"th":"เครื่องจักร","en":"Machine"}',
  '{"th":"เครื่องเชื่อมและตัดโลหะทุกประเภท ทั้งระบบ MIG/MAG, TIG, Stick, Plasma และ Laser ด้วยเทคโนโลยีอินเวอร์เตอร์ล่าสุด เหมาะสำหรับงานอุตสาหกรรมหนักไปจนถึงงานซ่อมบำรุงทั่วไป ให้ประสิทธิภาพสูง ประหยัดพลังงาน และใช้งานง่าย สนับสนุนทุกกระบวนการผลิตในภาคอุตสาหกรรมสมัยใหม่","en":"Welding and metal cutting machines of all types including MIG/MAG, TIG, Stick, Plasma, and Laser systems featuring the latest inverter technology. Suitable for heavy industrial applications through general maintenance work, offering high performance, energy efficiency, and ease of use. Supporting all manufacturing processes in modern industry."}',
  '',
- 'Factory',
  1),
 ('equipment-consumable',
  '{"th":"อุปกรณ์และวัสดุสิ้นเปลือง","en":"Equipment & Consumable"}',
  '{"th":"อุปกรณ์และวัสดุสิ้นเปลืองสำหรับงานเชื่อมและตัด ครอบคลุมลวดเชื่อม ลวดเชื่อม หัวตัด หัวเชื่อม และอุปกรณ์เสริมอื่นๆ ที่จำเป็นในการทำงาน คัดสรรจากแบรนด์คุณภาพที่ได้มาตรฐานสากล ช่วยเพิ่มประสิทธิภาพและคุณภาพของงานเชื่อม ลดต้นทุนการผลิตในระยะยาว","en":"Equipment and consumables for welding and cutting operations, covering welding wires, electrodes, cutting tips, welding torches, and other essential accessories. Carefully selected from quality brands that meet international standards, helping to enhance efficiency and weld quality while reducing long-term production costs."}',
  '',
- 'Package',
  2),
 ('flowmeter-regulator',
  '{"th":"โฟลว์มิเตอร์และเรกูเลเตอร์","en":"Flowmeter & Regulator"}',
  '{"th":"เกจ์ควบคุมแก๊สและโฟลว์มิเตอร์คุณภาพสูงสำหรับงานเชื่อมและตัด รองรับแก๊สทุกประเภท ทั้งอาร์กอน CO2 ออกซิเจน และแก๊สผสม พร้อมอุปกรณ์ป้องกันไฟย้อนที่ได้มาตรฐาน ออกแบบมาเพื่อความปลอดภัยสูงสุดและการควบคุมอัตราการไหลที่แม่นยำ ช่วยประหยัดแก๊สและเพิ่มคุณภาพงานเชื่อม","en":"High-quality gas regulators and flowmeters for welding and cutting operations, supporting all gas types including Argon, CO2, Oxygen, and mixed gases. Complete with standard flashback arrestors, designed for maximum safety and precise flow rate control. Helps conserve gas and improve weld quality."}',
  '',
- 'Gauge',
  3),
 ('safety-equipment',
  '{"th":"อุปกรณ์ความปลอดภัย","en":"Safety Equipment"}',
  '{"th":"อุปกรณ์ความปลอดภัยสำหรับงานเชื่อมและตัดครบวงจร ทั้งหน้ากากเชื่อมออโต้ ถุงมือหนัง ชุดป้องกัน และอุปกรณ์ป้องกันอื่นๆ ได้มาตรฐานความปลอดภัยสากล ANSI และ CE เพื่อปกป้องช่างเชื่อมจากอันตรายทุกรูปแบบ ทั้งความร้อน สะเก็ดไฟ รังสี UV และควันเชื่อม สร้างสภาพแวดล้อมการทำงานที่ปลอดภัย","en":"Comprehensive safety equipment for welding and cutting operations including auto-darkening helmets, leather gloves, protective clothing, and other protective gear. Meets international safety standards ANSI and CE to protect welders from all types of hazards including heat, spatter, UV radiation, and welding fumes. Creating a safe working environment."}',
  '',
- 'Shield',
  4);
 
 -- ========================================

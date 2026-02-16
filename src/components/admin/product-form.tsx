@@ -32,7 +32,6 @@ import {
 import { FormSubmitButton } from "./form-submit-button";
 import { toast } from "sonner";
 import { slugify } from "@/lib/utils";
-import { getCategoryIcon } from "@/lib/category-icons";
 import Image from "next/image";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
 import { useUnsavedChangesContext } from "./unsaved-changes-provider";
@@ -310,28 +309,16 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
                     {categorySlug && (() => {
                       const cat = categoriesList.find(c => c.slug === categorySlug);
                       if (!cat) return null;
-                      const Icon = getCategoryIcon(cat.icon);
-                      return (
-                        <div className="flex items-center gap-2">
-                          <Icon className="h-4 w-4 text-muted-foreground" />
-                          <span>{cat.name.en}</span>
-                        </div>
-                      );
+                      return cat.name.en;
                     })()}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {categoriesList.map((cat) => {
-                    const Icon = getCategoryIcon(cat.icon);
-                    return (
-                      <SelectItem key={cat.slug} value={cat.slug}>
-                        <div className="flex items-center gap-2">
-                          <Icon className="h-4 w-4" />
-                          <span>{cat.name.en}</span>
-                        </div>
-                      </SelectItem>
-                    );
-                  })}
+                  {categoriesList.map((cat) => (
+                    <SelectItem key={cat.slug} value={cat.slug}>
+                      {cat.name.en}
+                    </SelectItem>
+                  ))}
                   <SelectSeparator />
                   <SelectItem value="__create_new__" className="text-muted-foreground">
                     <div className="flex items-center gap-2">

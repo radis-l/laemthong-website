@@ -135,7 +135,6 @@ export default async function ProductDetailPage({ params }: Props) {
             <ProductImageGallery
               images={product.images}
               productName={product.name[locale as Locale]}
-              categoryIcon={category?.icon}
             />
 
             {/* Info */}
@@ -268,7 +267,6 @@ export default async function ProductDetailPage({ params }: Props) {
                   product={p}
                   locale={locale as Locale}
                   categoryName={category?.name[locale as Locale]}
-                  categoryIcon={category?.icon}
                 />
               ))}
             </div>

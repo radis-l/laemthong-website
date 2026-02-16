@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { PlaceholderImage } from "@/components/shared/placeholder-image";
-import { getCategoryIcon } from "@/lib/category-icons";
 import { ChevronRight } from "lucide-react";
 import type { Product, Locale } from "@/data/types";
 import { formatSlug } from "@/lib/format";
@@ -10,11 +9,10 @@ type Props = {
   product: Product;
   locale: Locale;
   categoryName?: string;
-  categoryIcon?: string;
   variant?: "grid" | "list";
 };
 
-export function ProductCard({ product, locale, categoryName, categoryIcon, variant = "grid" }: Props) {
+export function ProductCard({ product, locale, categoryName, variant = "grid" }: Props) {
   const brandLabel = formatSlug(product.brandSlug);
 
   if (variant === "list") {
@@ -34,7 +32,6 @@ export function ProductCard({ product, locale, categoryName, categoryIcon, varia
             />
           ) : (
             <PlaceholderImage
-              icon={getCategoryIcon(categoryIcon)}
               variant="product"
               aspect="aspect-[4/3]"
             />
@@ -78,7 +75,6 @@ export function ProductCard({ product, locale, categoryName, categoryIcon, varia
             />
           ) : (
             <PlaceholderImage
-              icon={getCategoryIcon(categoryIcon)}
               variant="product"
               aspect="aspect-[4/3]"
             />

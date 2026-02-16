@@ -25,7 +25,6 @@ export interface Category {
   name: LocalizedString;
   description: LocalizedString;
   image: string;
-  icon: string;
   productCount?: number;
   sortOrder: number;
 }
@@ -72,7 +71,6 @@ export interface DbCategory {
   name: LocalizedString;
   description: LocalizedString;
   image: string;
-  icon: string;
   sort_order: number;
   updated_at: string;
 }

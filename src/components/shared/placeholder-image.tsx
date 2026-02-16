@@ -1,4 +1,4 @@
-import type { LucideIcon } from "lucide-react";
+import { Package, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Variant = "product" | "brand" | "hero" | "about" | "service";
@@ -43,7 +43,7 @@ const PATTERNS: Record<Variant, { d: string; size: number }> = {
 };
 
 export function PlaceholderImage({
-  icon: Icon,
+  icon: Icon = Package,
   label,
   aspect = "aspect-[4/3]",
   variant = "product",
@@ -87,7 +87,7 @@ export function PlaceholderImage({
 
       {/* Icon + label */}
       <div className="relative z-10 flex flex-col items-center gap-2">
-        {Icon && <Icon className="h-12 w-12 text-muted-foreground/20" />}
+        <Icon className="h-12 w-12 text-muted-foreground/20" />
         {label && (
           <span className="text-xs text-muted-foreground/30">{label}</span>
         )}

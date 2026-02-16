@@ -30,7 +30,6 @@ export async function createCategoryAction(
     descriptionTh: formData.get("descriptionTh"),
     descriptionEn: formData.get("descriptionEn"),
     image: formData.get("image") || undefined,
-    icon: formData.get("icon"),
     sortOrder: formData.get("sortOrder"),
   });
 
@@ -64,7 +63,6 @@ export async function createCategoryAction(
         en: validated.data.descriptionEn,
       },
       image: validated.data.image || "",
-      icon: validated.data.icon,
       sort_order: sortOrder,
     });
   } catch (error) {
@@ -108,7 +106,6 @@ export async function updateCategoryAction(
     descriptionTh: formData.get("descriptionTh"),
     descriptionEn: formData.get("descriptionEn"),
     image: formData.get("image") || undefined,
-    icon: formData.get("icon"),
     sortOrder: formData.get("sortOrder"),
   });
 
@@ -141,7 +138,6 @@ export async function updateCategoryAction(
       en: validated.data.descriptionEn,
     },
     image: image,
-    icon: validated.data.icon,
   };
 
   // Only update sort_order if provided

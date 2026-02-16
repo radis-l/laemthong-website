@@ -10,7 +10,6 @@ export const categorySchema = z.object({
   descriptionTh: z.string().min(1, "Thai description is required"),
   descriptionEn: z.string().min(1, "English description is required"),
   image: z.string().optional(),
-  icon: z.string().min(1, "Icon name is required"),
   sortOrder: z.coerce.number().int().min(0).optional(),
 });
 

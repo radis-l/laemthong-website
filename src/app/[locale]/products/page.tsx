@@ -244,7 +244,6 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                           product={product}
                           locale={loc}
                           categoryName={categoryMap.get(product.categorySlug)?.name[loc]}
-                          categoryIcon={categoryMap.get(product.categorySlug)?.icon}
                           variant="list"
                         />
                       ))}
@@ -257,7 +256,6 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                           product={product}
                           locale={loc}
                           categoryName={categoryMap.get(product.categorySlug)?.name[loc]}
-                          categoryIcon={categoryMap.get(product.categorySlug)?.icon}
                         />
                       ))}
                     </div>

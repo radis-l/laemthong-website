@@ -18,7 +18,6 @@ import {
 import { FormSubmitButton } from "./form-submit-button";
 import { toast } from "sonner";
 import { slugify } from "@/lib/utils";
-import { AVAILABLE_ICONS, ICON_MAP } from "@/lib/category-icons";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
 import { useUnsavedChangesContext } from "./unsaved-changes-provider";
 import type { DbCategory } from "@/data/types";
@@ -40,7 +39,6 @@ export function CategoryForm({ category }: CategoryFormProps) {
   const [currentSlug, setCurrentSlug] = useState(category?.slug ?? "");
   const [useCustomSlug, setUseCustomSlug] = useState(false);
   const [nameEn, setNameEn] = useState(category?.name.en ?? "");
-  const [selectedIcon, setSelectedIcon] = useState(category?.icon ?? "Wrench");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   // On mount/edit: detect if slug is custom (differs from auto-generated)
@@ -63,13 +61,11 @@ export function CategoryForm({ category }: CategoryFormProps) {
   const initialState = useRef({
     slug: category?.slug ?? "",
     image: category?.image ?? "",
-    icon: category?.icon ?? "Wrench",
   });
 
   const isDirty =
     currentSlug !== initialState.current.slug ||
-    image !== initialState.current.image ||
-    selectedIcon !== initialState.current.icon;
+    image !== initialState.current.image;
 
   useUnsavedChanges(isDirty);
   const { setIsDirty } = useUnsavedChangesContext();
@@ -88,7 +84,6 @@ export function CategoryForm({ category }: CategoryFormProps) {
       )}
       <input type="hidden" name="slug" value={currentSlug} />
       <input type="hidden" name="image" value={image} />
-      <input type="hidden" name="icon" value={selectedIcon} />
 
       <FormErrorAlert message={state.message} errors={state.errors} />
 
@@ -150,35 +145,6 @@ export function CategoryForm({ category }: CategoryFormProps) {
 
         {state.errors?.slug && (
           <p className="text-sm text-destructive">{state.errors.slug[0]}</p>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <Label>Icon *</Label>
-        <div className="grid grid-cols-5 gap-2 sm:grid-cols-10">
-          {AVAILABLE_ICONS.map((name) => {
-            const Icon = ICON_MAP[name];
-            const isActive = selectedIcon === name;
-            return (
-              <button
-                key={name}
-                type="button"
-                onClick={() => setSelectedIcon(name)}
-                title={name}
-                className={`flex flex-col items-center gap-1 rounded-lg border p-2 text-xs transition-colors ${
-                  isActive
-                    ? "border-primary bg-primary/10 text-primary"
-                    : "border-border hover:border-foreground/30"
-                }`}
-              >
-                <Icon className="h-5 w-5" />
-                <span className="truncate w-full text-center text-[10px]">{name}</span>
-              </button>
-            );
-          })}
-        </div>
-        {state.errors?.icon && (
-          <p className="text-xs text-destructive">{state.errors.icon[0]}</p>
         )}
       </div>
 

@@ -22,7 +22,6 @@ async function seedMockData() {
           en: "Welding and metal cutting machines of all types including MIG/MAG, TIG, Stick, Plasma, and Laser systems featuring the latest inverter technology. Suitable for heavy industrial applications through general maintenance work, offering high performance, energy efficiency, and ease of use. Supporting all manufacturing processes in modern industry.",
         },
         image: "",
-        icon: "Factory",
         sort_order: 1,
       },
       {
@@ -33,7 +32,6 @@ async function seedMockData() {
           en: "Equipment and consumables for welding and cutting operations, covering welding wires, electrodes, cutting tips, welding torches, and other essential accessories. Carefully selected from quality brands that meet international standards, helping to enhance efficiency and weld quality while reducing long-term production costs.",
         },
         image: "",
-        icon: "Package",
         sort_order: 2,
       },
       {
@@ -44,7 +42,6 @@ async function seedMockData() {
           en: "High-quality gas regulators and flowmeters for welding and cutting operations, supporting all gas types including Argon, CO2, Oxygen, and mixed gases. Complete with standard flashback arrestors, designed for maximum safety and precise flow rate control. Helps conserve gas and improve weld quality.",
         },
         image: "",
-        icon: "Gauge",
         sort_order: 3,
       },
       {
@@ -55,7 +52,6 @@ async function seedMockData() {
           en: "Comprehensive safety equipment for welding and cutting operations including auto-darkening helmets, leather gloves, protective clothing, and other protective gear. Meets international safety standards ANSI and CE to protect welders from all types of hazards including heat, spatter, UV radiation, and welding fumes. Creating a safe working environment.",
         },
         image: "",
-        icon: "Shield",
         sort_order: 4,
       },
     ]);

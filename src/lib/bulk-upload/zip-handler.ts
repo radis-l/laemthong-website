@@ -42,35 +42,15 @@ export async function extractImagesFromZip(
     if (file.dir) continue;
     if (!isValidImageExtension(path)) continue;
 
-    // New format: products/{slug}/{N}.ext or products/{slug}/image-{N}.ext
+    // products/{slug}/{N}.ext or products/{slug}/image-{N}.ext
     const numberedMatch = path.match(
       /^products\/([^/]+)\/(?:image-)?(\d+)\.(jpg|jpeg|png|webp|avif|svg)$/i
     );
-    // Legacy: main.ext or image.ext (treated as first image)
-    const mainMatch = path.match(
-      /^products\/([^/]+)\/(main|image)\.(jpg|jpeg|png|webp|avif|svg)$/i
-    );
-    // Legacy: gallery-N.ext (treated as subsequent images)
-    const galleryMatch = path.match(
-      /^products\/([^/]+)\/gallery-(\d+)\.(jpg|jpeg|png|webp|avif|svg)$/i
-    );
 
-    let slug: string | null = null;
-    let order: number | null = null;
+    if (!numberedMatch) continue;
 
-    if (numberedMatch) {
-      slug = numberedMatch[1];
-      order = parseInt(numberedMatch[2], 10);
-    } else if (mainMatch) {
-      slug = mainMatch[1];
-      order = 0; // main always first
-    } else if (galleryMatch) {
-      slug = galleryMatch[1];
-      // Offset gallery numbers to sort after main (order 0)
-      order = parseInt(galleryMatch[2], 10) + 1000;
-    }
-
-    if (!slug || order === null) continue;
+    const slug = numberedMatch[1];
+    const order = parseInt(numberedMatch[2], 10);
 
     const blob = await file.async("blob");
     const imageFile = new File([blob], path, { type: getImageMimeType(path) });

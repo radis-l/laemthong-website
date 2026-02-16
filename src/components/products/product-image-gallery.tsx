@@ -3,19 +3,16 @@
 import { useState } from "react";
 import Image from "next/image";
 import { PlaceholderImage } from "@/components/shared/placeholder-image";
-import { getCategoryIcon } from "@/lib/category-icons";
 import { cn } from "@/lib/utils";
 
 type Props = {
   images: string[];
   productName: string;
-  categoryIcon?: string;
 };
 
 export function ProductImageGallery({
   images,
   productName,
-  categoryIcon,
 }: Props) {
   const allImages = images.filter((u) => u.startsWith("http"));
 
@@ -26,7 +23,6 @@ export function ProductImageGallery({
       <div>
         <div className="relative aspect-[4/3] overflow-hidden rounded-lg border bg-muted">
           <PlaceholderImage
-            icon={getCategoryIcon(categoryIcon)}
             variant="product"
             aspect="aspect-[4/3]"
             className="h-full"

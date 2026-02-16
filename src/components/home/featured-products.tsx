@@ -3,7 +3,6 @@ import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { PlaceholderImage } from "@/components/shared/placeholder-image";
-import { getCategoryIcon } from "@/lib/category-icons";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
@@ -13,10 +12,9 @@ import { STAGGER_DELAY } from "@/lib/constants";
 
 type Props = {
   products: Product[];
-  categoryIconMap?: Record<string, string>;
 };
 
-export function FeaturedProducts({ products, categoryIconMap = {} }: Props) {
+export function FeaturedProducts({ products }: Props) {
   const t = useTranslations("home");
   const tCommon = useTranslations("common");
   const locale = useLocale() as Locale;
@@ -60,7 +58,6 @@ export function FeaturedProducts({ products, categoryIconMap = {} }: Props) {
                       />
                     ) : (
                       <PlaceholderImage
-                        icon={getCategoryIcon(categoryIconMap[product.categorySlug])}
                         variant="product"
                         aspect="aspect-[4/3]"
                       />

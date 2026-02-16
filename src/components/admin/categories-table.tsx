@@ -12,12 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Pencil, Loader2 } from "lucide-react";
 import { TableThumbnail } from "@/components/admin/table-thumbnail";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
@@ -25,7 +19,6 @@ import { EmptyTableState } from "@/components/admin/empty-table-state";
 import { deleteCategoryAction } from "@/app/admin/actions/categories";
 import { reorderCategories } from "@/app/admin/actions/reorder";
 import { matchesSearch } from "@/lib/search";
-import { getCategoryIcon } from "@/lib/category-icons";
 import {
   DndContext,
   closestCenter,
@@ -145,7 +138,6 @@ export function CategoriesTable({ categories }: CategoriesTableProps) {
                 <TableHead className="w-10"></TableHead>
                 <TableHead className="w-12"></TableHead>
                 <TableHead>Name</TableHead>
-                <TableHead>Icon</TableHead>
                 <TableHead className="w-24 text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -182,21 +174,6 @@ export function CategoriesTable({ categories }: CategoriesTableProps) {
                             {cat.name.th} • {cat.productCount} products • #{cat.sort_order}
                           </div>
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              {(() => {
-                                const Icon = getCategoryIcon(cat.icon);
-                                return <Icon className="h-6 w-6 text-muted-foreground" />;
-                              })()}
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p className="text-xs">{cat.icon}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">

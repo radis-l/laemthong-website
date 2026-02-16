@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
-import { Building2, DollarSign, Wrench, Award, Users, Factory } from "lucide-react";
+import { Building2, Shield, Clock, Layers, Users, Factory } from "lucide-react";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { PlaceholderImage } from "@/components/shared/placeholder-image";
 import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
@@ -51,9 +51,9 @@ export default async function AboutPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: "about" });
 
   const reasons = [
-    { key: "reason1", icon: DollarSign },
-    { key: "reason2", icon: Wrench },
-    { key: "reason3", icon: Award },
+    { key: "reason1", icon: Shield },
+    { key: "reason2", icon: Clock },
+    { key: "reason3", icon: Layers },
     { key: "reason4", icon: Users },
   ] as const;
 
@@ -62,6 +62,7 @@ export default async function AboutPage({ params }: Props) {
     { yearKey: "milestone2Year", titleKey: "milestone2Title", descKey: "milestone2Desc" },
     { yearKey: "milestone3Year", titleKey: "milestone3Title", descKey: "milestone3Desc" },
     { yearKey: "milestone4Year", titleKey: "milestone4Title", descKey: "milestone4Desc" },
+    { yearKey: "milestone5Year", titleKey: "milestone5Title", descKey: "milestone5Desc" },
   ] as const;
 
   return (
@@ -100,9 +101,9 @@ export default async function AboutPage({ params }: Props) {
               <div className="grid grid-cols-2 gap-4">
                 {[
                   { value: "60+", label: t("statYearsExperience") },
-                  { value: "3+", label: t("statGlobalBrands") },
-                  { value: "1,000+", label: t("statProducts") },
-                  { value: "500+", label: t("statClients") },
+                  { value: "19+", label: t("statGlobalBrands") },
+                  { value: "5,000+", label: t("statProducts") },
+                  { value: "10,000+", label: t("statClients") },
                 ].map((stat, i) => (
                   <AnimateOnScroll key={stat.label} delay={i * STAGGER_DELAY}>
                     <div className="rounded-lg border p-5">
@@ -124,8 +125,8 @@ export default async function AboutPage({ params }: Props) {
         <div className="mx-auto max-w-7xl px-6">
           <SectionHeading title={t("milestonesTitle")} label="Timeline" align="center" />
           <div className="relative">
-            <div className="absolute left-0 right-0 top-5 hidden h-px bg-border md:block" />
-            <div className="grid gap-10 md:grid-cols-4">
+            <div className="absolute left-0 right-0 top-5 hidden h-px bg-border lg:block" />
+            <div className="grid gap-10 md:grid-cols-3 lg:grid-cols-5">
               {milestones.map((m, i) => (
                 <AnimateOnScroll key={m.yearKey} delay={i * 150}>
                   <div className="relative text-center">

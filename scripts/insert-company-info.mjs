@@ -20,20 +20,20 @@ const companyInfo = {
     en: "Laemthong Syndicate Co., Ltd.",
   },
   tagline: {
-    th: "ผู้นำด้านอุปกรณ์เชื่อมและตัดครบวงจร ตั้งแต่ปี 2506",
-    en: "Thailand's Leading Welding & Cutting Equipment Supplier Since 1963",
+    th: "ผู้นำด้านอุปกรณ์เชื่อมและตัดครบวงจร ตั้งแต่ปี 2509",
+    en: "Thailand's Leading Welding & Cutting Equipment Supplier Since 1966",
   },
   description: {
-    th: "บริษัท แหลมทอง ซินดิเคท จำกัด เป็นผู้นำเข้าและจัดจำหน่ายอุปกรณ์เชื่อมและตัดชั้นนำของประเทศไทย ก่อตั้งขึ้นในปี พ.ศ. 2506 ด้วยประสบการณ์กว่า 60 ปี เรามุ่งมั่นในการจัดหาสินค้าคุณภาพสูงจากแบรนด์ชั้นนำระดับโลก พร้อมบริการหลังการขายที่ครบครัน เพื่อตอบสนองความต้องการของลูกค้าในภาคอุตสาหกรรมทุกประเภท",
-    en: "Laemthong Syndicate Co., Ltd. is Thailand's leading importer and distributor of welding and cutting equipment. Established in 1963, with over 60 years of experience, we are committed to providing high-quality products from world-class brands along with comprehensive after-sales service to meet the needs of customers across all industrial sectors.",
+    th: "บริษัท แหลมทอง ซินดิเคท จำกัด เป็นผู้นำเข้าและจัดจำหน่ายอุปกรณ์เชื่อมและตัดชั้นนำของประเทศไทย เริ่มต้นดำเนินกิจการตั้งแต่ปี พ.ศ. 2509 ด้วยประสบการณ์กว่า 60 ปี เรามุ่งมั่นในการจัดหาสินค้าคุณภาพสูงจากแบรนด์ชั้นนำระดับโลก พร้อมบริการหลังการขายที่ครบครัน เพื่อตอบสนองความต้องการของลูกค้าในภาคอุตสาหกรรมทุกประเภท",
+    en: "Laemthong Syndicate Co., Ltd. is Thailand's leading importer and distributor of welding and cutting equipment. Operations began in 1966, and with over 60 years of experience, we are committed to providing high-quality products from world-class brands along with comprehensive after-sales service to meet the needs of customers across all industrial sectors.",
   },
-  year_established: 1963,
+  year_established: 1966,
   address: {
-    th: "1188 ซอยจันทรสุข ถนนลาดพร้าว แขวงคลองจั่น เขตบางกะปิ กรุงเทพฯ 10240",
-    en: "1188 Soi Chantrasuk, Latphrao Road, Khlong Chan, Bang Kapi, Bangkok 10240",
+    th: "1188 ซอยลาดพร้าว 87 (จันทราสุข) แขวงคลองจั่น เขตบางกะปิ กรุงเทพฯ 10240",
+    en: "1188 Soi Ladprao 87 (Chantrasuk), Khlong Chan, Bang Kapi, Bangkok 10240",
   },
   phone: "+66-2-538-4949",
-  email: "sales@laemthong-syndicate.com",
+  email: "sales@laemthong.co.th",
   line_id: "@laemthong",
   map_url:
     "https://maps.google.com/maps?q=Laemthong+Syndicate+Co+Ltd+Bangkok&output=embed",

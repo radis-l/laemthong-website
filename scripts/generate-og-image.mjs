@@ -40,7 +40,7 @@ const svg = `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
   <text x="${W / 2}" y="415"
         font-family="Helvetica Neue,Helvetica,Arial,sans-serif"
         font-size="26" font-weight="400" fill="#c8aa64"
-        text-anchor="middle" letter-spacing="4">Industrial Welding Equipment Since 1963</text>
+        text-anchor="middle" letter-spacing="4">Industrial Welding Equipment Since 1966</text>
   <text x="${W / 2}" y="${H - 30}"
         font-family="Helvetica Neue,Helvetica,Arial,sans-serif"
         font-size="14" font-weight="300" fill="#ffffff"

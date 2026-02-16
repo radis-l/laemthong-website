@@ -97,10 +97,10 @@ export default async function ContactPage({ params, searchParams }: Props) {
                         {t("emailLabel")}
                       </p>
                       <a
-                        href={`mailto:${company?.email ?? "sales@laemthong-syndicate.com"}`}
+                        href={`mailto:${company?.email ?? "sales@laemthong.co.th"}`}
                         className="text-sm text-muted-foreground hover:text-foreground"
                       >
-                        {company?.email ?? "sales@laemthong-syndicate.com"}
+                        {company?.email ?? "sales@laemthong.co.th"}
                       </a>
                     </div>
                   </li>

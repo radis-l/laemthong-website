@@ -1,14 +1,14 @@
 export const COMPANY = {
-  phone: "+66-2-234-5678",
-  phoneTel: "tel:+6622345678",
-  email: "sales@laemthong-syndicate.com",
-  address: "123 Charoen Krung Road, Bang Rak, Bangkok 10500",
-  foundedYear: 1965,
+  phone: "+66-2-538-4949",
+  phoneTel: "tel:+6625384949",
+  email: "sales@laemthong.co.th",
+  address: "1188 Soi Ladprao 87 (Chantrasuk), Khlong Chan, Bang Kapi, Bangkok 10240",
+  foundedYear: 1966,
   stats: {
     years: 60,
-    brands: 3,
-    products: 1000,
-    clients: 500,
+    brands: 19,
+    products: 5000,
+    clients: 10000,
   },
 } as const;
 

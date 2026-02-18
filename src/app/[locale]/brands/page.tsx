@@ -4,7 +4,7 @@ import { CtaContactSection } from "@/components/shared/cta-contact-section";
 import { JsonLd } from "@/components/shared/json-ld";
 import { PageHero } from "@/components/shared/page-hero";
 import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
-import { getAllBrands, getProductCountsByBrand } from "@/lib/db";
+import { getAllBrands } from "@/lib/db";
 import { BrandGridCard } from "@/components/brands/brand-grid-card";
 import { STAGGER_DELAY } from "@/lib/constants";
 import {
@@ -55,10 +55,7 @@ export default async function BrandsPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: "brands" });
   const tNav = await getTranslations({ locale, namespace: "nav" });
   const tCommon = await getTranslations({ locale, namespace: "common" });
-  const [brands, productCounts] = await Promise.all([
-    getAllBrands(),
-    getProductCountsByBrand(),
-  ]);
+  const brands = await getAllBrands();
 
   return (
     <>
@@ -74,19 +71,14 @@ export default async function BrandsPage({ params }: Props) {
       {/* Brand cards */}
       <section className="py-16 md:py-20">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
             {brands.map((brand, index) => (
               <AnimateOnScroll
                 key={brand.slug}
                 direction="up"
                 delay={Math.min(index * STAGGER_DELAY, 400)}
               >
-                <BrandGridCard
-                  brand={brand}
-                  productsLabel={t("products", {
-                    count: productCounts[brand.slug] ?? 0,
-                  })}
-                />
+                <BrandGridCard brand={brand} />
               </AnimateOnScroll>
             ))}
           </div>

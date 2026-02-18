@@ -194,7 +194,6 @@ export function BrandForm({ brand }: BrandFormProps) {
         nameEn="descriptionEn"
         defaultValueTh={brand?.description.th}
         defaultValueEn={brand?.description.en}
-        required
         errorTh={state.errors?.descriptionTh?.[0]}
         errorEn={state.errors?.descriptionEn?.[0]}
       />

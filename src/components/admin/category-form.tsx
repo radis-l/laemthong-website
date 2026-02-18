@@ -154,7 +154,6 @@ export function CategoryForm({ category }: CategoryFormProps) {
         nameEn="descriptionEn"
         defaultValueTh={category?.description.th}
         defaultValueEn={category?.description.en}
-        required
         errorTh={state.errors?.descriptionTh?.[0]}
         errorEn={state.errors?.descriptionEn?.[0]}
       />

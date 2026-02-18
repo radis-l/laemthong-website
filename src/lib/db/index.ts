@@ -14,7 +14,6 @@ export {
   getAllBrands,
   getBrandBySlug,
   getBrandSlugsWithDates,
-  getProductCountsByBrand,
 } from "./brands";
 
 export {

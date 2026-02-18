@@ -163,7 +163,7 @@ export function ImageCropDialog({
   const isFilled = ready && zoom >= coverZoom - 0.01;
   const isFit = ready && zoom <= fitZoom + 0.01;
   const maxZoom = Math.max(3, Math.ceil(coverZoom * 10) / 10);
-  const showPresets = ready && coverZoom - fitZoom > 0.01;
+  const showPresets = ready;
 
   const handleFit = () => {
     setZoom(fitZoom);

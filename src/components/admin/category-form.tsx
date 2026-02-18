@@ -1,15 +1,11 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { HelpCircle } from "lucide-react";
 import { FormErrorAlert } from "./form-error-alert";
 import { BilingualInput } from "./bilingual-input";
 import { BilingualTextarea } from "./bilingual-textarea";
 import { ImageUpload } from "./image-upload";
+import { SlugInput } from "./slug-input";
 import {
   createCategoryAction,
   updateCategoryAction,
@@ -17,7 +13,7 @@ import {
 } from "@/app/admin/actions/categories";
 import { FormSubmitButton } from "./form-submit-button";
 import { toast } from "sonner";
-import { slugify } from "@/lib/utils";
+import { useFormSlug } from "@/hooks/use-form-slug";
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
 import { useUnsavedChangesContext } from "./unsaved-changes-provider";
 import type { DbCategory } from "@/data/types";
@@ -36,26 +32,13 @@ export function CategoryForm({ category }: CategoryFormProps) {
   >(action, {});
 
   const [image, setImage] = useState<string>(category?.image ?? "");
-  const [currentSlug, setCurrentSlug] = useState(category?.slug ?? "");
-  const [useCustomSlug, setUseCustomSlug] = useState(false);
-  const [nameEn, setNameEn] = useState(category?.name.en ?? "");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
-  // On mount/edit: detect if slug is custom (differs from auto-generated)
-  useEffect(() => {
-    if (isEditing && category) {
-      const autoSlug = slugify(category.name.en);
-      const isCustom = category.slug !== autoSlug;
-      setUseCustomSlug(isCustom);
-    }
-  }, [isEditing, category]);
-
-  // Auto-generate slug when English name changes (only if not in custom mode)
-  useEffect(() => {
-    if (!useCustomSlug) {
-      setCurrentSlug(slugify(nameEn));
-    }
-  }, [nameEn, useCustomSlug]);
+  const { slug: currentSlug, setSlug: setCurrentSlug, isCustomSlug, setIsCustomSlug, handleNameChange } = useFormSlug({
+    initialSlug: category?.slug ?? "",
+    initialName: category?.name.en ?? "",
+    isEditing,
+  });
 
   // Dirty state tracking for unsaved changes warning
   const initialState = useRef({
@@ -96,57 +79,19 @@ export function CategoryForm({ category }: CategoryFormProps) {
         required
         errorTh={state.errors?.nameTh?.[0]}
         errorEn={state.errors?.nameEn?.[0]}
-        onChangeEn={setNameEn}
+        onChangeEn={handleNameChange}
       />
 
-      {/* Slug field with custom toggle */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="slug-display" className="flex items-center gap-2">
-            Slug
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs">
-                  <p>The URL-friendly version of the name. Used in web addresses (e.g., &quot;hydraulic-systems&quot; → /categories/hydraulic-systems). Auto-generated from the English name unless customized.</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </Label>
-
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="custom-slug"
-              checked={useCustomSlug}
-              onCheckedChange={setUseCustomSlug}
-            />
-            <Label htmlFor="custom-slug" className="text-sm text-muted-foreground cursor-pointer">
-              Use custom slug
-            </Label>
-          </div>
-        </div>
-
-        <Input
-          id="slug-display"
-          value={currentSlug}
-          onChange={(e) => setCurrentSlug(e.target.value)}
-          disabled={!useCustomSlug}
-          className={!useCustomSlug ? "bg-muted cursor-not-allowed" : ""}
-          placeholder="auto-generated-from-name"
-        />
-
-        {isEditing && useCustomSlug && (
-          <p className="text-xs text-amber-600">
-            ⚠️ Changing the slug will migrate category images to the new URL path
-          </p>
-        )}
-
-        {state.errors?.slug && (
-          <p className="text-sm text-destructive">{state.errors.slug[0]}</p>
-        )}
-      </div>
+      <SlugInput
+        isCustomSlug={isCustomSlug}
+        onToggleCustom={setIsCustomSlug}
+        slug={currentSlug}
+        onSlugChange={setCurrentSlug}
+        isEditing={isEditing}
+        tooltipText='The URL-friendly version of the name. Used in web addresses (e.g., "hydraulic-systems" → /categories/hydraulic-systems). Auto-generated from the English name unless customized.'
+        editWarning="Changing the slug will migrate category images to the new URL path"
+        error={state.errors?.slug?.[0]}
+      />
 
       <BilingualTextarea
         label="Description"

@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { brandSchema } from "@/lib/validations/brand";
 import {
@@ -8,21 +7,18 @@ import {
   adminUpdateBrand,
   adminDeleteBrand,
 } from "@/lib/db/admin";
-import { deleteImageFolder, moveImageFolder } from "@/lib/storage";
-import { createSupabaseAdminClient } from "@/lib/supabase";
-import type { DbBrand } from "@/data/types";
+import { deleteImageFolder, migrateImagesOnSlugChange } from "@/lib/storage";
+import { handleActionError } from "@/lib/db/errors";
+import { getNextSortOrder } from "@/lib/db/sort-order";
+import { revalidateEntity } from "@/lib/revalidation";
+import type { BrandActionState } from "./types";
 
-export type BrandFormState = {
-  success?: boolean;
-  brand?: DbBrand;
-  errors?: Record<string, string[]>;
-  message?: string;
-};
+export type { BrandActionState as BrandFormState };
 
 export async function createBrandAction(
-  _prevState: BrandFormState,
+  _prevState: BrandActionState,
   formData: FormData
-): Promise<BrandFormState> {
+): Promise<BrandActionState> {
   const validated = brandSchema.safeParse({
     slug: formData.get("slug"),
     name: formData.get("name"),
@@ -40,20 +36,9 @@ export async function createBrandAction(
 
   const skipRedirect = formData.get("_skipRedirect") === "true";
 
-  // Auto-calculate sort order with gap of 10 if not provided
-  let sortOrder = validated.data.sortOrder ?? 0;
-  if (validated.data.sortOrder === undefined) {
-    const supabase = createSupabaseAdminClient();
-    const { data } = await supabase
-      .from("brands")
-      .select("sort_order")
-      .order("sort_order", { ascending: false })
-      .limit(1)
-      .single();
-    sortOrder = (data?.sort_order ?? -10) + 10;
-  }
+  const sortOrder = validated.data.sortOrder ?? await getNextSortOrder("brands");
 
-  let newBrand: DbBrand;
+  let newBrand: import("@/data/types").DbBrand;
 
   try {
     newBrand = await adminCreateBrand({
@@ -69,25 +54,10 @@ export async function createBrandAction(
       sort_order: sortOrder,
     });
   } catch (error) {
-    // Check for unique constraint violation (slug already exists)
-    if (error instanceof Error && error.message.includes("duplicate key")) {
-      return {
-        message:
-          "A brand with this slug already exists. Please choose a different name or slug.",
-        errors: { slug: ["This slug is already in use"] },
-      };
-    }
-
-    // Generic fallback for other database errors
-    console.error("Failed to create brand:", error);
-    return {
-      message:
-        "Failed to create brand. Please check your connection and try again.",
-    };
+    return handleActionError(error, "brand", "create");
   }
 
-  revalidatePath("/admin/brands");
-  revalidatePath("/", "layout");
+  revalidateEntity("/admin/brands");
 
   if (skipRedirect) {
     return { success: true, brand: newBrand };
@@ -97,9 +67,9 @@ export async function createBrandAction(
 }
 
 export async function updateBrandAction(
-  _prevState: BrandFormState,
+  _prevState: BrandActionState,
   formData: FormData
-): Promise<BrandFormState> {
+): Promise<BrandActionState> {
   const originalSlug = formData.get("originalSlug") as string;
 
   const validated = brandSchema.safeParse({
@@ -121,16 +91,9 @@ export async function updateBrandAction(
 
   // Handle logo migration if slug changed
   let logo = validated.data.logo || "";
-  if (slug !== originalSlug && logo) {
-    try {
-      const newUrls = await moveImageFolder("brands", originalSlug, slug);
-      if (newUrls.length > 0) {
-        logo = newUrls[0]; // Use migrated URL (single logo)
-      }
-    } catch (error) {
-      console.error("Failed to migrate brand logo on slug change:", error);
-      // Continue with old URL - logo still accessible under old slug
-    }
+  const migrated = await migrateImagesOnSlugChange("brands", originalSlug, slug, logo);
+  if (typeof migrated === "string") {
+    logo = migrated;
   }
 
   // Build update object
@@ -146,7 +109,6 @@ export async function updateBrandAction(
     country: validated.data.country,
   };
 
-  // Only update sort_order if provided
   if (validated.data.sortOrder !== undefined) {
     updateData.sort_order = validated.data.sortOrder;
   }
@@ -154,47 +116,21 @@ export async function updateBrandAction(
   try {
     await adminUpdateBrand(originalSlug, updateData);
   } catch (error) {
-    // Check for unique constraint violation (slug already exists)
-    if (error instanceof Error && error.message.includes("duplicate key")) {
-      return {
-        message:
-          "A brand with this slug already exists. Please choose a different slug.",
-        errors: { slug: ["This slug is already in use"] },
-      };
-    }
-
-    // Generic fallback for other database errors
-    console.error("Failed to update brand:", error);
-    return {
-      message:
-        "Failed to update brand. Please check your connection and try again.",
-    };
+    return handleActionError(error, "brand", "update");
   }
 
-  revalidatePath("/admin/brands");
-  revalidatePath("/", "layout");
+  revalidateEntity("/admin/brands");
   redirect("/admin/brands");
 }
 
-export async function deleteBrandAction(slug: string): Promise<BrandFormState> {
+export async function deleteBrandAction(slug: string): Promise<BrandActionState> {
   try {
     await adminDeleteBrand(slug);
     deleteImageFolder("brands", slug).catch(() => {});
   } catch (error) {
-    if (error instanceof Error && error.message.includes("foreign key")) {
-      return {
-        message:
-          "Cannot delete this brand because it has associated products. Please reassign or delete those products first.",
-      };
-    }
-
-    console.error("Failed to delete brand:", error);
-    return {
-      message: "Failed to delete brand. Please try again.",
-    };
+    return handleActionError(error, "brand", "delete");
   }
 
-  revalidatePath("/admin/brands");
-  revalidatePath("/", "layout");
+  revalidateEntity("/admin/brands");
   return { success: true };
 }

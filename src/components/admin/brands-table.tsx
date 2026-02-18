@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useTransition, useEffect } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { TableSearchBar } from "./table-search-bar";
 import { Button } from "@/components/ui/button";
@@ -19,23 +19,14 @@ import { EmptyTableState } from "@/components/admin/empty-table-state";
 import { deleteBrandAction } from "@/app/admin/actions/brands";
 import { reorderBrands } from "@/app/admin/actions/reorder";
 import { matchesSearch } from "@/lib/search";
+import { DndContext, closestCenter } from "@dnd-kit/core";
 import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
   SortableContext,
-  sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { SortableTableRow } from "./sortable-table-row";
-import { toast } from "sonner";
+import { useSortableTable } from "@/hooks/use-sortable-table";
+import { useScrolled } from "@/hooks/use-scrolled";
 import { cn } from "@/lib/utils";
 import type { DbBrand } from "@/data/types";
 
@@ -50,20 +41,10 @@ interface BrandsTableProps {
 export function BrandsTable({ brands }: BrandsTableProps) {
   const [query, setQuery] = useState("");
   const [items, setItems] = useState(brands);
-  const [isPending, startTransition] = useTransition();
-  const [isScrolled, setIsScrolled] = useState(false);
+  const isScrolled = useScrolled();
 
   // Update local items when brands prop changes
   useMemo(() => setItems(brands), [brands]);
-
-  // Track scroll for sticky header border
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 100);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const filtered = useMemo(
     () => items.filter((b) => matchesSearch(query, b.name, b.slug, b.country)),
@@ -74,41 +55,15 @@ export function BrandsTable({ brands }: BrandsTableProps) {
   const hasResults = filtered.length > 0;
   const isFiltering = query.trim().length > 0;
 
-  // Drag and drop sensors
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (!over || active.id === over.id) return;
-
-    const oldIndex = items.findIndex((item) => item.slug === active.id);
-    const newIndex = items.findIndex((item) => item.slug === over.id);
-
-    if (oldIndex === -1 || newIndex === -1) return;
-
-    const reordered = arrayMove(items, oldIndex, newIndex);
-    const originalItems = items; // Capture original before state update
-
-    // Update UI optimistically
-    setItems(reordered);
-
-    // Persist to server
-    startTransition(async () => {
-      try {
-        await reorderBrands(reordered.map((b) => b.slug));
-        toast.success("Brands reordered successfully");
-      } catch (error) {
-        toast.error("Failed to reorder brands");
-        setItems(originalItems); // Revert on error
-      }
-    });
-  };
+  const { sensors, handleDragEnd, isPending } = useSortableTable({
+    items,
+    setItems,
+    reorderAction: (slugs) => reorderBrands(slugs),
+    getId: (item) => item.slug,
+    successMessage: "Brands reordered successfully",
+    errorMessage: "Failed to reorder brands",
+    disabled: isFiltering,
+  });
 
   return (
     <>

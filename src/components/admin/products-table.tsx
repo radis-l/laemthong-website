@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useTransition, useEffect } from "react";
+import { useState, useMemo, useCallback, useTransition } from "react";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -22,12 +22,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Pencil, Trash2, Loader2, X } from "lucide-react";
 import { TableThumbnail } from "@/components/admin/table-thumbnail";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
@@ -39,22 +33,14 @@ import {
   bulkDeleteProductsAction,
 } from "@/app/admin/actions/products";
 import { reorderProducts } from "@/app/admin/actions/reorder";
+import { DndContext, closestCenter } from "@dnd-kit/core";
 import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
   SortableContext,
-  sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { SortableTableRow } from "./sortable-table-row";
+import { useSortableTable } from "@/hooks/use-sortable-table";
+import { useScrolled } from "@/hooks/use-scrolled";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { DbProduct } from "@/data/types";
@@ -81,23 +67,14 @@ export function ProductsTable({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [isPending, startTransition] = useTransition();
+  const [isNavigating, startNavTransition] = useTransition();
 
   const [selectedSlugs, setSelectedSlugs] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const isScrolled = useScrolled();
 
   const [items, setItems] = useState(products);
-
-  // Track scroll for sticky header border
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 100);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   // Update local items when products prop changes
   useMemo(() => setItems(products), [products]);
@@ -116,46 +93,22 @@ export function ProductsTable({
   );
   const canReorder = !isFiltering;
 
-  // Drag and drop sensors
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+  const { sensors, handleDragEnd, isPending: isReordering } = useSortableTable({
+    items,
+    setItems,
+    reorderAction: (slugs) => reorderProducts(slugs),
+    getId: (item) => item.slug,
+    successMessage: "Products reordered successfully",
+    errorMessage: "Failed to reorder products",
+    disabled: !canReorder,
+  });
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (!over || active.id === over.id || !canReorder) return;
-
-    const oldIndex = items.findIndex((item) => item.slug === active.id);
-    const newIndex = items.findIndex((item) => item.slug === over.id);
-
-    if (oldIndex === -1 || newIndex === -1) return;
-
-    const reordered = arrayMove(items, oldIndex, newIndex);
-    const originalItems = items; // Capture original before state update
-
-    // Update UI optimistically
-    setItems(reordered);
-
-    // Persist to server
-    startTransition(async () => {
-      try {
-        await reorderProducts(reordered.map((p) => p.slug));
-        toast.success("Products reordered successfully");
-      } catch (error) {
-        toast.error("Failed to reorder products");
-        setItems(originalItems); // Revert on error
-      }
-    });
-  };
+  const isPending = isReordering || isNavigating;
 
   const clearAllFilters = useCallback(() => {
     const params = new URLSearchParams();
-    params.set("page", "1"); // Reset to first page
-    startTransition(() => {
+    params.set("page", "1");
+    startNavTransition(() => {
       router.replace(`${pathname}?${params.toString()}`);
     });
   }, [router, pathname]);

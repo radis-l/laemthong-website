@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { productSchema } from "@/lib/validations/product";
 import {
@@ -8,16 +7,15 @@ import {
   adminUpdateProduct,
   adminDeleteProduct,
 } from "@/lib/db/admin";
-import { deleteImageFolder, moveImageFolder } from "@/lib/storage";
+import { deleteImageFolder, moveImageFolder, migrateImagesOnSlugChange } from "@/lib/storage";
+import { handleActionError } from "@/lib/db/errors";
+import { getNextSortOrder } from "@/lib/db/sort-order";
+import { revalidateEntity } from "@/lib/revalidation";
 import { slugify } from "@/lib/utils";
-import { createSupabaseAdminClient } from "@/lib/supabase";
 import type { LocalizedString } from "@/data/types";
+import type { ProductActionState } from "./types";
 
-export type ProductFormState = {
-  success?: boolean;
-  errors?: Record<string, string[]>;
-  message?: string;
-};
+export type { ProductActionState as ProductFormState };
 
 function parseJsonOrDefault<T>(value: string | undefined, fallback: T): T {
   if (!value) return fallback;
@@ -29,9 +27,9 @@ function parseJsonOrDefault<T>(value: string | undefined, fallback: T): T {
 }
 
 export async function createProductAction(
-  _prevState: ProductFormState,
+  _prevState: ProductActionState,
   formData: FormData
-): Promise<ProductFormState> {
+): Promise<ProductActionState> {
   const validated = productSchema.safeParse({
     slug: formData.get("slug") || undefined,
     nameTh: formData.get("nameTh"),
@@ -57,34 +55,20 @@ export async function createProductAction(
   // Auto-generate slug from English name if not provided
   const slug = validated.data.slug || slugify(validated.data.nameEn);
 
-  // Auto-calculate sort order with gap of 10 if not provided
-  let sortOrder = validated.data.sortOrder ?? 0;
-  if (validated.data.sortOrder === undefined) {
-    const supabase = createSupabaseAdminClient();
-    const { data } = await supabase
-      .from("products")
-      .select("sort_order")
-      .order("sort_order", { ascending: false })
-      .limit(1)
-      .single();
-    sortOrder = (data?.sort_order ?? -10) + 10;
-  }
+  const sortOrder = validated.data.sortOrder ?? await getNextSortOrder("products");
 
   // Handle image migration from temporary slug to final slug
   let images = parseJsonOrDefault<string[]>(validated.data.images, []);
   if (images.length > 0 && images[0].includes('/products/temp-')) {
-    // Extract temp slug from first image URL
     const tempSlugMatch = images[0].match(/\/products\/(temp-\d+)\//);
     if (tempSlugMatch) {
       const tempSlug = tempSlugMatch[1];
-      // Move images from temp folder to final slug folder
       try {
         const newUrls = await moveImageFolder("products", tempSlug, slug);
         if (newUrls.length > 0) {
           images = newUrls;
         }
       } catch (error) {
-        // If move fails, keep temp URLs (images are still accessible)
         console.error("Failed to move images from temp folder:", error);
       }
     }
@@ -120,32 +104,17 @@ export async function createProductAction(
       sort_order: sortOrder,
     });
   } catch (error) {
-    // Check for unique constraint violation (slug already exists)
-    if (error instanceof Error && error.message.includes("duplicate key")) {
-      return {
-        message:
-          "A product with this slug already exists. Please choose a different name or slug.",
-        errors: { slug: ["This slug is already in use"] },
-      };
-    }
-
-    // Generic fallback for other database errors
-    console.error("Failed to create product:", error);
-    return {
-      message:
-        "Failed to create product. Please check your connection and try again.",
-    };
+    return handleActionError(error, "product", "create");
   }
 
-  revalidatePath("/admin/products");
-  revalidatePath("/", "layout");
+  revalidateEntity("/admin/products");
   redirect("/admin/products");
 }
 
 export async function updateProductAction(
-  _prevState: ProductFormState,
+  _prevState: ProductActionState,
   formData: FormData
-): Promise<ProductFormState> {
+): Promise<ProductActionState> {
   const originalSlug = formData.get("originalSlug") as string;
 
   const validated = productSchema.safeParse({
@@ -170,24 +139,16 @@ export async function updateProductAction(
     return { errors: validated.error.flatten().fieldErrors };
   }
 
-  // Use original slug if not provided (fallback)
   const slug = validated.data.slug || originalSlug;
 
   // Handle image migration if slug changed
   let images = parseJsonOrDefault<string[]>(validated.data.images, []);
-  if (slug !== originalSlug && images.length > 0) {
-    try {
-      const newUrls = await moveImageFolder("products", originalSlug, slug);
-      if (newUrls.length > 0) {
-        images = newUrls; // Use migrated URLs
-      }
-    } catch (error) {
-      console.error("Failed to migrate product images on slug change:", error);
-      // Continue with old URLs - images still accessible under old slug
-    }
+  const migrated = await migrateImagesOnSlugChange("products", originalSlug, slug, images);
+  if (Array.isArray(migrated)) {
+    images = migrated;
   }
 
-  // Build update object, only including sortOrder if provided
+  // Build update object
   const updateData: Parameters<typeof adminUpdateProduct>[1] = {
     slug,
     category_slug: validated.data.categorySlug,
@@ -216,7 +177,6 @@ export async function updateProductAction(
     featured: validated.data.featured === "on",
   };
 
-  // Only update sort_order if provided
   if (validated.data.sortOrder !== undefined) {
     updateData.sort_order = validated.data.sortOrder;
   }
@@ -224,43 +184,24 @@ export async function updateProductAction(
   try {
     await adminUpdateProduct(originalSlug, updateData);
   } catch (error) {
-    // Check for unique constraint violation (slug already exists)
-    if (error instanceof Error && error.message.includes("duplicate key")) {
-      return {
-        message:
-          "A product with this slug already exists. Please choose a different slug.",
-        errors: { slug: ["This slug is already in use"] },
-      };
-    }
-
-    // Generic fallback for other database errors
-    console.error("Failed to update product:", error);
-    return {
-      message:
-        "Failed to update product. Please check your connection and try again.",
-    };
+    return handleActionError(error, "product", "update");
   }
 
-  revalidatePath("/admin/products");
-  revalidatePath("/", "layout");
+  revalidateEntity("/admin/products");
   redirect("/admin/products");
 }
 
 export async function deleteProductAction(
   slug: string
-): Promise<ProductFormState> {
+): Promise<ProductActionState> {
   try {
     await adminDeleteProduct(slug);
     deleteImageFolder("products", slug).catch(() => {});
   } catch (error) {
-    console.error("Failed to delete product:", error);
-    return {
-      message: "Failed to delete product. Please try again.",
-    };
+    return handleActionError(error, "product", "delete");
   }
 
-  revalidatePath("/admin/products");
-  revalidatePath("/", "layout");
+  revalidateEntity("/admin/products");
   return { success: true };
 }
 
@@ -279,8 +220,7 @@ export async function bulkDeleteProductsAction(
     }
   }
 
-  revalidatePath("/admin/products");
-  revalidatePath("/", "layout");
+  revalidateEntity("/admin/products");
 
   if (deleted === 0) {
     return { success: false, deleted: 0, message: "Failed to delete any products." };

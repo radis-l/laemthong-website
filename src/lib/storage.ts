@@ -112,6 +112,36 @@ export async function moveImageFolder(
   return newUrls;
 }
 
+/**
+ * When an entity's slug changes, migrate its images to the new folder path.
+ * Returns the updated image URL(s) or null if no migration was needed.
+ */
+export async function migrateImagesOnSlugChange(
+  folder: ImageFolder,
+  oldSlug: string,
+  newSlug: string,
+  currentImages: string | string[]
+): Promise<string | string[] | null> {
+  if (oldSlug === newSlug) return null;
+
+  const imageList = Array.isArray(currentImages)
+    ? currentImages
+    : [currentImages];
+  if (imageList.length === 0 || !imageList[0]) return null;
+
+  try {
+    const newUrls = await moveImageFolder(folder, oldSlug, newSlug);
+    if (newUrls.length > 0) {
+      return Array.isArray(currentImages) ? newUrls : newUrls[0];
+    }
+  } catch (error) {
+    console.error(`Failed to migrate ${folder} images on slug change:`, error);
+    // Continue with old URLs - images still accessible under old slug
+  }
+
+  return null;
+}
+
 function extractPathFromUrl(publicUrl: string): string | null {
   const marker = `/storage/v1/object/public/${BUCKET}/`;
   const idx = publicUrl.indexOf(marker);

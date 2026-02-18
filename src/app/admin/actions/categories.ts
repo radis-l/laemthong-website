@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { categorySchema } from "@/lib/validations/category";
 import {
@@ -8,21 +7,18 @@ import {
   adminUpdateCategory,
   adminDeleteCategory,
 } from "@/lib/db/admin";
-import { deleteImageFolder, moveImageFolder } from "@/lib/storage";
-import { createSupabaseAdminClient } from "@/lib/supabase";
-import type { DbCategory } from "@/data/types";
+import { deleteImageFolder, migrateImagesOnSlugChange } from "@/lib/storage";
+import { handleActionError } from "@/lib/db/errors";
+import { getNextSortOrder } from "@/lib/db/sort-order";
+import { revalidateEntity } from "@/lib/revalidation";
+import type { CategoryActionState } from "./types";
 
-export type CategoryFormState = {
-  success?: boolean;
-  category?: DbCategory;
-  errors?: Record<string, string[]>;
-  message?: string;
-};
+export type { CategoryActionState as CategoryFormState };
 
 export async function createCategoryAction(
-  _prevState: CategoryFormState,
+  _prevState: CategoryActionState,
   formData: FormData
-): Promise<CategoryFormState> {
+): Promise<CategoryActionState> {
   const validated = categorySchema.safeParse({
     slug: formData.get("slug"),
     nameTh: formData.get("nameTh"),
@@ -39,20 +35,9 @@ export async function createCategoryAction(
 
   const skipRedirect = formData.get("_skipRedirect") === "true";
 
-  // Auto-calculate sort order with gap of 10 if not provided
-  let sortOrder = validated.data.sortOrder ?? 0;
-  if (validated.data.sortOrder === undefined) {
-    const supabase = createSupabaseAdminClient();
-    const { data } = await supabase
-      .from("categories")
-      .select("sort_order")
-      .order("sort_order", { ascending: false })
-      .limit(1)
-      .single();
-    sortOrder = (data?.sort_order ?? -10) + 10;
-  }
+  const sortOrder = validated.data.sortOrder ?? await getNextSortOrder("categories");
 
-  let newCategory: DbCategory;
+  let newCategory: import("@/data/types").DbCategory;
 
   try {
     newCategory = await adminCreateCategory({
@@ -66,25 +51,10 @@ export async function createCategoryAction(
       sort_order: sortOrder,
     });
   } catch (error) {
-    // Check for unique constraint violation (slug already exists)
-    if (error instanceof Error && error.message.includes("duplicate key")) {
-      return {
-        message:
-          "A category with this slug already exists. Please choose a different name or slug.",
-        errors: { slug: ["This slug is already in use"] },
-      };
-    }
-
-    // Generic fallback for other database errors
-    console.error("Failed to create category:", error);
-    return {
-      message:
-        "Failed to create category. Please check your connection and try again.",
-    };
+    return handleActionError(error, "category", "create");
   }
 
-  revalidatePath("/admin/categories");
-  revalidatePath("/", "layout");
+  revalidateEntity("/admin/categories");
 
   if (skipRedirect) {
     return { success: true, category: newCategory };
@@ -94,9 +64,9 @@ export async function createCategoryAction(
 }
 
 export async function updateCategoryAction(
-  _prevState: CategoryFormState,
+  _prevState: CategoryActionState,
   formData: FormData
-): Promise<CategoryFormState> {
+): Promise<CategoryActionState> {
   const originalSlug = formData.get("originalSlug") as string;
 
   const validated = categorySchema.safeParse({
@@ -117,16 +87,9 @@ export async function updateCategoryAction(
 
   // Handle image migration if slug changed
   let image = validated.data.image || "";
-  if (slug !== originalSlug && image) {
-    try {
-      const newUrls = await moveImageFolder("categories", originalSlug, slug);
-      if (newUrls.length > 0) {
-        image = newUrls[0]; // Use migrated URL (single image)
-      }
-    } catch (error) {
-      console.error("Failed to migrate category image on slug change:", error);
-      // Continue with old URL - image still accessible under old slug
-    }
+  const migrated = await migrateImagesOnSlugChange("categories", originalSlug, slug, image);
+  if (typeof migrated === "string") {
+    image = migrated;
   }
 
   // Build update object
@@ -140,7 +103,6 @@ export async function updateCategoryAction(
     image: image,
   };
 
-  // Only update sort_order if provided
   if (validated.data.sortOrder !== undefined) {
     updateData.sort_order = validated.data.sortOrder;
   }
@@ -148,49 +110,23 @@ export async function updateCategoryAction(
   try {
     await adminUpdateCategory(originalSlug, updateData);
   } catch (error) {
-    // Check for unique constraint violation (slug already exists)
-    if (error instanceof Error && error.message.includes("duplicate key")) {
-      return {
-        message:
-          "A category with this slug already exists. Please choose a different slug.",
-        errors: { slug: ["This slug is already in use"] },
-      };
-    }
-
-    // Generic fallback for other database errors
-    console.error("Failed to update category:", error);
-    return {
-      message:
-        "Failed to update category. Please check your connection and try again.",
-    };
+    return handleActionError(error, "category", "update");
   }
 
-  revalidatePath("/admin/categories");
-  revalidatePath("/", "layout");
+  revalidateEntity("/admin/categories");
   redirect("/admin/categories");
 }
 
 export async function deleteCategoryAction(
   slug: string
-): Promise<CategoryFormState> {
+): Promise<CategoryActionState> {
   try {
     await adminDeleteCategory(slug);
     deleteImageFolder("categories", slug).catch(() => {});
   } catch (error) {
-    if (error instanceof Error && error.message.includes("foreign key")) {
-      return {
-        message:
-          "Cannot delete this category because it has associated products. Please reassign or delete those products first.",
-      };
-    }
-
-    console.error("Failed to delete category:", error);
-    return {
-      message: "Failed to delete category. Please try again.",
-    };
+    return handleActionError(error, "category", "delete");
   }
 
-  revalidatePath("/admin/categories");
-  revalidatePath("/", "layout");
+  revalidateEntity("/admin/categories");
   return { success: true };
 }

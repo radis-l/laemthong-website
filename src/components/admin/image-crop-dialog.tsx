@@ -102,7 +102,9 @@ export function ImageCropDialog({
       img.onload = () => {
         if (cancelled) return;
 
-        // Compute displayed image size (objectFit: contain in container)
+        // Compute displayed image size (objectFit: contain in container).
+        // react-easy-crop scales the image to fit the CONTAINER at zoom=1
+        // (via CSS max-width/max-height: 100%), not the crop area.
         const imageAspect = img.naturalWidth / img.naturalHeight;
         const containerAspect = cW / cH;
         let imgW: number, imgH: number;
@@ -122,7 +124,7 @@ export function ImageCropDialog({
         setCropSize({ width: cropW, height: cropH });
         setFitZoom(fit);
         setCoverZoom(cover);
-        setZoom(fit);
+        setZoom(cover);
         setCrop({ x: 0, y: 0 });
         setReady(true);
       };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useActionState, useEffect } from "react";
+import { useActionState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,15 +8,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { BilingualInput } from "./bilingual-input";
+import { SlugInput } from "./slug-input";
 import {
   createCategoryAction,
   type CategoryFormState,
 } from "@/app/admin/actions/categories";
-import { slugify } from "@/lib/utils";
+import { useFormSlug } from "@/hooks/use-form-slug";
 import { toast } from "sonner";
 import type { DbCategory } from "@/data/types";
 
@@ -31,8 +29,12 @@ export function QuickCreateCategoryDialog({
   onOpenChange,
   onSuccess,
 }: QuickCreateCategoryDialogProps) {
-  const [slug, setSlug] = useState("");
-  const [useCustomSlug, setUseCustomSlug] = useState(false);
+  const { slug, setSlug, isCustomSlug, setIsCustomSlug, handleNameChange } = useFormSlug({
+    initialSlug: "",
+    initialName: "",
+    isEditing: false,
+  });
+
   const [state, formAction, isPending] = useActionState<CategoryFormState, FormData>(
     createCategoryAction,
     {}
@@ -45,7 +47,7 @@ export function QuickCreateCategoryDialog({
       onOpenChange(false);
       // Reset form
       setSlug("");
-      setUseCustomSlug(false);
+      setIsCustomSlug(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.success, state.category]);
@@ -69,42 +71,17 @@ export function QuickCreateCategoryDialog({
             required
             errorTh={state.errors?.nameTh?.[0]}
             errorEn={state.errors?.nameEn?.[0]}
-            onChangeEn={(val) => {
-              if (!useCustomSlug) setSlug(slugify(val));
-            }}
+            onChangeEn={handleNameChange}
           />
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>Slug</Label>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="quick-cat-custom-slug"
-                  checked={useCustomSlug}
-                  onCheckedChange={setUseCustomSlug}
-                />
-                <Label
-                  htmlFor="quick-cat-custom-slug"
-                  className="text-sm text-muted-foreground cursor-pointer"
-                >
-                  Custom
-                </Label>
-              </div>
-            </div>
-            <Input
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-              disabled={!useCustomSlug}
-              className={!useCustomSlug ? "bg-muted cursor-not-allowed" : ""}
-              placeholder="auto-generated-from-name"
-            />
-            {!useCustomSlug && (
-              <p className="text-xs text-muted-foreground">Auto-generated from English name</p>
-            )}
-            {state.errors?.slug && (
-              <p className="text-xs text-destructive">{state.errors.slug[0]}</p>
-            )}
-          </div>
+          <SlugInput
+            isCustomSlug={isCustomSlug}
+            onToggleCustom={setIsCustomSlug}
+            slug={slug}
+            onSlugChange={setSlug}
+            error={state.errors?.slug?.[0]}
+            compact
+          />
 
           {/* Minimal description - required by schema */}
           <input type="hidden" name="descriptionTh" value="Created via quick-add" />

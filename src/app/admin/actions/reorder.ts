@@ -1,7 +1,7 @@
 "use server";
 
 import { createSupabaseAdminClient } from "@/lib/supabase";
-import { revalidatePath } from "next/cache";
+import { revalidateEntity } from "@/lib/revalidation";
 
 async function reorderEntities(
   table: "brands" | "categories" | "products",
@@ -19,8 +19,7 @@ async function reorderEntities(
     if (error) throw error;
   }
 
-  revalidatePath(adminPath);
-  revalidatePath("/", "layout");
+  revalidateEntity(adminPath);
 }
 
 export async function reorderBrands(slugs: string[]) {

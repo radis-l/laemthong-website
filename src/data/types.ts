@@ -40,15 +40,6 @@ export interface Brand {
   sortOrder: number;
 }
 
-export interface Service {
-  slug: string;
-  title: LocalizedString;
-  description: LocalizedString;
-  icon: string;
-  features: LocalizedString[];
-  sortOrder: number;
-}
-
 export interface CompanyInfo {
   name: LocalizedString;
   tagline: LocalizedString;
@@ -98,16 +89,6 @@ export interface DbProduct {
   features: LocalizedString[];
   documents: { name: string; url: string }[];
   featured: boolean;
-  sort_order: number;
-  updated_at: string;
-}
-
-export interface DbService {
-  slug: string;
-  title: LocalizedString;
-  description: LocalizedString;
-  icon: string;
-  features: LocalizedString[];
   sort_order: number;
   updated_at: string;
 }

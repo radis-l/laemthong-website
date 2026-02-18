@@ -1,10 +1,8 @@
 import { z } from "zod";
+import { slugSchema, sortOrderSchema } from "./shared";
 
 export const productSchema = z.object({
-  slug: z
-    .string()
-    .min(1, "Slug is required")
-    .regex(/^[a-z0-9-]+$/, "Slug must be lowercase letters, numbers, and dashes"),
+  slug: slugSchema,
   nameTh: z.string().min(1, "Thai name is required"),
   nameEn: z.string().min(1, "English name is required"),
   shortDescriptionTh: z.string().min(1, "Thai short description is required"),
@@ -13,12 +11,12 @@ export const productSchema = z.object({
   descriptionEn: z.string().min(1, "English description is required"),
   categorySlug: z.string().min(1, "Category is required"),
   brandSlug: z.string().min(1, "Brand is required"),
-  images: z.string().optional(), // JSON string of string[]
-  specifications: z.string().optional(), // JSON string of spec array
-  features: z.string().optional(), // JSON string of LocalizedString[]
-  documents: z.string().optional(), // JSON string of doc array
+  images: z.string().optional(),
+  specifications: z.string().optional(),
+  features: z.string().optional(),
+  documents: z.string().optional(),
   featured: z.string().optional(),
-  sortOrder: z.coerce.number().int().min(0).optional(), // Auto-calculated if not provided
+  sortOrder: sortOrderSchema,
 });
 
 export type ProductInput = z.infer<typeof productSchema>;

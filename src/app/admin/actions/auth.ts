@@ -5,10 +5,9 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase";
 import { loginSchema } from "@/lib/validations/auth";
 
-export type AuthFormState = {
-  errors?: Record<string, string[]>;
-  message?: string;
-};
+import type { ActionState } from "./types";
+
+export type AuthFormState = ActionState;
 
 export async function loginAction(
   _prevState: AuthFormState,

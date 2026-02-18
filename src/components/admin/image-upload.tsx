@@ -44,10 +44,6 @@ interface ImageUploadProps {
   showPrimaryBadge?: boolean;
 }
 
-function isSvg(file: File) {
-  return file.type === "image/svg+xml";
-}
-
 export function ImageUpload({
   value,
   onChange,
@@ -184,37 +180,9 @@ export function ImageUpload({
         return;
       }
 
-      // Separate SVGs (upload directly) from raster images (need cropping)
-      const svgFiles = fileArray.filter(isSvg);
-      const rasterFiles = fileArray.filter((f) => !isSvg(f));
-
-      // Upload SVGs directly
-      if (svgFiles.length > 0) {
-        setUploadingState(true);
-        try {
-          const uploadPromises = svgFiles.map((file) => uploadFile(file));
-          const newUrls = (await Promise.all(uploadPromises)).filter(
-            Boolean
-          ) as string[];
-
-          if (multiple) {
-            onChange([...urls, ...newUrls]);
-          } else if (newUrls.length > 0) {
-            if (urls[0]) {
-              deleteImageAction(urls[0]).catch(() => {});
-            }
-            onChange(newUrls[0]);
-          }
-        } catch {
-          toast.error("Upload failed. Please try again.");
-        } finally {
-          setUploadingState(false);
-        }
-      }
-
-      // Queue raster files for cropping
-      if (rasterFiles.length > 0) {
-        const [first, ...rest] = rasterFiles;
+      // Queue all files for cropping
+      if (fileArray.length > 0) {
+        const [first, ...rest] = fileArray;
         setCropQueue(rest);
         const objectUrl = URL.createObjectURL(first);
         setCropSrc(objectUrl);

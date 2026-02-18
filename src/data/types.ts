@@ -125,3 +125,14 @@ export interface DbCompanyInfo {
   map_url: string;
   coordinates: { lat: number; lng: number };
 }
+
+export interface DbPageImage {
+  key: string;
+  image_url: string;
+  updated_at: string;
+}
+
+export interface PageImage {
+  key: string;
+  imageUrl: string;
+}

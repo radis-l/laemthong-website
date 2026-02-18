@@ -1,4 +1,4 @@
-import { Package, type LucideIcon } from "lucide-react";
+import { ImageIcon, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Variant = "product" | "brand" | "hero" | "about" | "service";
@@ -43,7 +43,7 @@ const PATTERNS: Record<Variant, { d: string; size: number }> = {
 };
 
 export function PlaceholderImage({
-  icon: Icon = Package,
+  icon: Icon = ImageIcon,
   label,
   aspect = "aspect-[4/3]",
   variant = "product",

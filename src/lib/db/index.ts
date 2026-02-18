@@ -25,3 +25,5 @@ export {
 export { getCompanyInfo } from "./company";
 
 export { saveContactInquiry } from "./contact";
+
+export { getPageImages, getPageImage } from "./page-images";

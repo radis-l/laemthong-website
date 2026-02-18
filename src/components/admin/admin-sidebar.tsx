@@ -13,13 +13,17 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Package, Tags, Building2 } from "lucide-react";
+import { LayoutDashboard, Package, Tags, Building2, ImageIcon } from "lucide-react";
 
 const navItems = [
   { title: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { title: "Products", href: "/admin/products", icon: Package },
   { title: "Brands", href: "/admin/brands", icon: Building2 },
   { title: "Categories", href: "/admin/categories", icon: Tags },
+];
+
+const siteItems = [
+  { title: "Page Images", href: "/admin/page-images", icon: ImageIcon },
 ];
 
 export function AdminSidebar() {
@@ -47,6 +51,26 @@ export function AdminSidebar() {
                         ? pathname === "/admin"
                         : pathname.startsWith(item.href)
                     }
+                  >
+                    <Link href={item.href}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Site</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {siteItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname.startsWith(item.href)}
                   >
                     <Link href={item.href}>
                       <item.icon className="h-4 w-4" />

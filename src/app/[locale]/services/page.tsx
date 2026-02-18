@@ -7,6 +7,7 @@ import { CtaContactSection } from "@/components/shared/cta-contact-section";
 import { JsonLd } from "@/components/shared/json-ld";
 import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
 import { PageHero } from "@/components/shared/page-hero";
+import { getPageImage } from "@/lib/db";
 import { SERVICES } from "@/data/services";
 import { STAGGER_DELAY } from "@/lib/constants";
 import {
@@ -57,6 +58,7 @@ export default async function ServicesPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: "services" });
   const tNav = await getTranslations({ locale, namespace: "nav" });
   const tCommon = await getTranslations({ locale, namespace: "common" });
+  const heroImage = await getPageImage("hero-services");
 
   return (
     <>
@@ -67,7 +69,7 @@ export default async function ServicesPage({ params }: Props) {
         ])}
       />
 
-      <PageHero label={t("title")} title={t("title")} description={t("subtitle")} />
+      <PageHero label={t("title")} title={t("title")} description={t("subtitle")} backgroundImage={heroImage ?? undefined} />
 
       {/* All Services */}
       <section className="py-16 md:py-20">

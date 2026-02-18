@@ -4,7 +4,7 @@ import { CtaContactSection } from "@/components/shared/cta-contact-section";
 import { JsonLd } from "@/components/shared/json-ld";
 import { PageHero } from "@/components/shared/page-hero";
 import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
-import { getAllBrands } from "@/lib/db";
+import { getAllBrands, getPageImage } from "@/lib/db";
 import { BrandGridCard } from "@/components/brands/brand-grid-card";
 import { STAGGER_DELAY } from "@/lib/constants";
 import {
@@ -55,7 +55,10 @@ export default async function BrandsPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: "brands" });
   const tNav = await getTranslations({ locale, namespace: "nav" });
   const tCommon = await getTranslations({ locale, namespace: "common" });
-  const brands = await getAllBrands();
+  const [brands, heroImage] = await Promise.all([
+    getAllBrands(),
+    getPageImage("hero-brands"),
+  ]);
 
   return (
     <>
@@ -66,7 +69,7 @@ export default async function BrandsPage({ params }: Props) {
         ])}
       />
 
-      <PageHero label={t("title")} title={t("title")} description={t("description")} />
+      <PageHero label={t("title")} title={t("title")} description={t("description")} backgroundImage={heroImage ?? undefined} />
 
       {/* Brand cards */}
       <section className="py-16 md:py-20">

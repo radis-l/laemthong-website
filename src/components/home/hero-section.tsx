@@ -5,16 +5,22 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Phone } from "lucide-react";
 import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
+import { HeroBackground } from "@/components/shared/hero-background";
 import { useInView } from "@/hooks/use-in-view";
 import { useCountUp } from "@/hooks/use-count-up";
 import { COMPANY, STAGGER_DELAY } from "@/lib/constants";
 
-export function HeroSection() {
+type HeroSectionProps = {
+  backgroundImage?: string;
+};
+
+export function HeroSection({ backgroundImage }: HeroSectionProps) {
   const t = useTranslations("hero");
 
   return (
     <section className="relative bg-background">
-      <div className="mx-auto max-w-7xl px-6 py-24 md:py-32 lg:py-40">
+      <HeroBackground backgroundImage={backgroundImage} variant="home" />
+      <div className="relative mx-auto max-w-7xl px-6 py-24 md:py-32 lg:py-40">
         {/* Label */}
         <p className="mb-6 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.3em] text-muted-foreground">
           <span className="inline-block h-px w-8 bg-primary" />

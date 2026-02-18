@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import { getFilteredProducts, getAllCategories, getAllBrands, getCategoryBySlug, getBrandBySlug } from "@/lib/db";
+import { getFilteredProducts, getAllCategories, getAllBrands, getCategoryBySlug, getBrandBySlug, getPageImage } from "@/lib/db";
 import type { ProductSort } from "@/lib/db";
 import { ProductCard } from "@/components/products/product-card";
 import { ProductSearch } from "@/components/products/product-search";
@@ -121,7 +121,7 @@ export default async function ProductsPage({ params, searchParams }: Props) {
     : "default";
   const view = viewParam === "list" ? "list" : "grid";
 
-  const [result, categories, brands] = await Promise.all([
+  const [result, categories, brands, heroImage] = await Promise.all([
     getFilteredProducts({
       category,
       brand,
@@ -133,6 +133,7 @@ export default async function ProductsPage({ params, searchParams }: Props) {
     }),
     getAllCategories(),
     getAllBrands(),
+    getPageImage("hero-products"),
   ]);
 
   const { products, total, totalPages } = result;
@@ -173,7 +174,7 @@ export default async function ProductsPage({ params, searchParams }: Props) {
       />
 
       {/* Page header */}
-      <PageHero label={heroLabel} title={heroTitle} description={heroDescription} className="py-10 md:py-12" />
+      <PageHero label={heroLabel} title={heroTitle} description={heroDescription} backgroundImage={heroImage ?? undefined} className="py-10 md:py-12" />
 
       <section className="pt-8 pb-16 md:pt-10 md:pb-20">
         <div className="mx-auto max-w-7xl px-6">

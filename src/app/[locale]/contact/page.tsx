@@ -5,7 +5,7 @@ import { GoogleMap } from "@/components/contact/google-map";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { JsonLd } from "@/components/shared/json-ld";
 import { PageHero } from "@/components/shared/page-hero";
-import { getCompanyInfo } from "@/lib/db";
+import { getCompanyInfo, getPageImage } from "@/lib/db";
 import {
   getPageUrl,
   getAlternateLanguages,
@@ -51,12 +51,15 @@ export default async function ContactPage({ params, searchParams }: Props) {
   const { product } = await searchParams;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "contact" });
-  const company = await getCompanyInfo();
+  const [company, heroImage] = await Promise.all([
+    getCompanyInfo(),
+    getPageImage("hero-contact"),
+  ]);
 
   return (
     <>
       {company && <JsonLd data={buildLocalBusinessSchema(company, locale as Locale)} />}
-      <PageHero label={t("title")} title={t("title")} description={t("description")} />
+      <PageHero label={t("title")} title={t("title")} description={t("description")} backgroundImage={heroImage ?? undefined} />
 
       <section className="py-16 md:py-20">
         <div className="mx-auto max-w-7xl px-6">

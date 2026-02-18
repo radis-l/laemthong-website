@@ -6,8 +6,10 @@ import { CheckCircle2 } from "lucide-react";
 import { CtaContactSection } from "@/components/shared/cta-contact-section";
 import { BreadcrumbBar } from "@/components/shared/breadcrumb-bar";
 import { SectionHeading } from "@/components/shared/section-heading";
+import Image from "next/image";
 import { PlaceholderImage } from "@/components/shared/placeholder-image";
 import { JsonLd } from "@/components/shared/json-ld";
+import { getPageImage } from "@/lib/db";
 import { SERVICES, SERVICE_SLUGS, getServiceBySlug } from "@/data/services";
 import {
   getPageUrl,
@@ -68,6 +70,8 @@ export default async function ServiceDetailPage({ params }: Props) {
   const tNav = await getTranslations({ locale, namespace: "nav" });
   const tCommon = await getTranslations({ locale, namespace: "common" });
 
+  const serviceImage = await getPageImage(`service-${slug}`);
+
   const Icon = service.icon;
   const features = t.raw(`${slug}.features`) as string[];
   const processSteps = t.raw(`${slug}.processSteps`) as {
@@ -122,7 +126,17 @@ export default async function ServiceDetailPage({ params }: Props) {
             </div>
             <div className="hidden lg:block">
               <div className="overflow-hidden rounded-lg border">
-                <PlaceholderImage variant="service" icon={Icon} aspect="aspect-square" />
+                {serviceImage ? (
+                  <Image
+                    src={serviceImage}
+                    alt={t(`${slug}.title`)}
+                    width={400}
+                    height={400}
+                    className="aspect-square w-full object-cover"
+                  />
+                ) : (
+                  <PlaceholderImage variant="service" aspect="aspect-square" />
+                )}
               </div>
             </div>
           </div>

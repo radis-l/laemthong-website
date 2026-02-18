@@ -1,5 +1,5 @@
 import { createSupabaseAdminClient } from "@/lib/supabase";
-import type { DbBrand, DbCategory, DbProduct } from "@/data/types";
+import type { DbBrand, DbCategory, DbProduct, DbPageImage } from "@/data/types";
 
 // ─── Brands ──────────────────────────────────────────────────────────────────
 
@@ -228,5 +228,37 @@ export async function adminUpdateProduct(
 export async function adminDeleteProduct(slug: string): Promise<void> {
   const supabase = createSupabaseAdminClient();
   const { error } = await supabase.from("products").delete().eq("slug", slug);
+  if (error) throw error;
+}
+
+// ─── Page Images ────────────────────────────────────────────────────────────
+
+export async function adminGetAllPageImages(): Promise<DbPageImage[]> {
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("page_images")
+    .select("*")
+    .order("key");
+  if (error) return [];
+  return data as DbPageImage[];
+}
+
+export async function adminUpsertPageImage(
+  key: string,
+  imageUrl: string
+): Promise<void> {
+  const supabase = createSupabaseAdminClient();
+  const { error } = await supabase
+    .from("page_images")
+    .upsert({ key, image_url: imageUrl }, { onConflict: "key" });
+  if (error) throw error;
+}
+
+export async function adminDeletePageImage(key: string): Promise<void> {
+  const supabase = createSupabaseAdminClient();
+  const { error } = await supabase
+    .from("page_images")
+    .delete()
+    .eq("key", key);
   if (error) throw error;
 }

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
 import Image from "next/image";
-import { Building2, Shield, Clock, Layers, Users, Factory } from "lucide-react";
+import { Building2 } from "lucide-react";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { PlaceholderImage } from "@/components/shared/placeholder-image";
 import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
@@ -14,6 +14,7 @@ import {
   getOgLocale,
   getOgAlternateLocale,
 } from "@/lib/seo";
+import { getPageImages } from "@/lib/db";
 import type { Locale } from "@/data/types";
 
 type Props = {
@@ -49,13 +50,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function AboutPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: "about" });
+  const [t, pageImages] = await Promise.all([
+    getTranslations({ locale, namespace: "about" }),
+    getPageImages(),
+  ]);
+
+  const historyImage = pageImages.get("about-history") ?? null;
 
   const reasons = [
-    { key: "reason1", icon: Shield, image: null as string | null },
-    { key: "reason2", icon: Clock, image: null as string | null },
-    { key: "reason3", icon: Layers, image: null as string | null },
-    { key: "reason4", icon: Users, image: null as string | null },
+    { key: "reason1", image: pageImages.get("about-reason1") ?? null },
+    { key: "reason2", image: pageImages.get("about-reason2") ?? null },
+    { key: "reason3", image: pageImages.get("about-reason3") ?? null },
+    { key: "reason4", image: pageImages.get("about-reason4") ?? null },
   ];
 
   const milestones = [
@@ -68,7 +74,7 @@ export default async function AboutPage({ params }: Props) {
 
   return (
     <>
-      <PageHero label={t("title")} title={t("title")} description={t("subtitle")} />
+      <PageHero label={t("title")} title={t("title")} description={t("subtitle")} backgroundImage={pageImages.get("hero-about") ?? undefined} />
 
       {/* History */}
       <section className="py-20 md:py-28">
@@ -93,11 +99,20 @@ export default async function AboutPage({ params }: Props) {
             </div>
             <div className="flex flex-col gap-6">
               <div className="overflow-hidden rounded-lg">
-                <PlaceholderImage
-                  variant="about"
-                  icon={Factory}
-                  aspect="aspect-[16/9]"
-                />
+                {historyImage ? (
+                  <Image
+                    src={historyImage}
+                    alt={t("historyTitle")}
+                    width={800}
+                    height={450}
+                    className="aspect-[16/9] w-full object-cover"
+                  />
+                ) : (
+                  <PlaceholderImage
+                    variant="about"
+                    aspect="aspect-[16/9]"
+                  />
+                )}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 {[
@@ -168,7 +183,7 @@ export default async function AboutPage({ params }: Props) {
         <div className="mx-auto max-w-7xl px-6">
           <SectionHeading title={t("whyChooseUs")} label="Our Strengths" />
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            {reasons.map(({ key, icon: Icon, image }, i) => (
+            {reasons.map(({ key, image }, i) => (
               <AnimateOnScroll key={key} delay={i * STAGGER_DELAY}>
                 <div className="group">
                   <div className="mb-4 overflow-hidden rounded-lg border transition-colors group-hover:border-primary">
@@ -182,7 +197,6 @@ export default async function AboutPage({ params }: Props) {
                       />
                     ) : (
                       <PlaceholderImage
-                        icon={Icon}
                         variant="about"
                         aspect="aspect-[4/3]"
                         className="transition-transform duration-300 group-hover:scale-105"

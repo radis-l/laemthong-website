@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
+import Image from "next/image";
 import { Building2, Shield, Clock, Layers, Users, Factory } from "lucide-react";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { PlaceholderImage } from "@/components/shared/placeholder-image";
@@ -51,11 +52,11 @@ export default async function AboutPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: "about" });
 
   const reasons = [
-    { key: "reason1", icon: Shield },
-    { key: "reason2", icon: Clock },
-    { key: "reason3", icon: Layers },
-    { key: "reason4", icon: Users },
-  ] as const;
+    { key: "reason1", icon: Shield, image: null as string | null },
+    { key: "reason2", icon: Clock, image: null as string | null },
+    { key: "reason3", icon: Layers, image: null as string | null },
+    { key: "reason4", icon: Users, image: null as string | null },
+  ];
 
   const milestones = [
     { yearKey: "milestone1Year", titleKey: "milestone1Title", descKey: "milestone1Desc" },
@@ -167,17 +168,32 @@ export default async function AboutPage({ params }: Props) {
         <div className="mx-auto max-w-7xl px-6">
           <SectionHeading title={t("whyChooseUs")} label="Our Strengths" />
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            {reasons.map(({ key, icon: Icon }, i) => (
+            {reasons.map(({ key, icon: Icon, image }, i) => (
               <AnimateOnScroll key={key} delay={i * STAGGER_DELAY}>
                 <div className="group">
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg border transition-colors group-hover:border-primary group-hover:text-primary">
-                    <Icon className="h-5 w-5" />
+                  <div className="mb-4 overflow-hidden rounded-lg border transition-colors group-hover:border-primary">
+                    {image ? (
+                      <Image
+                        src={image}
+                        alt={t(`${key}Title`)}
+                        width={400}
+                        height={300}
+                        className="aspect-[4/3] w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <PlaceholderImage
+                        icon={Icon}
+                        variant="about"
+                        aspect="aspect-[4/3]"
+                        className="transition-transform duration-300 group-hover:scale-105"
+                      />
+                    )}
                   </div>
                   <h3 className="font-semibold text-foreground">
-                    {t(`${key}Title` as `${typeof key}Title`)}
+                    {t(`${key}Title`)}
                   </h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {t(`${key}Desc` as `${typeof key}Desc`)}
+                    {t(`${key}Desc`)}
                   </p>
                 </div>
               </AnimateOnScroll>

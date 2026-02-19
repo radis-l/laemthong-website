@@ -50,6 +50,10 @@
     "ourBrandsDesc": "Official authorized distributor for world-class manufacturers",
     "aboutPreview": "About Us",
     "aboutPreviewDesc": "Laemthong Syndicate Co., Ltd. is Thailand's leading importer and distributor of industrial welding and cutting equipment. With over 60 years of experience, we are committed to delivering high-quality products at competitive prices, backed by excellent after-sales service.",
+    "servicesLabel": "Our Services",
+    "servicesTitle": "Complete Equipment Support",
+    "servicesDesc": "From expert consulting to precision calibration, we support your operations at every stage",
+    "viewAllServices": "View All Services",
     "ctaTitle": "Ready to Get a Quote?",
     "ctaDesc": "Our expert team is ready to help you choose the right equipment for your needs",
     "ctaButton": "Contact Sales Team"
@@ -302,6 +306,14 @@
     "description": "The page you are looking for doesn't exist or has been moved.",
     "backHome": "Back to Home",
     "browseProducts": "Browse Products"
+  },
+  "trust": {
+    "item1Title": "60+ Years of Experience",
+    "item1Desc": "Trusted industry leader since 1966",
+    "item2Title": "Direct Importer",
+    "item2Desc": "Factory-direct pricing with no middlemen",
+    "item3Title": "Authorized Dealer",
+    "item3Desc": "Official distributor for world-class brands"
   },
   "footer": {
     "description": "Thailand's leading importer and distributor of industrial welding and cutting equipment",

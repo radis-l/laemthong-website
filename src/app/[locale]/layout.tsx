@@ -8,6 +8,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { routing } from "@/i18n/routing";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { HeaderThemeProvider } from "@/components/layout/header-theme-context";
 import { Toaster } from "@/components/ui/sonner";
 import "../globals.css";
 
@@ -77,11 +78,13 @@ export default async function LocaleLayout({ children, params }: Props) {
     <html lang={locale} suppressHydrationWarning>
       <body className={`${font.variable} font-sans antialiased`}>
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <div className="flex min-h-screen flex-col">
-            <SiteHeader />
-            <main className="flex-1">{children}</main>
-            <SiteFooter locale={locale} />
-          </div>
+          <HeaderThemeProvider>
+            <div className="flex min-h-screen flex-col">
+              <SiteHeader />
+              <main className="flex-1 pt-20">{children}</main>
+              <SiteFooter locale={locale} />
+            </div>
+          </HeaderThemeProvider>
           <Toaster />
         </NextIntlClientProvider>
       </body>

@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { HeroBackground } from "@/components/shared/hero-background";
+import { HeroThemeSetter } from "@/components/shared/hero-theme-setter";
 
 type Props = {
   label: string;
@@ -16,11 +17,12 @@ export function PageHero({ label, title, description, backgroundImage, className
   return (
     <section
       className={cn(
-        "relative border-b py-16 md:py-20",
+        "relative -mt-20 border-b pb-16 pt-36 md:pb-20 md:pt-40",
         hasImage ? "bg-foreground border-white/10" : "",
         className
       )}
     >
+      <HeroThemeSetter isDark={hasImage} />
       <HeroBackground backgroundImage={backgroundImage} variant="page" />
       <div className="relative mx-auto max-w-7xl px-6">
         {children}

@@ -12,7 +12,7 @@ type Props = {
 
 export function CtaContactSection({ title, description, getInTouchLabel, buttonLabel }: Props) {
   return (
-    <section className="py-20 md:py-28">
+    <section className="border-t py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-6">
         <div className="grid items-center gap-10 lg:grid-cols-2">
           <div>

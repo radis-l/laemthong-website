@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, Building2, Tags } from "lucide-react";
+import { Package, Building2, Tags, Plus, Upload, ImageIcon } from "lucide-react";
 import { createSupabaseClient } from "@/lib/supabase";
 
 export const metadata: Metadata = {
@@ -21,6 +21,13 @@ async function getCounts() {
     categories: categories.count ?? 0,
   };
 }
+
+const quickActions = [
+  { label: "Add Product", href: "/admin/products/new", icon: Plus },
+  { label: "Add Brand", href: "/admin/brands/new", icon: Plus },
+  { label: "Bulk Upload", href: "/admin/bulk-upload", icon: Upload },
+  { label: "Page Images", href: "/admin/page-images", icon: ImageIcon },
+];
 
 export default async function AdminDashboardPage() {
   const counts = await getCounts();
@@ -71,6 +78,20 @@ export default async function AdminDashboardPage() {
             </Card>
           </Link>
         ))}
+      </div>
+
+      <div className="rounded-lg border bg-card p-6">
+        <h2 className="text-sm font-semibold text-foreground">Quick Actions</h2>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {quickActions.map((action) => (
+            <Link key={action.href} href={action.href}>
+              <div className="flex items-center gap-3 rounded-md border px-4 py-3 text-sm transition-colors hover:bg-muted/50">
+                <action.icon className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium">{action.label}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );

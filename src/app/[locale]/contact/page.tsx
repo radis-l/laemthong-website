@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { ContactForm } from "@/components/contact/contact-form";
+import { ContactInfoStrip } from "@/components/contact/contact-info-strip";
 import { GoogleMap } from "@/components/contact/google-map";
-import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { JsonLd } from "@/components/shared/json-ld";
 import { PageHero } from "@/components/shared/page-hero";
 import { getCompanyInfo, getPageImage } from "@/lib/db";
@@ -61,85 +61,40 @@ export default async function ContactPage({ params, searchParams }: Props) {
       {company && <JsonLd data={buildLocalBusinessSchema(company, locale as Locale)} />}
       <PageHero label={t("title")} title={t("title")} description={t("description")} backgroundImage={heroImage ?? undefined} />
 
-      <section className="py-16 md:py-20">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="grid gap-10 lg:grid-cols-[1fr_380px]">
-            {/* Form */}
-            <div className="rounded-lg border bg-card p-8 shadow-sm">
-              <h2 className="mb-6 text-xl font-semibold text-foreground">
-                {t("formTitle")}
-              </h2>
-              <ContactForm locale={locale} defaultProduct={product} />
-            </div>
+      {/* Company info dark strip */}
+      <ContactInfoStrip
+        phone={company?.phone ?? "+66-2-538-4949"}
+        email={company?.email ?? "sales@laemthong.co.th"}
+        address={t("addressValue")}
+        hours={t("businessHoursValue")}
+        labels={{
+          phone: t("phoneLabel"),
+          email: t("emailLabel"),
+          address: t("addressLabel"),
+          hours: t("businessHours"),
+        }}
+      />
 
-            {/* Company info sidebar */}
-            <div className="space-y-6">
-              <div className="rounded-lg border bg-card p-6 shadow-sm">
-                <h3 className="mb-4 font-semibold text-foreground">
-                  {t("companyInfo")}
-                </h3>
-                <ul className="space-y-4">
-                  <li className="flex items-start gap-3">
-                    <Phone className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium text-foreground">
-                        {t("phoneLabel")}
-                      </p>
-                      <a
-                        href={`tel:${company?.phone?.replace(/-/g, "") ?? "+6625384949"}`}
-                        className="text-sm text-muted-foreground hover:text-foreground"
-                      >
-                        {company?.phone ?? "+66-2-538-4949"}
-                      </a>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <Mail className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium text-foreground">
-                        {t("emailLabel")}
-                      </p>
-                      <a
-                        href={`mailto:${company?.email ?? "sales@laemthong.co.th"}`}
-                        className="text-sm text-muted-foreground hover:text-foreground"
-                      >
-                        {company?.email ?? "sales@laemthong.co.th"}
-                      </a>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium text-foreground">
-                        {t("addressLabel")}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {t("addressValue")}
-                      </p>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <Clock className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium text-foreground">
-                        {t("businessHours")}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {t("businessHoursValue")}
-                      </p>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Map */}
-              <GoogleMap
-                mapUrl={company?.mapUrl}
-                coordinates={company?.coordinates}
-                title={company?.name[locale as Locale]}
-              />
-            </div>
+      {/* Form */}
+      <section className="bg-muted/30 py-16 md:py-20">
+        <div className="mx-auto max-w-4xl px-6">
+          <div className="rounded-lg border bg-card p-8 shadow-sm">
+            <h2 className="mb-6 text-2xl font-semibold text-foreground">
+              {t("formTitle")}
+            </h2>
+            <ContactForm locale={locale} defaultProduct={product} />
           </div>
+        </div>
+      </section>
+
+      {/* Map */}
+      <section className="border-t py-16 md:py-20">
+        <div className="mx-auto max-w-7xl px-6">
+          <GoogleMap
+            mapUrl={company?.mapUrl}
+            coordinates={company?.coordinates}
+            title={company?.name[locale as Locale]}
+          />
         </div>
       </section>
     </>

@@ -5,8 +5,9 @@ import { UspSection } from "@/components/home/usp-section";
 import { FeaturedProducts } from "@/components/home/featured-products";
 import { BrandShowcase } from "@/components/home/brand-showcase";
 import { CtaSection } from "@/components/home/cta-section";
+import { ServicesSection } from "@/components/home/services-section";
 import { JsonLd } from "@/components/shared/json-ld";
-import { getFeaturedProducts, getAllBrands, getCompanyInfo, getPageImage } from "@/lib/db";
+import { getFeaturedProducts, getAllBrands, getCompanyInfo, getPageImage, getPageImages } from "@/lib/db";
 import {
   getPageUrl,
   getAlternateLanguages,
@@ -54,11 +55,12 @@ export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [featuredProducts, brands, company, heroImage] = await Promise.all([
+  const [featuredProducts, brands, company, heroImage, pageImages] = await Promise.all([
     getFeaturedProducts(),
     getAllBrands(),
     getCompanyInfo(),
     getPageImage("home-hero"),
+    getPageImages(),
   ]);
 
   return (
@@ -69,6 +71,7 @@ export default async function HomePage({ params }: Props) {
       <UspSection />
       <FeaturedProducts products={featuredProducts} />
       <BrandShowcase brands={brands} />
+      <ServicesSection pageImages={pageImages} />
       <CtaSection />
     </>
   );

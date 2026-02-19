@@ -175,9 +175,9 @@ export default async function ProductsPage({ params, searchParams }: Props) {
       />
 
       {/* Page header */}
-      <PageHero label={heroLabel} title={heroTitle} description={heroDescription} backgroundImage={heroImage ?? undefined} className="py-10 md:py-12" />
+      <PageHero label={heroLabel} title={heroTitle} description={heroDescription} backgroundImage={heroImage ?? undefined} className="pb-10 md:pb-12" />
 
-      <section className="pt-8 pb-16 md:pt-10 md:pb-20">
+      <section className="bg-muted/30 pt-8 pb-16 md:pt-10 md:pb-20">
         <div className="mx-auto max-w-7xl px-6">
           <FilterNavigationProvider>
             {/* Full-width search */}

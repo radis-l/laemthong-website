@@ -20,7 +20,7 @@ export function FeaturedProducts({ products }: Props) {
   const locale = useLocale() as Locale;
 
   return (
-    <section className="py-20 md:py-28">
+    <section className="bg-muted/30 py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-6">
         <AnimateOnScroll>
           <div className="flex items-end justify-between gap-4">
@@ -63,8 +63,10 @@ export function FeaturedProducts({ products }: Props) {
                       />
                     )}
                   </div>
-                  <div className="h-px w-full bg-border transition-colors duration-300 group-hover:bg-primary" />
-                  <div className="px-4 py-3">
+                  <div className="relative h-px w-full bg-border">
+                    <div className="absolute left-0 top-0 h-full w-0 bg-primary transition-all duration-300 group-hover:w-full" />
+                  </div>
+                  <div className="px-5 py-4">
                     <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       {formatSlug(product.brandSlug)}
                     </p>

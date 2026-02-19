@@ -109,22 +109,25 @@ export async function SiteFooter({ locale }: { locale: string }) {
         </div>
       </div>
 
+      {/* Red accent separator */}
+      <div className="h-px bg-primary/30" />
+
       {/* Bottom tier — black */}
       <div className="bg-foreground text-background">
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-6 py-5 sm:flex-row sm:justify-between">
           <p className="text-xs text-background/70">
             &copy; {currentYear} {tCommon("companyFullName")}. {t("allRightsReserved")}.
           </p>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-1.5 text-xs text-background/70">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-1.5 rounded-md border border-background/20 bg-background/5 px-2.5 py-1 text-xs text-background/70">
               <ShieldCheck className="h-3.5 w-3.5" />
               <span>{t("authorizedDealer")}</span>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-background/70">
+            <div className="flex items-center gap-1.5 rounded-md border border-background/20 bg-background/5 px-2.5 py-1 text-xs text-background/70">
               <Award className="h-3.5 w-3.5" />
               <span>{t("qualityAssured")}</span>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-background/70">
+            <div className="flex items-center gap-1.5 rounded-md border border-background/20 bg-background/5 px-2.5 py-1 text-xs text-background/70">
               <Clock className="h-3.5 w-3.5" />
               <span>{t("trustedSince")}</span>
             </div>

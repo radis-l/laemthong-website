@@ -25,6 +25,9 @@ npm run lint        # ESLint check
 - **i18n Config**: `src/i18n/` (routing.ts, request.ts, navigation.ts)
 - **Translations**: `messages/en.json`, `messages/th.json`
 - **Utils**: `src/lib/utils.ts` (cn class merge utility)
+- **Header Theme**: `src/components/layout/header-theme-context.tsx` (HeaderThemeProvider + useHeaderTheme)
+- **Hero Theme Setter**: `src/components/shared/hero-theme-setter.tsx` (sets header theme from hero)
+- **Hooks**: `src/hooks/` (use-scrolled, use-in-view, use-count-up, use-form-slug, use-mobile, use-sortable-table, use-unsaved-changes)
 - **Contact Action**: `src/app/[locale]/contact/actions.ts` (server action with zod validation)
 - **Admin Actions**: `src/app/admin/actions/` (products.ts, brands.ts, categories.ts, auth.ts)
 - **Proxy**: `src/proxy.ts` (composite: admin auth + next-intl routing, Next.js 16 convention)
@@ -168,6 +171,20 @@ export async function actionName(_prevState: State, formData: FormData): Promise
   // ... action logic
   return { success: true };
 }
+```
+
+### 6. Header Theme (transparent → frosted glass)
+```typescript
+// Header uses fixed positioning with scroll-aware transparency
+// Wrap locale layout in HeaderThemeProvider (src/components/layout/header-theme-context.tsx)
+// Heroes render HeroThemeSetter to tell header if they're "dark" or "light"
+import { HeroThemeSetter } from "@/components/shared/hero-theme-setter";
+<HeroThemeSetter isDark={hasImage} />
+
+// Hero sections use -mt-20 to extend behind fixed header:
+// Home hero: outer section gets "-mt-20 pt-20", inner div keeps py-* padding
+// Page hero: outer section gets "-mt-20 pb-16 pt-36 md:pb-20 md:pt-40" (combined)
+// <main> in layout has pt-20 to offset fixed header for non-hero pages
 ```
 
 ---

@@ -4,6 +4,8 @@ import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { Logo } from "@/components/shared/logo";
 import { LocaleSwitcher } from "@/components/shared/locale-switcher";
+import { useHeaderTheme } from "@/components/layout/header-theme-context";
+import { useScrolled } from "@/hooks/use-scrolled";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, ArrowRight } from "lucide-react";
@@ -24,11 +26,21 @@ export function SiteHeader() {
   const tCommon = useTranslations("common");
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const scrolled = useScrolled();
+  const { theme } = useHeaderTheme();
+  const isDarkHero = theme === "dark" && !scrolled;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background">
+    <header
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 w-full transition-[background-color,border-color,box-shadow] duration-300",
+        scrolled
+          ? "border-b bg-background/80 shadow-sm backdrop-blur-xl"
+          : "border-b border-transparent bg-transparent"
+      )}
+    >
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
-        <Logo />
+        <Logo variant={isDarkHero ? "light" : "default"} />
 
         {/* Desktop nav */}
         <nav className="hidden items-center gap-6 lg:flex">
@@ -46,8 +58,12 @@ export function SiteHeader() {
                 className={cn(
                   "nav-underline py-1 text-sm font-medium transition-colors",
                   isActive
-                    ? "text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? isDarkHero
+                      ? "text-white"
+                      : "text-foreground"
+                    : isDarkHero
+                      ? "text-white/70 hover:text-white"
+                      : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 {t(item.key)}
@@ -58,8 +74,13 @@ export function SiteHeader() {
 
         {/* Right side */}
         <div className="flex items-center gap-4">
-          <LocaleSwitcher />
-          <Button asChild className="hidden gap-2 sm:inline-flex" size="sm">
+          <LocaleSwitcher variant={isDarkHero ? "dark" : "default"} />
+          <Button
+            asChild
+            className="hidden gap-2 sm:inline-flex"
+            size="sm"
+            variant={isDarkHero ? "accent" : "default"}
+          >
             <Link href="/contact">
               {tCommon("requestQuote")}
               <ArrowRight className="h-3.5 w-3.5" />
@@ -69,7 +90,14 @@ export function SiteHeader() {
           {/* Mobile menu */}
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="lg:hidden">
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "lg:hidden",
+                  isDarkHero && "text-white hover:bg-white/10 hover:text-white"
+                )}
+              >
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Menu</span>
               </Button>

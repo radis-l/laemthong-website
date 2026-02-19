@@ -97,41 +97,46 @@ export default async function AboutPage({ params }: Props) {
                 </p>
               </div>
             </div>
-            <div className="flex flex-col gap-6">
-              <div className="overflow-hidden rounded-lg">
-                {historyImage ? (
-                  <Image
-                    src={historyImage}
-                    alt={t("historyTitle")}
-                    width={800}
-                    height={450}
-                    className="aspect-[16/9] w-full object-cover"
-                  />
-                ) : (
-                  <PlaceholderImage
-                    variant="about"
-                    aspect="aspect-[16/9]"
-                  />
-                )}
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { value: `${COMPANY.stats.years}+`, label: t("statYearsExperience") },
-                  { value: `${COMPANY.stats.brands}+`, label: t("statGlobalBrands") },
-                  { value: `${COMPANY.stats.products.toLocaleString()}+`, label: t("statProducts") },
-                  { value: `${COMPANY.stats.clients.toLocaleString()}+`, label: t("statClients") },
-                ].map((stat, i) => (
-                  <AnimateOnScroll key={stat.label} delay={i * STAGGER_DELAY}>
-                    <div className="rounded-lg border p-5">
-                      <div className="text-3xl font-light tracking-tight text-foreground">{stat.value}</div>
-                      <div className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        {stat.label}
-                      </div>
-                    </div>
-                  </AnimateOnScroll>
-                ))}
-              </div>
+            <div className="overflow-hidden rounded-lg">
+              {historyImage ? (
+                <Image
+                  src={historyImage}
+                  alt={t("historyTitle")}
+                  width={800}
+                  height={450}
+                  className="aspect-[16/9] w-full object-cover"
+                />
+              ) : (
+                <PlaceholderImage
+                  variant="about"
+                  aspect="aspect-[16/9]"
+                />
+              )}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Strip */}
+      <section className="bg-foreground text-background">
+        <div className="mx-auto max-w-7xl px-6 py-10 md:py-14">
+          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+            {[
+              { value: `${COMPANY.stats.years}+`, label: t("statYearsExperience") },
+              { value: `${COMPANY.stats.brands}+`, label: t("statGlobalBrands") },
+              { value: `${COMPANY.stats.products.toLocaleString()}+`, label: t("statProducts") },
+              { value: `${COMPANY.stats.clients.toLocaleString()}+`, label: t("statClients") },
+            ].map((stat, i) => (
+              <AnimateOnScroll key={stat.label} delay={i * STAGGER_DELAY}>
+                <div>
+                  <div className="text-3xl font-light tracking-tight text-background md:text-4xl">{stat.value}</div>
+                  <div className="mt-1 text-xs font-medium uppercase tracking-[0.2em] text-background/50">
+                    {stat.label}
+                  </div>
+                  <div className="mt-3 h-px w-8 bg-primary" />
+                </div>
+              </AnimateOnScroll>
+            ))}
           </div>
         </div>
       </section>
@@ -164,15 +169,15 @@ export default async function AboutPage({ params }: Props) {
       </section>
 
       {/* Mission */}
-      <section className="py-20 md:py-28">
+      <section className="bg-foreground py-20 md:py-28">
         <div className="mx-auto max-w-7xl px-6 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-lg border">
-            <Building2 className="h-7 w-7 text-foreground" />
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-lg border border-background/20">
+            <Building2 className="h-7 w-7 text-background" />
           </div>
-          <h2 className="mt-6 text-3xl font-bold tracking-tight text-foreground lg:text-4xl">
+          <h2 className="mt-6 text-3xl font-bold tracking-tight text-background lg:text-4xl">
             {t("missionTitle")}
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+          <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-background/70">
             {t("missionText")}
           </p>
         </div>

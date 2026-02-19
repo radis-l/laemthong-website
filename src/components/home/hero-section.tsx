@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Phone } from "lucide-react";
 import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
 import { HeroBackground } from "@/components/shared/hero-background";
+import { HeroThemeSetter } from "@/components/shared/hero-theme-setter";
 import { useInView } from "@/hooks/use-in-view";
 import { useCountUp } from "@/hooks/use-count-up";
 import { COMPANY, STAGGER_DELAY } from "@/lib/constants";
@@ -22,10 +23,11 @@ export function HeroSection({ backgroundImage }: HeroSectionProps) {
   return (
     <section
       className={cn(
-        "relative",
+        "relative -mt-20 pt-20",
         hasImage ? "bg-foreground" : "bg-background"
       )}
     >
+      <HeroThemeSetter isDark={hasImage} />
       <HeroBackground backgroundImage={backgroundImage} variant="home" />
       <div className="relative mx-auto max-w-7xl px-6 py-24 md:py-32 lg:py-40">
         {/* Label */}
@@ -109,7 +111,7 @@ function StatsStrip({ hasImage }: { hasImage: boolean }) {
     <div
       ref={ref}
       className={cn(
-        "mt-20 flex flex-wrap items-center gap-8 border-t pt-8 md:gap-12 lg:gap-16",
+        "mt-20 grid grid-cols-2 gap-6 border-t pt-8 md:flex md:flex-wrap md:items-center md:gap-12 lg:gap-16",
         hasImage && "border-white/20"
       )}
     >
@@ -144,22 +146,25 @@ function StatItem({
   const count = useCountUp(target, isInView);
 
   return (
-    <div>
-      <div
-        className={cn(
-          "text-3xl font-light tracking-tight md:text-4xl",
-          hasImage ? "text-white" : "text-foreground"
-        )}
-      >
-        {count.toLocaleString("en-US")}{suffix}
-      </div>
-      <div
-        className={cn(
-          "mt-1 text-xs font-medium uppercase tracking-[0.15em]",
-          hasImage ? "text-white/60" : "text-muted-foreground"
-        )}
-      >
-        {label}
+    <div className="flex items-start gap-3">
+      <div className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+      <div>
+        <div
+          className={cn(
+            "text-3xl font-light tracking-tight md:text-4xl",
+            hasImage ? "text-white" : "text-foreground"
+          )}
+        >
+          {count.toLocaleString("en-US")}{suffix}
+        </div>
+        <div
+          className={cn(
+            "mt-1 text-xs font-medium uppercase tracking-[0.15em]",
+            hasImage ? "text-white/60" : "text-muted-foreground"
+          )}
+        >
+          {label}
+        </div>
       </div>
     </div>
   );

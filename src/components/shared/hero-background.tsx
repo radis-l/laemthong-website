@@ -22,7 +22,7 @@ const PATTERN_CONFIG: Record<
   home: {
     d: "M0 0L40 40M40 0L0 40M20 20L20.01 20",
     size: 40,
-    strokeOpacity: "text-muted-foreground/[0.10]",
+    strokeOpacity: "text-muted-foreground/[0.14]",
     position:
       "right-0 w-[60%] [mask-image:linear-gradient(to_right,transparent,black_30%)]",
     overlay:
@@ -79,6 +79,10 @@ export function HeroBackground({
       )}
       aria-hidden="true"
     >
+      {/* Subtle gradient for depth */}
+      {variant === "home" && (
+        <div className="absolute inset-0 bg-gradient-to-b from-muted/50 via-transparent to-transparent" />
+      )}
       <svg
         className={cn("absolute top-0 h-full", config.position)}
         xmlns="http://www.w3.org/2000/svg"
@@ -103,6 +107,10 @@ export function HeroBackground({
         </defs>
         <rect width="100%" height="100%" fill={`url(#${patternId})`} />
       </svg>
+      {/* Faint decorative circle */}
+      {variant === "home" && (
+        <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-primary/[0.04]" />
+      )}
     </div>
   );
 }

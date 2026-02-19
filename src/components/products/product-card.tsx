@@ -82,9 +82,11 @@ export function ProductCard({ product, locale, categoryName, variant = "grid", p
             />
           )}
         </div>
-        {/* Red accent divider */}
-        <div className="h-px w-full bg-border transition-colors duration-300 group-hover:bg-primary" />
-        <div className="px-4 py-3">
+        {/* Animated red accent divider */}
+        <div className="relative h-px w-full bg-border">
+          <div className="absolute left-0 top-0 h-full w-0 bg-primary transition-all duration-300 group-hover:w-full" />
+        </div>
+        <div className="px-5 py-4">
           <div className="flex items-center gap-2">
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
               {brandLabel}

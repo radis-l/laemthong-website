@@ -8,7 +8,7 @@ export {
   getProductSlugsWithDates,
 } from "./products";
 
-export type { ProductSort, ProductFilter, PaginatedProducts } from "./products";
+export type { ProductFilter, PaginatedProducts } from "./products";
 
 export {
   getAllBrands,

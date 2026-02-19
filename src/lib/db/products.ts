@@ -3,14 +3,11 @@ import type { Product, ProductListItem, DbProduct, Locale } from "@/data/types";
 
 const LISTING_COLUMNS = "slug, category_slug, brand_slug, name, short_description, images, featured, sort_order" as const;
 
-export type ProductSort = "default" | "name-asc" | "name-desc" | "newest";
-
 export type ProductFilter = {
   category?: string;
   brand?: string;
   search?: string;
   locale?: Locale;
-  sort?: ProductSort;
   page?: number;
   perPage?: number;
 };
@@ -70,7 +67,6 @@ export async function getFilteredProducts(filter: ProductFilter = {}): Promise<P
     brand,
     search,
     locale = "th",
-    sort = "default",
     page = 1,
     perPage = 24,
   } = filter;
@@ -89,19 +85,7 @@ export async function getFilteredProducts(filter: ProductFilter = {}): Promise<P
     );
   }
 
-  switch (sort) {
-    case "name-asc":
-      query = query.order(`name->>` + locale, { ascending: true });
-      break;
-    case "name-desc":
-      query = query.order(`name->>` + locale, { ascending: false });
-      break;
-    case "newest":
-      query = query.order("updated_at", { ascending: false });
-      break;
-    default:
-      query = query.order("sort_order", { ascending: true });
-  }
+  query = query.order("sort_order", { ascending: true });
 
   const from = (page - 1) * perPage;
   const to = from + perPage - 1;

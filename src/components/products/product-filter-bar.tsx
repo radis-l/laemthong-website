@@ -12,7 +12,6 @@ interface ProductFilterBarProps {
   activeCategory?: string;
   activeBrand?: string;
   activeQuery?: string;
-  sortParam?: string;
   viewParam?: string;
   labels: {
     category: string;
@@ -29,14 +28,12 @@ function buildProductsUrl(params: {
   category?: string;
   brand?: string;
   q?: string;
-  sort?: string;
   view?: string;
 }): string {
   const sp = new URLSearchParams();
   if (params.category) sp.set("category", params.category);
   if (params.brand) sp.set("brand", params.brand);
   if (params.q) sp.set("q", params.q);
-  if (params.sort && params.sort !== "default") sp.set("sort", params.sort);
   if (params.view && params.view !== "grid") sp.set("view", params.view);
   const qs = sp.toString();
   return `/products${qs ? `?${qs}` : ""}`;
@@ -48,7 +45,6 @@ export function ProductFilterBar({
   activeCategory,
   activeBrand,
   activeQuery,
-  sortParam,
   viewParam,
   labels,
   toolbar,
@@ -71,7 +67,6 @@ export function ProductFilterBar({
 
   const commonParams = {
     q: activeQuery,
-    sort: sortParam,
     view: viewParam,
   };
 
@@ -183,7 +178,6 @@ export function ProductFilterBar({
                       buildProductsUrl({
                         category: activeCategory,
                         brand: activeBrand,
-                        sort: sortParam,
                         view: viewParam,
                       }),
                     )
@@ -204,7 +198,7 @@ export function ProductFilterBar({
             </div>
           )}
 
-          {/* Sort + view toolbar */}
+          {/* View toolbar */}
           {toolbar && (
             <>
               {hasActiveFilters && <span className="h-3 w-px bg-border" />}
@@ -355,7 +349,6 @@ export function ProductFilterBar({
                     buildProductsUrl({
                       category: activeCategory,
                       brand: activeBrand,
-                      sort: sortParam,
                       view: viewParam,
                     }),
                   )

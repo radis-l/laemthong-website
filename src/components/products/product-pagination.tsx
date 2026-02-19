@@ -7,7 +7,6 @@ type BaseParams = {
   category?: string;
   brand?: string;
   q?: string;
-  sort?: string;
   view?: string;
 };
 
@@ -25,7 +24,6 @@ function buildProductsUrl(params: BaseParams & { page?: number }): string {
   if (params.brand) sp.set("brand", params.brand);
   if (params.q) sp.set("q", params.q);
   if (params.page && params.page > 1) sp.set("page", String(params.page));
-  if (params.sort && params.sort !== "default") sp.set("sort", params.sort);
   if (params.view && params.view !== "grid") sp.set("view", params.view);
   const qs = sp.toString();
   return `/products${qs ? `?${qs}` : ""}`;

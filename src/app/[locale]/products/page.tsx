@@ -3,13 +3,11 @@ import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { getFilteredProducts, getCategoryBySlug, getBrandBySlug, getPageImage } from "@/lib/db";
 import { getCachedCategories, getCachedBrands } from "@/lib/db/cached";
-import type { ProductSort } from "@/lib/db";
 import { ProductCard } from "@/components/products/product-card";
 import { ProductSearch } from "@/components/products/product-search";
 import { ProductFilterBar } from "@/components/products/product-filter-bar";
 import { ProductPagination } from "@/components/products/product-pagination";
 import { FilterNavigationProvider } from "@/components/products/products-filter-context";
-import { SortSelect } from "@/components/products/sort-select";
 import { ViewToggle } from "@/components/products/view-toggle";
 import { ProductGridWrapper } from "@/components/products/product-grid-wrapper";
 import { Link } from "@/i18n/navigation";
@@ -31,17 +29,8 @@ type Props = {
     brand?: string;
     q?: string;
     page?: string;
-    sort?: string;
     view?: string;
   }>;
-};
-
-const VALID_SORTS: ProductSort[] = ["default", "name-asc", "name-desc", "newest"];
-const SORT_KEYS: Record<ProductSort, string> = {
-  default: "sortDefault",
-  "name-asc": "sortNameAsc",
-  "name-desc": "sortNameDesc",
-  newest: "sortNewest",
 };
 
 function buildProductsUrl(params: {
@@ -49,7 +38,6 @@ function buildProductsUrl(params: {
   brand?: string;
   q?: string;
   page?: number;
-  sort?: string;
   view?: string;
 }): string {
   const sp = new URLSearchParams();
@@ -57,7 +45,6 @@ function buildProductsUrl(params: {
   if (params.brand) sp.set("brand", params.brand);
   if (params.q) sp.set("q", params.q);
   if (params.page && params.page > 1) sp.set("page", String(params.page));
-  if (params.sort && params.sort !== "default") sp.set("sort", params.sort);
   if (params.view && params.view !== "grid") sp.set("view", params.view);
   const qs = sp.toString();
   return `/products${qs ? `?${qs}` : ""}`;
@@ -111,15 +98,12 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
 export default async function ProductsPage({ params, searchParams }: Props) {
   const { locale } = await params;
-  const { category, brand, q, page: pageParam, sort: sortParam, view: viewParam } = await searchParams;
+  const { category, brand, q, page: pageParam, view: viewParam } = await searchParams;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "products" });
   const loc = locale as Locale;
 
   const pageNum = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
-  const sort: ProductSort = VALID_SORTS.includes(sortParam as ProductSort)
-    ? (sortParam as ProductSort)
-    : "default";
   const view = viewParam === "list" ? "list" : "grid";
 
   const [result, categories, brands, heroImage] = await Promise.all([
@@ -128,7 +112,6 @@ export default async function ProductsPage({ params, searchParams }: Props) {
       brand,
       search: q,
       locale: loc,
-      sort,
       page: pageNum,
       perPage: 24,
     }),
@@ -149,14 +132,6 @@ export default async function ProductsPage({ params, searchParams }: Props) {
   const heroLabel = t("title");
   const heroTitle = t("title");
   const heroDescription = t("description");
-
-  // Pre-compute URLs for client components
-  const sortUrls = Object.fromEntries(
-    VALID_SORTS.map((s) => [s, buildProductsUrl({ category, brand, q, sort: s, view: viewParam })])
-  ) as Record<string, string>;
-  const sortLabels = Object.fromEntries(
-    VALID_SORTS.map((s) => [s, t(SORT_KEYS[s])])
-  ) as Record<string, string>;
 
   return (
     <>
@@ -185,7 +160,7 @@ export default async function ProductsPage({ params, searchParams }: Props) {
               <ProductSearch currentQuery={q ?? ""} />
             </Suspense>
 
-            {/* Tabbed filter bar with sort/view controls */}
+            {/* Tabbed filter bar with view controls */}
             <div className="mt-6 mb-8">
               <ProductFilterBar
                 toolbar={
@@ -196,18 +171,10 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                         : t("productCount", { count: total })}
                     </p>
 
-                    <SortSelect
-                      current={sort}
-                      sortUrls={sortUrls}
-                      labels={sortLabels}
-                      validSorts={VALID_SORTS as string[]}
-                      sortLabel={t("sortLabel")}
-                    />
-
                     <ViewToggle
                       currentView={view}
-                      gridUrl={buildProductsUrl({ category, brand, q, page: pageNum, sort: sortParam, view: "grid" })}
-                      listUrl={buildProductsUrl({ category, brand, q, page: pageNum, sort: sortParam, view: "list" })}
+                      gridUrl={buildProductsUrl({ category, brand, q, page: pageNum, view: "grid" })}
+                      listUrl={buildProductsUrl({ category, brand, q, page: pageNum, view: "list" })}
                       gridLabel={t("viewGrid")}
                       listLabel={t("viewList")}
                     />
@@ -218,7 +185,6 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                 activeCategory={category}
                 activeBrand={brand}
                 activeQuery={q}
-                sortParam={sortParam}
                 viewParam={viewParam}
                 labels={{
                   category: t("filterByCategory"),
@@ -264,7 +230,7 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                   <ProductPagination
                     currentPage={pageNum}
                     totalPages={totalPages}
-                    baseParams={{ category, brand, q, sort: sortParam, view: viewParam }}
+                    baseParams={{ category, brand, q, view: viewParam }}
                     previousLabel={t("previousPage")}
                     nextLabel={t("nextPage")}
                   />

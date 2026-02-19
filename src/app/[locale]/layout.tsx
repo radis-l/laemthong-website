@@ -76,12 +76,24 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <html lang={locale} suppressHydrationWarning>
+      <head>
+        <link
+          rel="preconnect"
+          href="https://efcdooqatevjdyjhhmoc.supabase.co"
+        />
+      </head>
       <body className={`${font.variable} font-sans antialiased`}>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <HeaderThemeProvider>
             <div className="flex min-h-screen flex-col">
+              <a
+                href="#main"
+                className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-foreground focus:shadow-lg focus:ring-2 focus:ring-primary"
+              >
+                Skip to content
+              </a>
               <SiteHeader />
-              <main className="flex-1 pt-20">{children}</main>
+              <main id="main" className="flex-1 pt-20">{children}</main>
               <SiteFooter locale={locale} />
             </div>
           </HeaderThemeProvider>

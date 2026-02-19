@@ -8,13 +8,16 @@ import { PlaceholderImage } from "@/components/shared/placeholder-image";
 import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
 import { COMPANY, STAGGER_DELAY } from "@/lib/constants";
 import { PageHero } from "@/components/shared/page-hero";
+import { JsonLd } from "@/components/shared/json-ld";
 import {
   getPageUrl,
   getAlternateLanguages,
   getOgLocale,
   getOgAlternateLocale,
+  buildOrganizationSchema,
+  buildBreadcrumbSchema,
 } from "@/lib/seo";
-import { getPageImages } from "@/lib/db";
+import { getPageImages, getCompanyInfo } from "@/lib/db";
 import type { Locale } from "@/data/types";
 
 type Props = {
@@ -50,10 +53,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function AboutPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const [t, pageImages] = await Promise.all([
+  const loc = locale as Locale;
+  const [t, pageImages, company] = await Promise.all([
     getTranslations({ locale, namespace: "about" }),
     getPageImages(),
+    getCompanyInfo(),
   ]);
+  const tNav = await getTranslations({ locale, namespace: "nav" });
 
   const historyImage = pageImages.get("about-history") ?? null;
 
@@ -74,6 +80,14 @@ export default async function AboutPage({ params }: Props) {
 
   return (
     <>
+      {company && <JsonLd data={buildOrganizationSchema(company, loc)} />}
+      <JsonLd
+        data={buildBreadcrumbSchema(loc, [
+          { name: tNav("home"), href: "/" },
+          { name: t("title"), href: "/about" },
+        ])}
+      />
+
       <PageHero label={t("title")} title={t("title")} description={t("subtitle")} backgroundImage={pageImages.get("hero-about") ?? undefined} />
 
       {/* History */}

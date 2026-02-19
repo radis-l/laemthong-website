@@ -17,6 +17,7 @@ import {
   SITE_DESCRIPTION,
   buildOrganizationSchema,
   buildWebSiteSchema,
+  buildLocalBusinessSchema,
 } from "@/lib/seo";
 import type { Locale } from "@/data/types";
 
@@ -66,6 +67,7 @@ export default async function HomePage({ params }: Props) {
   return (
     <>
       {company && <JsonLd data={buildOrganizationSchema(company, locale as Locale)} />}
+      {company && <JsonLd data={buildLocalBusinessSchema(company, locale as Locale)} />}
       <JsonLd data={buildWebSiteSchema(locale as Locale)} />
       <HeroSection backgroundImage={heroImage ?? undefined} />
       <UspSection />

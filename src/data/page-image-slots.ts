@@ -53,8 +53,8 @@ const ABOUT_SLOTS: ImageSlot[] = [
     key: "about-history",
     label: "Company History",
     hint: "Shown alongside the company history text on the About page.",
-    aspectRatio: 16 / 9,
-    aspectRatioLabel: "16:9 landscape",
+    aspectRatio: 1 / 1,
+    aspectRatioLabel: "1:1 square",
     group: "content",
   },
   {

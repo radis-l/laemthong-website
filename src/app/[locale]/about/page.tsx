@@ -102,14 +102,14 @@ export default async function AboutPage({ params }: Props) {
                 <Image
                   src={historyImage}
                   alt={t("historyTitle")}
-                  width={800}
-                  height={450}
-                  className="aspect-[16/9] w-full object-cover"
+                  width={600}
+                  height={600}
+                  className="aspect-square w-full object-cover"
                 />
               ) : (
                 <PlaceholderImage
                   variant="about"
-                  aspect="aspect-[16/9]"
+                  aspect="aspect-square"
                 />
               )}
             </div>

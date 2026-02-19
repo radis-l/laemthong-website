@@ -9,7 +9,7 @@ import { SectionHeading } from "@/components/shared/section-heading";
 import Image from "next/image";
 import { PlaceholderImage } from "@/components/shared/placeholder-image";
 import { JsonLd } from "@/components/shared/json-ld";
-import { getPageImage } from "@/lib/db";
+import { getPageImages } from "@/lib/db";
 import { SERVICES, SERVICE_SLUGS, getServiceBySlug } from "@/data/services";
 import {
   getPageUrl,
@@ -70,9 +70,9 @@ export default async function ServiceDetailPage({ params }: Props) {
   const tNav = await getTranslations({ locale, namespace: "nav" });
   const tCommon = await getTranslations({ locale, namespace: "common" });
 
-  const serviceImage = await getPageImage(`service-${slug}`);
+  const pageImages = await getPageImages();
+  const serviceImage = pageImages.get(`service-${slug}`) ?? null;
 
-  const Icon = service.icon;
   const features = t.raw(`${slug}.features`) as string[];
   const processSteps = t.raw(`${slug}.processSteps`) as {
     title: string;
@@ -108,34 +108,44 @@ export default async function ServiceDetailPage({ params }: Props) {
       {/* Hero */}
       <section className="border-b py-16 md:py-20">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="grid gap-10 lg:grid-cols-[1fr_400px] lg:items-center">
+          {/* Mobile image — above text on small screens */}
+          <div className="mb-8 lg:hidden">
+            <div className="overflow-hidden rounded-lg border">
+              {serviceImage ? (
+                <Image
+                  src={serviceImage}
+                  alt={t(`${slug}.title`)}
+                  width={800}
+                  height={600}
+                  className="aspect-[4/3] w-full object-cover"
+                />
+              ) : (
+                <PlaceholderImage variant="service" aspect="aspect-[4/3]" />
+              )}
+            </div>
+          </div>
+          <div className="grid gap-10 lg:grid-cols-[1fr_480px] lg:items-center">
             <div>
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg border">
-                  <Icon className="h-6 w-6" />
-                </div>
-                <div>
-                  <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-                    {t(`${slug}.title`)}
-                  </h1>
-                </div>
-              </div>
+              <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+                {t(`${slug}.title`)}
+              </h1>
               <p className="mt-6 max-w-3xl text-lg leading-relaxed text-muted-foreground">
                 {t(`${slug}.description`)}
               </p>
             </div>
+            {/* Desktop image — side-by-side layout */}
             <div className="hidden lg:block">
               <div className="overflow-hidden rounded-lg border">
                 {serviceImage ? (
                   <Image
                     src={serviceImage}
                     alt={t(`${slug}.title`)}
-                    width={400}
-                    height={400}
-                    className="aspect-square w-full object-cover"
+                    width={600}
+                    height={450}
+                    className="aspect-[4/3] w-full object-cover"
                   />
                 ) : (
-                  <PlaceholderImage variant="service" aspect="aspect-square" />
+                  <PlaceholderImage variant="service" aspect="aspect-[4/3]" />
                 )}
               </div>
             </div>
@@ -216,22 +226,35 @@ export default async function ServiceDetailPage({ params }: Props) {
           <SectionHeading title={t("otherServices")} />
           <div className="grid gap-6 sm:grid-cols-3">
             {otherServices.map((other) => {
-              const OtherIcon = other.icon;
+              const otherImage = pageImages.get(`service-${other.slug}`) ?? null;
               return (
                 <Link
                   key={other.slug}
                   href={`/services/${other.slug}`}
-                  className="group rounded-lg border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
+                  className="group overflow-hidden rounded-lg border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
                 >
-                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg border">
-                    <OtherIcon className="h-5 w-5" />
+                  <div className="relative aspect-[4/3] overflow-hidden">
+                    {otherImage ? (
+                      <Image
+                        src={otherImage}
+                        alt={t(`${other.slug}.title`)}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        sizes="(max-width: 640px) 100vw, 33vw"
+                      />
+                    ) : (
+                      <PlaceholderImage variant="service" aspect="aspect-[4/3]" />
+                    )}
                   </div>
-                  <h3 className="font-semibold text-foreground group-hover:text-primary">
-                    {t(`${other.slug}.title`)}
-                  </h3>
-                  <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-                    {t(`${other.slug}.shortDescription`)}
-                  </p>
+                  <div className="h-px w-full bg-border transition-colors duration-300 group-hover:bg-primary" />
+                  <div className="p-4">
+                    <h3 className="font-semibold text-foreground group-hover:text-primary">
+                      {t(`${other.slug}.title`)}
+                    </h3>
+                    <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
+                      {t(`${other.slug}.shortDescription`)}
+                    </p>
+                  </div>
                 </Link>
               );
             })}

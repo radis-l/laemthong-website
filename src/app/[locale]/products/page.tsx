@@ -179,42 +179,39 @@ export default async function ProductsPage({ params, searchParams }: Props) {
       <section className="pt-8 pb-16 md:pt-10 md:pb-20">
         <div className="mx-auto max-w-7xl px-6">
           <FilterNavigationProvider>
-            {/* Search + controls toolbar */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="w-full sm:max-w-sm">
-                <Suspense fallback={<div className="h-10 w-full" />}>
-                  <ProductSearch currentQuery={q ?? ""} />
-                </Suspense>
-              </div>
+            {/* Full-width search */}
+            <Suspense fallback={<div className="h-10 w-full" />}>
+              <ProductSearch currentQuery={q ?? ""} />
+            </Suspense>
 
-              <div className="flex items-center gap-3">
-                <p className="shrink-0 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  {q
-                    ? `${t("searchResultsFor", { query: q })} (${total})`
-                    : t("productCount", { count: total })}
-                </p>
-
-                <SortSelect
-                  current={sort}
-                  sortUrls={sortUrls}
-                  labels={sortLabels}
-                  validSorts={VALID_SORTS as string[]}
-                  sortLabel={t("sortLabel")}
-                />
-
-                <ViewToggle
-                  currentView={view}
-                  gridUrl={buildProductsUrl({ category, brand, q, page: pageNum, sort: sortParam, view: "grid" })}
-                  listUrl={buildProductsUrl({ category, brand, q, page: pageNum, sort: sortParam, view: "list" })}
-                  gridLabel={t("viewGrid")}
-                  listLabel={t("viewList")}
-                />
-              </div>
-            </div>
-
-            {/* Tabbed filter bar */}
+            {/* Tabbed filter bar with sort/view controls */}
             <div className="mt-6 mb-8">
               <ProductFilterBar
+                toolbar={
+                  <div className="flex items-center gap-3">
+                    <p className="shrink-0 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      {q
+                        ? `${t("searchResultsFor", { query: q })} (${total})`
+                        : t("productCount", { count: total })}
+                    </p>
+
+                    <SortSelect
+                      current={sort}
+                      sortUrls={sortUrls}
+                      labels={sortLabels}
+                      validSorts={VALID_SORTS as string[]}
+                      sortLabel={t("sortLabel")}
+                    />
+
+                    <ViewToggle
+                      currentView={view}
+                      gridUrl={buildProductsUrl({ category, brand, q, page: pageNum, sort: sortParam, view: "grid" })}
+                      listUrl={buildProductsUrl({ category, brand, q, page: pageNum, sort: sortParam, view: "list" })}
+                      gridLabel={t("viewGrid")}
+                      listLabel={t("viewList")}
+                    />
+                  </div>
+                }
                 categories={categories.map((c) => ({ slug: c.slug, name: c.name[loc] }))}
                 brands={brands.map((b) => ({ slug: b.slug, name: b.name }))}
                 activeCategory={category}

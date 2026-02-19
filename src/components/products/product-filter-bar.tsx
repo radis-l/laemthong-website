@@ -22,6 +22,7 @@ interface ProductFilterBarProps {
     activeFilters: string;
     clearAll: string;
   };
+  toolbar?: React.ReactNode;
 }
 
 function buildProductsUrl(params: {
@@ -50,6 +51,7 @@ export function ProductFilterBar({
   sortParam,
   viewParam,
   labels,
+  toolbar,
 }: ProductFilterBarProps) {
   const { navigate } = useFilterNavigation();
 
@@ -75,10 +77,10 @@ export function ProductFilterBar({
 
   return (
     <div>
-      {/* Tab row + active chips */}
+      {/* Tab row + toolbar + active chips */}
       <div className="flex items-end justify-between gap-4 border-b">
         {/* Dimension tabs */}
-        <div className="flex">
+        <div className="flex shrink-0">
           <button
             type="button"
             onClick={() => setActiveTab("category")}
@@ -130,71 +132,82 @@ export function ProductFilterBar({
           </button>
         </div>
 
-        {/* Active filter chips — desktop inline, mobile wraps below */}
-        {hasActiveFilters && (
-          <div className="hidden items-center gap-2 pb-3 sm:flex">
-            {activeCategoryName && (
+        {/* Right side: active chips + toolbar */}
+        <div className="hidden items-center gap-3 pb-3 sm:flex">
+          {/* Active filter chips */}
+          {hasActiveFilters && (
+            <div className="flex items-center gap-2">
+              {activeCategoryName && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigate(
+                      buildProductsUrl({
+                        brand: activeBrand,
+                        ...commonParams,
+                      }),
+                    )
+                  }
+                  className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground/5 px-3 py-1 text-sm text-foreground transition-colors hover:bg-foreground/10"
+                >
+                  {activeCategoryName}
+                  <X className="h-3 w-3" />
+                </button>
+              )}
+              {activeBrandName && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigate(
+                      buildProductsUrl({
+                        category: activeCategory,
+                        ...commonParams,
+                      }),
+                    )
+                  }
+                  className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground/5 px-3 py-1 text-sm text-foreground transition-colors hover:bg-foreground/10"
+                >
+                  {activeBrandName}
+                  <X className="h-3 w-3" />
+                </button>
+              )}
+              {activeQuery && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigate(
+                      buildProductsUrl({
+                        category: activeCategory,
+                        brand: activeBrand,
+                        sort: sortParam,
+                        view: viewParam,
+                      }),
+                    )
+                  }
+                  className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground/5 px-3 py-1 text-sm text-foreground transition-colors hover:bg-foreground/10"
+                >
+                  &ldquo;{activeQuery}&rdquo;
+                  <X className="h-3 w-3" />
+                </button>
+              )}
               <button
                 type="button"
-                onClick={() =>
-                  navigate(
-                    buildProductsUrl({
-                      brand: activeBrand,
-                      ...commonParams,
-                    }),
-                  )
-                }
-                className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground/5 px-3 py-1 text-sm text-foreground transition-colors hover:bg-foreground/10"
+                onClick={() => navigate("/products")}
+                className="text-xs font-medium text-primary hover:underline"
               >
-                {activeCategoryName}
-                <X className="h-3 w-3" />
+                {labels.clearAll}
               </button>
-            )}
-            {activeBrandName && (
-              <button
-                type="button"
-                onClick={() =>
-                  navigate(
-                    buildProductsUrl({
-                      category: activeCategory,
-                      ...commonParams,
-                    }),
-                  )
-                }
-                className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground/5 px-3 py-1 text-sm text-foreground transition-colors hover:bg-foreground/10"
-              >
-                {activeBrandName}
-                <X className="h-3 w-3" />
-              </button>
-            )}
-            {activeQuery && (
-              <button
-                type="button"
-                onClick={() =>
-                  navigate(
-                    buildProductsUrl({
-                      category: activeCategory,
-                      brand: activeBrand,
-                      sort: sortParam,
-                      view: viewParam,
-                    }),
-                  )
-                }
-                className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground/5 px-3 py-1 text-sm text-foreground transition-colors hover:bg-foreground/10"
-              >
-                &ldquo;{activeQuery}&rdquo;
-                <X className="h-3 w-3" />
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={() => navigate("/products")}
-              className="text-xs font-medium text-primary hover:underline"
-            >
-              {labels.clearAll}
-            </button>
-          </div>
-        )}
+            </div>
+          )}
+
+          {/* Sort + view toolbar */}
+          {toolbar && (
+            <>
+              {hasActiveFilters && <span className="h-3 w-px bg-border" />}
+              {toolbar}
+            </>
+          )}
+        </div>
       </div>
 
       {/* Pills row */}
@@ -288,71 +301,78 @@ export function ProductFilterBar({
         )}
       </div>
 
-      {/* Active filter chips — mobile only */}
-      {hasActiveFilters && (
-        <div className="flex flex-wrap items-center gap-2 pt-3 sm:hidden">
-          {activeCategoryName && (
+      {/* Mobile: active filter chips + toolbar */}
+      <div className="sm:hidden">
+        {hasActiveFilters && (
+          <div className="flex flex-wrap items-center gap-2 pt-3">
+            {activeCategoryName && (
+              <button
+                type="button"
+                onClick={() =>
+                  navigate(
+                    buildProductsUrl({
+                      brand: activeBrand,
+                      ...commonParams,
+                    }),
+                  )
+                }
+                className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground/5 px-3 py-1 text-sm text-foreground transition-colors hover:bg-foreground/10"
+              >
+                {activeCategoryName}
+                <X className="h-3 w-3" />
+              </button>
+            )}
+            {activeBrandName && (
+              <button
+                type="button"
+                onClick={() =>
+                  navigate(
+                    buildProductsUrl({
+                      category: activeCategory,
+                      ...commonParams,
+                    }),
+                  )
+                }
+                className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground/5 px-3 py-1 text-sm text-foreground transition-colors hover:bg-foreground/10"
+              >
+                {activeBrandName}
+                <X className="h-3 w-3" />
+              </button>
+            )}
+            {activeQuery && (
+              <button
+                type="button"
+                onClick={() =>
+                  navigate(
+                    buildProductsUrl({
+                      category: activeCategory,
+                      brand: activeBrand,
+                      sort: sortParam,
+                      view: viewParam,
+                    }),
+                  )
+                }
+                className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground/5 px-3 py-1 text-sm text-foreground transition-colors hover:bg-foreground/10"
+              >
+                &ldquo;{activeQuery}&rdquo;
+                <X className="h-3 w-3" />
+              </button>
+            )}
             <button
               type="button"
-              onClick={() =>
-                navigate(
-                  buildProductsUrl({
-                    brand: activeBrand,
-                    ...commonParams,
-                  }),
-                )
-              }
-              className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground/5 px-3 py-1 text-sm text-foreground transition-colors hover:bg-foreground/10"
+              onClick={() => navigate("/products")}
+              className="text-xs font-medium text-primary hover:underline"
             >
-              {activeCategoryName}
-              <X className="h-3 w-3" />
+              {labels.clearAll}
             </button>
-          )}
-          {activeBrandName && (
-            <button
-              type="button"
-              onClick={() =>
-                navigate(
-                  buildProductsUrl({
-                    category: activeCategory,
-                    ...commonParams,
-                  }),
-                )
-              }
-              className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground/5 px-3 py-1 text-sm text-foreground transition-colors hover:bg-foreground/10"
-            >
-              {activeBrandName}
-              <X className="h-3 w-3" />
-            </button>
-          )}
-          {activeQuery && (
-            <button
-              type="button"
-              onClick={() =>
-                navigate(
-                  buildProductsUrl({
-                    category: activeCategory,
-                    brand: activeBrand,
-                    sort: sortParam,
-                    view: viewParam,
-                  }),
-                )
-              }
-              className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 bg-foreground/5 px-3 py-1 text-sm text-foreground transition-colors hover:bg-foreground/10"
-            >
-              &ldquo;{activeQuery}&rdquo;
-              <X className="h-3 w-3" />
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => navigate("/products")}
-            className="text-xs font-medium text-primary hover:underline"
-          >
-            {labels.clearAll}
-          </button>
-        </div>
-      )}
+          </div>
+        )}
+        {toolbar && (
+          <div className="flex items-center justify-between pt-3">
+            {toolbar}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import Image from "next/image";
 import { CheckCircle2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CtaContactSection } from "@/components/shared/cta-contact-section";
 import { JsonLd } from "@/components/shared/json-ld";
 import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
 import { PageHero } from "@/components/shared/page-hero";
-import { getPageImage } from "@/lib/db";
+import { PlaceholderImage } from "@/components/shared/placeholder-image";
+import { getPageImages } from "@/lib/db";
 import { SERVICES } from "@/data/services";
 import { STAGGER_DELAY } from "@/lib/constants";
 import {
@@ -58,7 +60,8 @@ export default async function ServicesPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: "services" });
   const tNav = await getTranslations({ locale, namespace: "nav" });
   const tCommon = await getTranslations({ locale, namespace: "common" });
-  const heroImage = await getPageImage("hero-services");
+  const pageImages = await getPageImages();
+  const heroImage = pageImages.get("hero-services") ?? undefined;
 
   return (
     <>
@@ -76,7 +79,7 @@ export default async function ServicesPage({ params }: Props) {
         <div className="mx-auto max-w-7xl px-6">
           <div className="grid gap-8 md:grid-cols-2">
             {SERVICES.map((service, index) => {
-              const Icon = service.icon;
+              const serviceImage = pageImages.get(`service-${service.slug}`) ?? null;
               const features = t.raw(
                 `${service.slug}.features`,
               ) as string[];
@@ -86,35 +89,51 @@ export default async function ServicesPage({ params }: Props) {
                   direction="up"
                   delay={index * STAGGER_DELAY}
                 >
-                  <div className="h-full overflow-hidden rounded-lg border bg-card p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg">
-                    <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg border">
-                      <Icon className="h-6 w-6" />
+                  <div className="group h-full overflow-hidden rounded-lg border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg">
+                    {/* Service image */}
+                    <div className="relative aspect-[4/3] overflow-hidden">
+                      {serviceImage ? (
+                        <Image
+                          src={serviceImage}
+                          alt={t(`${service.slug}.title`)}
+                          fill
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                        />
+                      ) : (
+                        <PlaceholderImage variant="service" aspect="aspect-[4/3]" />
+                      )}
                     </div>
-                    <h2 className="text-2xl font-bold text-foreground">
-                      {t(`${service.slug}.title`)}
-                    </h2>
-                    <p className="mt-3 leading-relaxed text-muted-foreground">
-                      {t(`${service.slug}.shortDescription`)}
-                    </p>
-                    <ul className="mt-6 space-y-2">
-                      {features.slice(0, 4).map((feature, i) => (
-                        <li
-                          key={i}
-                          className="flex items-start gap-2 text-sm"
-                        >
-                          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                          <span className="text-muted-foreground">
-                            {feature}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                    <Button asChild className="mt-8 gap-2">
-                      <Link href={`/services/${service.slug}`}>
-                        {t("viewDetails")}
-                        <ArrowRight className="h-4 w-4" />
-                      </Link>
-                    </Button>
+                    {/* Red accent divider */}
+                    <div className="h-px w-full bg-border transition-colors duration-300 group-hover:bg-primary" />
+                    {/* Content */}
+                    <div className="p-6 md:p-8">
+                      <h2 className="text-xl font-bold text-foreground md:text-2xl">
+                        {t(`${service.slug}.title`)}
+                      </h2>
+                      <p className="mt-3 leading-relaxed text-muted-foreground">
+                        {t(`${service.slug}.shortDescription`)}
+                      </p>
+                      <ul className="mt-5 space-y-2">
+                        {features.slice(0, 4).map((feature, i) => (
+                          <li
+                            key={i}
+                            className="flex items-start gap-2 text-sm"
+                          >
+                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                            <span className="text-muted-foreground">
+                              {feature}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                      <Button asChild className="mt-6 gap-2">
+                        <Link href={`/services/${service.slug}`}>
+                          {t("viewDetails")}
+                          <ArrowRight className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                    </div>
                   </div>
                 </AnimateOnScroll>
               );

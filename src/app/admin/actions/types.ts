@@ -16,6 +16,3 @@ export type BrandActionState = ActionState & {
 export type CategoryActionState = ActionState & {
   category?: DbCategory;
 };
-
-/** Product action state. */
-export type ProductActionState = ActionState;

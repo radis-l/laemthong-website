@@ -13,7 +13,6 @@ import { getNextSortOrder } from "@/lib/db/sort-order";
 import { revalidateEntity } from "@/lib/revalidation";
 import type { CategoryActionState } from "./types";
 
-export type { CategoryActionState as CategoryFormState };
 
 export async function createCategoryAction(
   _prevState: CategoryActionState,

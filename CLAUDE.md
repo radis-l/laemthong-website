@@ -210,11 +210,12 @@ This project has a `.mcp.json` that provides **Supabase MCP** at the project lev
 ### Supabase Notes
 - Project credentials in `.env.local` (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY)
 - MCP auth is handled via OAuth (no tokens in `.mcp.json`)
-- Data is stored in Supabase tables (categories, brands, products, services, company_info, contact_inquiries)
+- Data is stored in Supabase tables (categories, brands, products, services, company_info, contact_inquiries, page_images)
 - All bilingual fields stored as JSONB `{"th": "...", "en": "..."}`
 - RLS: public SELECT on catalog tables, public INSERT on contact_inquiries
 - Data access layer at `src/lib/db/` maps DB rows (snake_case) to app types (camelCase)
-- SQL migrations at `supabase/migrations/` (init + unify_product_images + add_fk_cascade)
+- SQL migrations at `supabase/migrations/` (init, unify_product_images, add_fk_cascade, remove_category_icon, make_descriptions_optional, add_page_images)
+- Tables: categories, brands, products, services, company_info, contact_inquiries, page_images
 - Mock data: `supabase/mock-data-seed.sql` + scripts in `scripts/` (see `npm run mock-data:seed`)
 - Storage bucket: `images` (public, 5MB limit, folders: `products/`, `brands/`, `categories/`)
 

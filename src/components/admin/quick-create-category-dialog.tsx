@@ -10,10 +10,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { BilingualInput } from "./bilingual-input";
 import { SlugInput } from "./slug-input";
-import {
-  createCategoryAction,
-  type CategoryFormState,
-} from "@/app/admin/actions/categories";
+import { createCategoryAction } from "@/app/admin/actions/categories";
+import type { CategoryActionState } from "@/app/admin/actions/types";
 import { useFormSlug } from "@/hooks/use-form-slug";
 import { toast } from "sonner";
 import type { DbCategory } from "@/data/types";
@@ -35,7 +33,7 @@ export function QuickCreateCategoryDialog({
     isEditing: false,
   });
 
-  const [state, formAction, isPending] = useActionState<CategoryFormState, FormData>(
+  const [state, formAction, isPending] = useActionState<CategoryActionState, FormData>(
     createCategoryAction,
     {}
   );

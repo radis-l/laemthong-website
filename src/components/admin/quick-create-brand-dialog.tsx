@@ -11,10 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ImageUpload } from "./image-upload";
-import {
-  createBrandAction,
-  type BrandFormState,
-} from "@/app/admin/actions/brands";
+import { createBrandAction } from "@/app/admin/actions/brands";
+import type { BrandActionState } from "@/app/admin/actions/types";
 import { slugify } from "@/lib/utils";
 import { toast } from "sonner";
 import type { DbBrand } from "@/data/types";
@@ -33,7 +31,7 @@ export function QuickCreateBrandDialog({
   const [slug, setSlug] = useState("");
   const [name, setName] = useState("");
   const [logo, setLogo] = useState("");
-  const [state, formAction, isPending] = useActionState<BrandFormState, FormData>(
+  const [state, formAction, isPending] = useActionState<BrandActionState, FormData>(
     createBrandAction,
     {}
   );

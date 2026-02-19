@@ -188,7 +188,7 @@ export function ImageUpload({
         setCropSrc(objectUrl);
       }
     },
-    [canUpload, multiple, urls, onChange, maxFiles, uploadFile, setUploadingState]
+    [canUpload, multiple, urls, maxFiles]
   );
 
   const handleRemove = useCallback(
@@ -277,7 +277,6 @@ export function ImageUpload({
                   key={url}
                   id={url}
                   url={url}
-                  index={index}
                   isPrimary={index === 0}
                   showPrimaryBadge={showPrimaryBadge}
                   aspectClass={aspectClass}

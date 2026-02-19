@@ -19,4 +19,3 @@ export const productSchema = z.object({
   sortOrder: sortOrderSchema,
 });
 
-export type ProductInput = z.infer<typeof productSchema>;

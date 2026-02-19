@@ -10,5 +10,3 @@ export const categorySchema = z.object({
   image: z.string().optional(),
   sortOrder: sortOrderSchema,
 });
-
-export type CategoryInput = z.infer<typeof categorySchema>;

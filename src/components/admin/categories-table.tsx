@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { TableSearchBar } from "./table-search-bar";
 import { Button } from "@/components/ui/button";
@@ -44,7 +44,7 @@ export function CategoriesTable({ categories }: CategoriesTableProps) {
   const isScrolled = useScrolled();
 
   // Update local items when categories prop changes
-  useMemo(() => setItems(categories), [categories]);
+  useEffect(() => { setItems(categories); }, [categories]);
 
   const filtered = useMemo(
     () =>

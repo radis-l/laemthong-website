@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 
 /**
  * Registers a `beforeunload` listener when the form is dirty.
@@ -10,17 +10,14 @@ import { useEffect, useRef } from "react";
  * `AdminBreadcrumb` which checks dirty state via context.
  */
 export function useUnsavedChanges(isDirty: boolean) {
-  const isDirtyRef = useRef(isDirty);
-  isDirtyRef.current = isDirty;
-
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
-      if (isDirtyRef.current) {
+      if (isDirty) {
         e.preventDefault();
       }
     };
 
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
-  }, []);
+  }, [isDirty]);
 }

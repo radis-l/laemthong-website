@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { slugify } from "@/lib/utils";
 
 interface UseFormSlugOptions {
@@ -14,23 +14,14 @@ export function useFormSlug({
   initialName,
   isEditing,
 }: UseFormSlugOptions) {
-  const [slug, setSlug] = useState(initialSlug);
-  const [isCustomSlug, setIsCustomSlug] = useState(false);
+  const [isCustomSlug, setIsCustomSlug] = useState(() =>
+    isEditing && initialName ? initialSlug !== slugify(initialName) : false
+  );
+  const [customSlug, setCustomSlug] = useState(initialSlug);
   const [trackedName, setTrackedName] = useState(initialName);
 
-  // On mount/edit: detect if slug is custom (differs from auto-generated)
-  useEffect(() => {
-    if (isEditing && initialName) {
-      setIsCustomSlug(initialSlug !== slugify(initialName));
-    }
-  }, [isEditing, initialSlug, initialName]);
-
-  // Auto-generate slug when name changes (only if not in custom mode)
-  useEffect(() => {
-    if (!isCustomSlug) {
-      setSlug(slugify(trackedName));
-    }
-  }, [trackedName, isCustomSlug]);
+  // Derive slug during render instead of syncing via effects
+  const slug = isCustomSlug ? customSlug : slugify(trackedName);
 
   const handleNameChange = (name: string) => {
     setTrackedName(name);
@@ -38,7 +29,7 @@ export function useFormSlug({
 
   return {
     slug,
-    setSlug,
+    setSlug: setCustomSlug,
     isCustomSlug,
     setIsCustomSlug,
     handleNameChange,

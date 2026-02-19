@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useTransition } from "react";
+import { useState, useEffect, useMemo, useCallback, useTransition } from "react";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -77,7 +77,7 @@ export function ProductsTable({
   const [items, setItems] = useState(products);
 
   // Update local items when products prop changes
-  useMemo(() => setItems(products), [products]);
+  useEffect(() => { setItems(products); }, [products]);
 
   const brandMap = useMemo(() => new Map(brandEntries), [brandEntries]);
   const categoryMap = useMemo(

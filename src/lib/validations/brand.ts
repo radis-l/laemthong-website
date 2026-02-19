@@ -12,4 +12,3 @@ export const brandSchema = z.object({
   sortOrder: sortOrderSchema,
 });
 
-export type BrandInput = z.infer<typeof brandSchema>;

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /** Regex for valid slugs: lowercase letters, numbers, and dashes only. */
-export const SLUG_REGEX = /^[a-z0-9-]+$/;
+const SLUG_REGEX = /^[a-z0-9-]+$/;
 
 /** Reusable Zod schema for slug fields. */
 export const slugSchema = z

@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 interface SortableImageItemProps {
   id: string;
   url: string;
-  index: number;
   isPrimary: boolean;
   showPrimaryBadge: boolean;
   aspectClass: string;
@@ -20,7 +19,6 @@ interface SortableImageItemProps {
 export function SortableImageItem({
   id,
   url,
-  index,
   isPrimary,
   showPrimaryBadge,
   aspectClass,

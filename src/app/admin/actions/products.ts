@@ -13,9 +13,7 @@ import { getNextSortOrder } from "@/lib/db/sort-order";
 import { revalidateEntity } from "@/lib/revalidation";
 import { slugify } from "@/lib/utils";
 import type { LocalizedString } from "@/data/types";
-import type { ProductActionState } from "./types";
-
-export type { ProductActionState as ProductFormState };
+import type { ActionState } from "./types";
 
 function parseJsonOrDefault<T>(value: string | undefined, fallback: T): T {
   if (!value) return fallback;
@@ -27,9 +25,9 @@ function parseJsonOrDefault<T>(value: string | undefined, fallback: T): T {
 }
 
 export async function createProductAction(
-  _prevState: ProductActionState,
+  _prevState: ActionState,
   formData: FormData
-): Promise<ProductActionState> {
+): Promise<ActionState> {
   const validated = productSchema.safeParse({
     slug: formData.get("slug") || undefined,
     nameTh: formData.get("nameTh"),
@@ -112,9 +110,9 @@ export async function createProductAction(
 }
 
 export async function updateProductAction(
-  _prevState: ProductActionState,
+  _prevState: ActionState,
   formData: FormData
-): Promise<ProductActionState> {
+): Promise<ActionState> {
   const originalSlug = formData.get("originalSlug") as string;
 
   const validated = productSchema.safeParse({
@@ -193,7 +191,7 @@ export async function updateProductAction(
 
 export async function deleteProductAction(
   slug: string
-): Promise<ProductActionState> {
+): Promise<ActionState> {
   try {
     await adminDeleteProduct(slug);
     deleteImageFolder("products", slug).catch(() => {});

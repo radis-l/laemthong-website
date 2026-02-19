@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FormErrorAlert } from "./form-error-alert";
@@ -10,8 +10,8 @@ import { SlugInput } from "./slug-input";
 import {
   createBrandAction,
   updateBrandAction,
-  type BrandFormState,
 } from "@/app/admin/actions/brands";
+import type { BrandActionState } from "@/app/admin/actions/types";
 import { FormSubmitButton } from "./form-submit-button";
 import { toast } from "sonner";
 import { useFormSlug } from "@/hooks/use-form-slug";
@@ -27,7 +27,7 @@ export function BrandForm({ brand }: BrandFormProps) {
   const isEditing = !!brand;
   const action = isEditing ? updateBrandAction : createBrandAction;
 
-  const [state, formAction, isPending] = useActionState<BrandFormState, FormData>(
+  const [state, formAction, isPending] = useActionState<BrandActionState, FormData>(
     action,
     {}
   );
@@ -43,14 +43,12 @@ export function BrandForm({ brand }: BrandFormProps) {
   });
 
   // Dirty state tracking for unsaved changes warning
-  const initialState = useRef({
-    slug: brand?.slug ?? "",
-    logo: brand?.logo ?? "",
-  });
+  const [initialSlug] = useState(brand?.slug ?? "");
+  const [initialLogo] = useState(brand?.logo ?? "");
 
   const isDirty =
-    currentSlug !== initialState.current.slug ||
-    logo !== initialState.current.logo;
+    currentSlug !== initialSlug ||
+    logo !== initialLogo;
 
   useUnsavedChanges(isDirty);
   const { setIsDirty } = useUnsavedChangesContext();

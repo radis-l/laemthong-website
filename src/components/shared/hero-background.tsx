@@ -61,7 +61,7 @@ export function HeroBackground({
             fill
             className={cn("object-cover", config.imageOpacity)}
             sizes="100vw"
-            priority={variant === "home"}
+            priority
           />
         </div>
       </div>

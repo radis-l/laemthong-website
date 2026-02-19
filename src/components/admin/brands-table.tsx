@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { TableSearchBar } from "./table-search-bar";
 import { Button } from "@/components/ui/button";
@@ -44,7 +44,7 @@ export function BrandsTable({ brands }: BrandsTableProps) {
   const isScrolled = useScrolled();
 
   // Update local items when brands prop changes
-  useMemo(() => setItems(brands), [brands]);
+  useEffect(() => { setItems(brands); }, [brands]);
 
   const filtered = useMemo(
     () => items.filter((b) => matchesSearch(query, b.name, b.slug, b.country)),

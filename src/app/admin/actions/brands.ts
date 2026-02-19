@@ -13,7 +13,6 @@ import { getNextSortOrder } from "@/lib/db/sort-order";
 import { revalidateEntity } from "@/lib/revalidation";
 import type { BrandActionState } from "./types";
 
-export type { BrandActionState as BrandFormState };
 
 export async function createBrandAction(
   _prevState: BrandActionState,

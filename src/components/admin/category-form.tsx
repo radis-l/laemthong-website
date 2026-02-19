@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { FormErrorAlert } from "./form-error-alert";
 import { BilingualInput } from "./bilingual-input";
 import { BilingualTextarea } from "./bilingual-textarea";
@@ -9,8 +9,8 @@ import { SlugInput } from "./slug-input";
 import {
   createCategoryAction,
   updateCategoryAction,
-  type CategoryFormState,
 } from "@/app/admin/actions/categories";
+import type { CategoryActionState } from "@/app/admin/actions/types";
 import { FormSubmitButton } from "./form-submit-button";
 import { toast } from "sonner";
 import { useFormSlug } from "@/hooks/use-form-slug";
@@ -27,7 +27,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
   const action = isEditing ? updateCategoryAction : createCategoryAction;
 
   const [state, formAction, isPending] = useActionState<
-    CategoryFormState,
+    CategoryActionState,
     FormData
   >(action, {});
 
@@ -41,14 +41,12 @@ export function CategoryForm({ category }: CategoryFormProps) {
   });
 
   // Dirty state tracking for unsaved changes warning
-  const initialState = useRef({
-    slug: category?.slug ?? "",
-    image: category?.image ?? "",
-  });
+  const [initialSlug] = useState(category?.slug ?? "");
+  const [initialImage] = useState(category?.image ?? "");
 
   const isDirty =
-    currentSlug !== initialState.current.slug ||
-    image !== initialState.current.image;
+    currentSlug !== initialSlug ||
+    image !== initialImage;
 
   useUnsavedChanges(isDirty);
   const { setIsDirty } = useUnsavedChangesContext();

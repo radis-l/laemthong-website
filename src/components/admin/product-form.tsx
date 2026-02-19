@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState, useMemo } from "react";
+import { useActionState, useEffect, useId, useState, useMemo } from "react";
 import { Label } from "@/components/ui/label";
 import { FormErrorAlert } from "./form-error-alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,8 +14,8 @@ import { ProductBasicInfoTab } from "./product-basic-info-tab";
 import {
   createProductAction,
   updateProductAction,
-  type ProductFormState,
 } from "@/app/admin/actions/products";
+import type { ActionState } from "@/app/admin/actions/types";
 import { FormSubmitButton } from "./form-submit-button";
 import { toast } from "sonner";
 import { useFormSlug } from "@/hooks/use-form-slug";
@@ -34,7 +34,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
   const action = isEditing ? updateProductAction : createProductAction;
 
   const [state, formAction, isPending] = useActionState<
-    ProductFormState,
+    ActionState,
     FormData
   >(action, {});
 
@@ -42,7 +42,8 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
   const [images, setImages] = useState<string[]>(product?.images ?? []);
 
   // Temporary slug for image uploads during creation (before final slug is known)
-  const [tempSlug] = useState(`temp-${Date.now()}`);
+  const tempId = useId();
+  const tempSlug = `temp-${tempId.replace(/:/g, "")}`;
 
   const { slug: currentSlug, setSlug: setCurrentSlug, isCustomSlug, setIsCustomSlug, handleNameChange } = useFormSlug({
     initialSlug: product?.slug ?? "",
@@ -70,7 +71,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
   const [imagesUploading, setImagesUploading] = useState(false);
 
   // Dirty state tracking for unsaved changes warning
-  const initialState = useRef({
+  const [initialValues] = useState({
     slug: product?.slug ?? "",
     images: JSON.stringify(product?.images ?? []),
     specifications: JSON.stringify(product?.specifications ?? []),
@@ -84,16 +85,16 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
   });
 
   const isDirty =
-    currentSlug !== initialState.current.slug ||
-    JSON.stringify(images) !== initialState.current.images ||
-    JSON.stringify(specifications) !== initialState.current.specifications ||
-    JSON.stringify(features) !== initialState.current.features ||
-    JSON.stringify(documents) !== initialState.current.documents ||
-    categorySlug !== initialState.current.categorySlug ||
-    brandSlug !== initialState.current.brandSlug ||
-    featured !== initialState.current.featured ||
-    descriptionTh !== initialState.current.descriptionTh ||
-    descriptionEn !== initialState.current.descriptionEn;
+    currentSlug !== initialValues.slug ||
+    JSON.stringify(images) !== initialValues.images ||
+    JSON.stringify(specifications) !== initialValues.specifications ||
+    JSON.stringify(features) !== initialValues.features ||
+    JSON.stringify(documents) !== initialValues.documents ||
+    categorySlug !== initialValues.categorySlug ||
+    brandSlug !== initialValues.brandSlug ||
+    featured !== initialValues.featured ||
+    descriptionTh !== initialValues.descriptionTh ||
+    descriptionEn !== initialValues.descriptionEn;
 
   useUnsavedChanges(isDirty);
   const { setIsDirty } = useUnsavedChangesContext();

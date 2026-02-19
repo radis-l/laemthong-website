@@ -1,7 +1,8 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import { getFilteredProducts, getAllCategories, getAllBrands, getCategoryBySlug, getBrandBySlug, getPageImage } from "@/lib/db";
+import { getFilteredProducts, getCategoryBySlug, getBrandBySlug, getPageImage } from "@/lib/db";
+import { getCachedCategories, getCachedBrands } from "@/lib/db/cached";
 import type { ProductSort } from "@/lib/db";
 import { ProductCard } from "@/components/products/product-card";
 import { ProductSearch } from "@/components/products/product-search";
@@ -131,8 +132,8 @@ export default async function ProductsPage({ params, searchParams }: Props) {
       page: pageNum,
       perPage: 24,
     }),
-    getAllCategories(),
-    getAllBrands(),
+    getCachedCategories(),
+    getCachedBrands(),
     getPageImage("hero-products"),
   ]);
 
@@ -248,12 +249,13 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                     </div>
                   ) : (
                     <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                      {products.map((product) => (
+                      {products.map((product, index) => (
                         <ProductCard
                           key={product.slug}
                           product={product}
                           locale={loc}
                           categoryName={categoryMap.get(product.categorySlug)?.name[loc]}
+                          priority={index < 4}
                         />
                       ))}
                     </div>

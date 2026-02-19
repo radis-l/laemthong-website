@@ -80,9 +80,11 @@ export function ProductFilterBar({
       {/* Tab row + toolbar + active chips */}
       <div className="flex items-end justify-between gap-4 border-b">
         {/* Dimension tabs */}
-        <div className="flex shrink-0">
+        <div className="flex shrink-0" role="tablist">
           <button
             type="button"
+            role="tab"
+            aria-selected={activeTab === "category"}
             onClick={() => setActiveTab("category")}
             className="group relative pb-3 pr-5"
           >
@@ -110,6 +112,8 @@ export function ProductFilterBar({
 
           <button
             type="button"
+            role="tab"
+            aria-selected={activeTab === "brand"}
             onClick={() => setActiveTab("brand")}
             className="group relative pb-3 pr-5"
           >
@@ -211,11 +215,12 @@ export function ProductFilterBar({
       </div>
 
       {/* Pills row */}
-      <div className="flex items-center gap-2 overflow-x-auto pt-4 pb-2 sm:flex-wrap sm:overflow-visible sm:pb-0">
+      <div role="tabpanel" className="flex items-center gap-2 overflow-x-auto pt-4 pb-2 sm:flex-wrap sm:overflow-visible sm:pb-0">
         {activeTab === "category" ? (
           <>
             <button
               type="button"
+              aria-pressed={!activeCategory}
               onClick={() =>
                 navigate(
                   buildProductsUrl({
@@ -236,6 +241,7 @@ export function ProductFilterBar({
               <button
                 key={cat.slug}
                 type="button"
+                aria-pressed={activeCategory === cat.slug}
                 onClick={() =>
                   navigate(
                     buildProductsUrl({
@@ -259,6 +265,7 @@ export function ProductFilterBar({
           <>
             <button
               type="button"
+              aria-pressed={!activeBrand}
               onClick={() =>
                 navigate(
                   buildProductsUrl({
@@ -279,6 +286,7 @@ export function ProductFilterBar({
               <button
                 key={b.slug}
                 type="button"
+                aria-pressed={activeBrand === b.slug}
                 onClick={() =>
                   navigate(
                     buildProductsUrl({

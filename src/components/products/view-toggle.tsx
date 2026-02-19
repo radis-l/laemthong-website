@@ -31,6 +31,7 @@ export function ViewToggle({
             : "text-muted-foreground hover:text-foreground"
         }`}
         aria-label={gridLabel}
+        aria-pressed={currentView === "grid"}
       >
         <LayoutGrid className="h-3.5 w-3.5" />
       </button>
@@ -43,6 +44,7 @@ export function ViewToggle({
             : "text-muted-foreground hover:text-foreground"
         }`}
         aria-label={listLabel}
+        aria-pressed={currentView === "list"}
       >
         <List className="h-3.5 w-3.5" />
       </button>

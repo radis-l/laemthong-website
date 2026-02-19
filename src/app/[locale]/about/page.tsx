@@ -6,7 +6,7 @@ import { Building2 } from "lucide-react";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { PlaceholderImage } from "@/components/shared/placeholder-image";
 import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
-import { STAGGER_DELAY } from "@/lib/constants";
+import { COMPANY, STAGGER_DELAY } from "@/lib/constants";
 import { PageHero } from "@/components/shared/page-hero";
 import {
   getPageUrl,
@@ -116,10 +116,10 @@ export default async function AboutPage({ params }: Props) {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 {[
-                  { value: "60+", label: t("statYearsExperience") },
-                  { value: "19+", label: t("statGlobalBrands") },
-                  { value: "5,000+", label: t("statProducts") },
-                  { value: "10,000+", label: t("statClients") },
+                  { value: `${COMPANY.stats.years}+`, label: t("statYearsExperience") },
+                  { value: `${COMPANY.stats.brands}+`, label: t("statGlobalBrands") },
+                  { value: `${COMPANY.stats.products.toLocaleString()}+`, label: t("statProducts") },
+                  { value: `${COMPANY.stats.clients.toLocaleString()}+`, label: t("statClients") },
                 ].map((stat, i) => (
                   <AnimateOnScroll key={stat.label} delay={i * STAGGER_DELAY}>
                     <div className="rounded-lg border p-5">
@@ -166,7 +166,7 @@ export default async function AboutPage({ params }: Props) {
       {/* Mission */}
       <section className="py-20 md:py-28">
         <div className="mx-auto max-w-7xl px-6 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border-2 border-foreground">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-lg border">
             <Building2 className="h-7 w-7 text-foreground" />
           </div>
           <h2 className="mt-6 text-3xl font-bold tracking-tight text-foreground lg:text-4xl">

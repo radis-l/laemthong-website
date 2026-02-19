@@ -1,5 +1,7 @@
 import { createSupabaseClient } from "@/lib/supabase";
-import type { Product, DbProduct, Locale } from "@/data/types";
+import type { Product, ProductListItem, DbProduct, Locale } from "@/data/types";
+
+const LISTING_COLUMNS = "slug, category_slug, brand_slug, name, short_description, images, featured, sort_order" as const;
 
 export type ProductSort = "default" | "name-asc" | "name-desc" | "newest";
 
@@ -14,7 +16,7 @@ export type ProductFilter = {
 };
 
 export type PaginatedProducts = {
-  products: Product[];
+  products: ProductListItem[];
   total: number;
   page: number;
   perPage: number;
@@ -33,6 +35,19 @@ function toProduct(row: DbProduct): Product {
     specifications: row.specifications,
     features: row.features,
     documents: row.documents,
+    featured: row.featured,
+    sortOrder: row.sort_order,
+  };
+}
+
+function toProductListItem(row: Pick<DbProduct, "slug" | "category_slug" | "brand_slug" | "name" | "short_description" | "images" | "featured" | "sort_order">): ProductListItem {
+  return {
+    slug: row.slug,
+    categorySlug: row.category_slug,
+    brandSlug: row.brand_slug,
+    name: row.name,
+    shortDescription: row.short_description,
+    images: row.images ?? [],
     featured: row.featured,
     sortOrder: row.sort_order,
   };
@@ -62,7 +77,7 @@ export async function getFilteredProducts(filter: ProductFilter = {}): Promise<P
 
   let query = supabase
     .from("products")
-    .select("*", { count: "exact" });
+    .select(LISTING_COLUMNS, { count: "exact" });
 
   if (category) query = query.eq("category_slug", category);
   if (brand) query = query.eq("brand_slug", brand);
@@ -98,7 +113,7 @@ export async function getFilteredProducts(filter: ProductFilter = {}): Promise<P
 
   const total = count ?? 0;
   return {
-    products: (data as DbProduct[]).map(toProduct),
+    products: (data as DbProduct[]).map(toProductListItem),
     total,
     page,
     perPage,
@@ -128,15 +143,32 @@ export async function getProductsByCategory(categorySlug: string): Promise<Produ
   return (data as DbProduct[]).map(toProduct);
 }
 
-export async function getFeaturedProducts(): Promise<Product[]> {
+export async function getRelatedProducts(
+  categorySlug: string,
+  excludeSlug: string,
+  limit = 3,
+): Promise<ProductListItem[]> {
   const supabase = createSupabaseClient();
   const { data, error } = await supabase
     .from("products")
-    .select("*")
+    .select(LISTING_COLUMNS)
+    .eq("category_slug", categorySlug)
+    .neq("slug", excludeSlug)
+    .order("sort_order")
+    .limit(limit);
+  if (error) return [];
+  return (data as DbProduct[]).map(toProductListItem);
+}
+
+export async function getFeaturedProducts(): Promise<ProductListItem[]> {
+  const supabase = createSupabaseClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select(LISTING_COLUMNS)
     .eq("featured", true)
     .order("sort_order");
   if (error) return [];
-  return (data as DbProduct[]).map(toProduct);
+  return (data as DbProduct[]).map(toProductListItem);
 }
 
 export async function getAllProductSlugs(): Promise<string[]> {

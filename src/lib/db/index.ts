@@ -3,8 +3,8 @@ export {
   getFilteredProducts,
   getProductBySlug,
   getProductsByCategory,
+  getRelatedProducts,
   getFeaturedProducts,
-  getAllProductSlugs,
   getProductSlugsWithDates,
 } from "./products";
 

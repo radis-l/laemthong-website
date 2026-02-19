@@ -24,6 +24,7 @@ export function LocaleSwitcher() {
         <button
           key={l}
           onClick={() => onLocaleChange(l)}
+          aria-pressed={locale === l}
           className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
             locale === l
               ? "bg-primary text-primary-foreground"

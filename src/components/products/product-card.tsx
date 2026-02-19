@@ -2,17 +2,18 @@ import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { PlaceholderImage } from "@/components/shared/placeholder-image";
 import { ChevronRight } from "lucide-react";
-import type { Product, Locale } from "@/data/types";
+import type { ProductListItem, Locale } from "@/data/types";
 import { formatSlug } from "@/lib/format";
 
 type Props = {
-  product: Product;
+  product: ProductListItem;
   locale: Locale;
   categoryName?: string;
   variant?: "grid" | "list";
+  priority?: boolean;
 };
 
-export function ProductCard({ product, locale, categoryName, variant = "grid" }: Props) {
+export function ProductCard({ product, locale, categoryName, variant = "grid", priority = false }: Props) {
   const brandLabel = formatSlug(product.brandSlug);
 
   if (variant === "list") {
@@ -71,7 +72,8 @@ export function ProductCard({ product, locale, categoryName, variant = "grid" }:
               alt={product.name[locale]}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+              priority={priority}
             />
           ) : (
             <PlaceholderImage

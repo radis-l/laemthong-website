@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Logo } from "@/components/shared/logo";
 import { Phone, Mail, MapPin, ShieldCheck, Award, Clock } from "lucide-react";
-import { getAllCategories } from "@/lib/db";
+import { getCachedCategories } from "@/lib/db/cached";
 import { COMPANY } from "@/lib/constants";
 import type { Locale } from "@/data/types";
 
@@ -11,7 +11,7 @@ export async function SiteFooter({ locale }: { locale: string }) {
   const tNav = await getTranslations({ locale, namespace: "nav" });
   const tCommon = await getTranslations({ locale, namespace: "common" });
 
-  const categories = await getAllCategories();
+  const categories = await getCachedCategories();
   const footerCategories = categories.slice(0, 6);
   const loc = locale as Locale;
 
@@ -112,19 +112,19 @@ export async function SiteFooter({ locale }: { locale: string }) {
       {/* Bottom tier — black */}
       <div className="bg-foreground text-background">
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-6 py-5 sm:flex-row sm:justify-between">
-          <p className="text-xs text-background/50">
+          <p className="text-xs text-background/70">
             &copy; {currentYear} {tCommon("companyFullName")}. {t("allRightsReserved")}.
           </p>
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-1.5 text-xs text-background/50">
+            <div className="flex items-center gap-1.5 text-xs text-background/70">
               <ShieldCheck className="h-3.5 w-3.5" />
               <span>{t("authorizedDealer")}</span>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-background/50">
+            <div className="flex items-center gap-1.5 text-xs text-background/70">
               <Award className="h-3.5 w-3.5" />
               <span>{t("qualityAssured")}</span>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-background/50">
+            <div className="flex items-center gap-1.5 text-xs text-background/70">
               <Clock className="h-3.5 w-3.5" />
               <span>{t("trustedSince")}</span>
             </div>

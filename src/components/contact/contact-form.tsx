@@ -49,8 +49,8 @@ export function ContactForm({ locale, defaultProduct }: Props) {
 
   if (state.success) {
     return (
-      <div className="rounded-xl border bg-card p-8 text-center">
-        <CheckCircle2 className="mx-auto h-12 w-12 text-green-500" />
+      <div className="rounded-xl border bg-card p-8 text-center" role="status" aria-live="polite">
+        <CheckCircle2 className="mx-auto h-12 w-12 text-foreground" />
         <h3 className="mt-4 text-xl font-semibold text-foreground">
           {t("successTitle")}
         </h3>

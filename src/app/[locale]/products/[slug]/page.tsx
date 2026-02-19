@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { getProductBySlug, getProductsByCategory, getCategoryBySlug, getBrandBySlug, getAllProductSlugs } from "@/lib/db";
+import { getProductBySlug, getRelatedProducts, getCategoryBySlug, getBrandBySlug } from "@/lib/db";
 import { ProductCard } from "@/components/products/product-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -67,11 +67,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export async function generateStaticParams() {
-  const slugs = await getAllProductSlugs();
-  return slugs.map((slug) => ({ slug }));
-}
-
 export default async function ProductDetailPage({ params }: Props) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
@@ -81,14 +76,11 @@ export default async function ProductDetailPage({ params }: Props) {
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const [category, brand, allCategoryProducts] = await Promise.all([
+  const [category, brand, relatedProducts] = await Promise.all([
     getCategoryBySlug(product.categorySlug),
     getBrandBySlug(product.brandSlug),
-    getProductsByCategory(product.categorySlug),
+    getRelatedProducts(product.categorySlug, product.slug),
   ]);
-  const relatedProducts = allCategoryProducts
-    .filter((p) => p.slug !== product.slug)
-    .slice(0, 3);
 
   return (
     <>

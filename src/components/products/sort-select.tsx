@@ -1,6 +1,13 @@
 "use client";
 
 import { useFilterNavigation } from "./products-filter-context";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Props = {
   current: string;
@@ -21,27 +28,27 @@ export function SortSelect({
 
   return (
     <div className="flex items-center gap-2">
-      <label
-        htmlFor="sort-select"
-        className="hidden text-xs text-muted-foreground sm:inline"
-      >
+      <span className="hidden text-xs text-muted-foreground sm:inline">
         {sortLabel}:
-      </label>
-      <select
-        id="sort-select"
+      </span>
+      <Select
         value={current}
-        onChange={(e) => {
-          const url = sortUrls[e.target.value];
+        onValueChange={(value) => {
+          const url = sortUrls[value];
           if (url) navigate(url);
         }}
-        className="h-8 cursor-pointer appearance-none rounded-lg border bg-background pr-8 pl-3 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50"
       >
-        {validSorts.map((s) => (
-          <option key={s} value={s}>
-            {labels[s]}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger className="h-8 w-auto gap-1.5 rounded-lg border text-xs">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {validSorts.map((s) => (
+            <SelectItem key={s} value={s}>
+              {labels[s]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { HeroBackground } from "@/components/shared/hero-background";
 import { useInView } from "@/hooks/use-in-view";
 import { useCountUp } from "@/hooks/use-count-up";
 import { COMPANY, STAGGER_DELAY } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 type HeroSectionProps = {
   backgroundImage?: string;
@@ -16,27 +17,48 @@ type HeroSectionProps = {
 
 export function HeroSection({ backgroundImage }: HeroSectionProps) {
   const t = useTranslations("hero");
+  const hasImage = !!backgroundImage;
 
   return (
-    <section className="relative bg-background">
+    <section
+      className={cn(
+        "relative",
+        hasImage ? "bg-foreground" : "bg-background"
+      )}
+    >
       <HeroBackground backgroundImage={backgroundImage} variant="home" />
       <div className="relative mx-auto max-w-7xl px-6 py-24 md:py-32 lg:py-40">
         {/* Label */}
-        <p className="mb-6 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.3em] text-muted-foreground">
+        <p
+          className={cn(
+            "mb-6 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.3em]",
+            hasImage ? "text-white/60" : "text-muted-foreground"
+          )}
+        >
           <span className="inline-block h-px w-8 bg-primary" />
           {`Since ${COMPANY.foundedYear}`}
         </p>
 
         {/* Heading */}
         <div className="relative max-w-4xl">
-          <h1 className="text-5xl font-bold leading-[1.1] tracking-tight text-foreground md:text-6xl lg:text-7xl">
+          <h1
+            className={cn(
+              "text-5xl font-bold leading-[1.1] tracking-tight md:text-6xl lg:text-7xl",
+              hasImage ? "text-white" : "text-foreground"
+            )}
+          >
             {t("title")}
           </h1>
           {/* Red accent line */}
           <div className="mt-6 h-0.5 w-16 bg-primary" />
         </div>
 
-        <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
+        <p
+          className={cn(
+            "mt-6 max-w-xl text-lg leading-relaxed",
+            hasImage ? "text-white/70" : "text-muted-foreground"
+          )}
+        >
           {t("subtitle")}
         </p>
 
@@ -47,7 +69,17 @@ export function HeroSection({ backgroundImage }: HeroSectionProps) {
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
-          <Button asChild variant="ghost" size="lg" className="gap-2 text-primary hover:text-primary">
+          <Button
+            asChild
+            variant="ghost"
+            size="lg"
+            className={cn(
+              "gap-2",
+              hasImage
+                ? "text-white/80 hover:bg-white/10 hover:text-white"
+                : "text-primary hover:text-primary"
+            )}
+          >
             <Link href="/contact">
               <Phone className="h-4 w-4" />
               {t("ctaSecondary")}
@@ -56,7 +88,7 @@ export function HeroSection({ backgroundImage }: HeroSectionProps) {
         </div>
 
         {/* Stats strip */}
-        <StatsStrip />
+        <StatsStrip hasImage={hasImage} />
       </div>
     </section>
   );
@@ -69,14 +101,17 @@ const stats = [
   { target: COMPANY.stats.clients, suffix: "+", labelKey: "statsClients" },
 ] as const;
 
-function StatsStrip() {
+function StatsStrip({ hasImage }: { hasImage: boolean }) {
   const t = useTranslations("hero");
   const { ref, isInView } = useInView();
 
   return (
     <div
       ref={ref}
-      className="mt-20 flex flex-wrap items-center gap-8 border-t pt-8 md:gap-12 lg:gap-16"
+      className={cn(
+        "mt-20 flex flex-wrap items-center gap-8 border-t pt-8 md:gap-12 lg:gap-16",
+        hasImage && "border-white/20"
+      )}
     >
       {stats.map((stat, i) => (
         <AnimateOnScroll key={stat.labelKey} delay={i * STAGGER_DELAY}>
@@ -85,6 +120,7 @@ function StatsStrip() {
             suffix={stat.suffix}
             label={t(stat.labelKey)}
             isInView={isInView}
+            hasImage={hasImage}
           />
         </AnimateOnScroll>
       ))}
@@ -97,20 +133,32 @@ function StatItem({
   suffix,
   label,
   isInView,
+  hasImage,
 }: {
   target: number;
   suffix: string;
   label: string;
   isInView: boolean;
+  hasImage: boolean;
 }) {
   const count = useCountUp(target, isInView);
 
   return (
     <div>
-      <div className="text-3xl font-light tracking-tight text-foreground md:text-4xl">
+      <div
+        className={cn(
+          "text-3xl font-light tracking-tight md:text-4xl",
+          hasImage ? "text-white" : "text-foreground"
+        )}
+      >
         {count.toLocaleString("en-US")}{suffix}
       </div>
-      <div className="mt-1 text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">
+      <div
+        className={cn(
+          "mt-1 text-xs font-medium uppercase tracking-[0.15em]",
+          hasImage ? "text-white/60" : "text-muted-foreground"
+        )}
+      >
         {label}
       </div>
     </div>

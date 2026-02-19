@@ -6,12 +6,12 @@ import { PlaceholderImage } from "@/components/shared/placeholder-image";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
-import type { Product, Locale } from "@/data/types";
+import type { ProductListItem, Locale } from "@/data/types";
 import { formatSlug } from "@/lib/format";
 import { STAGGER_DELAY } from "@/lib/constants";
 
 type Props = {
-  products: Product[];
+  products: ProductListItem[];
 };
 
 export function FeaturedProducts({ products }: Props) {

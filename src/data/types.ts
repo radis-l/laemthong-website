@@ -5,19 +5,22 @@ export interface LocalizedString {
   en: string;
 }
 
-export interface Product {
+export interface ProductListItem {
   slug: string;
   categorySlug: string;
   brandSlug: string;
   name: LocalizedString;
   shortDescription: LocalizedString;
-  description: LocalizedString;
   images: string[];
+  featured: boolean;
+  sortOrder: number;
+}
+
+export interface Product extends ProductListItem {
+  description: LocalizedString;
   specifications: { label: LocalizedString; value: LocalizedString }[];
   features: LocalizedString[];
   documents?: { name: string; url: string }[];
-  featured: boolean;
-  sortOrder: number;
 }
 
 export interface Category {

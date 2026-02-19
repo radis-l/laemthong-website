@@ -15,25 +15,27 @@ const PATTERN_CONFIG: Record<
     d: string;
     size: number;
     strokeOpacity: string;
-    imageOpacity: string;
     position: string;
+    overlay: string;
   }
 > = {
   home: {
     d: "M0 0L40 40M40 0L0 40M20 20L20.01 20",
     size: 40,
     strokeOpacity: "text-muted-foreground/[0.10]",
-    imageOpacity: "opacity-20",
     position:
       "right-0 w-[60%] [mask-image:linear-gradient(to_right,transparent,black_30%)]",
+    overlay:
+      "bg-gradient-to-r from-black/80 via-black/50 via-60% to-black/10",
   },
   page: {
     d: "M0 0L20 20M20 0L0 20",
     size: 20,
     strokeOpacity: "text-muted-foreground/[0.08]",
-    imageOpacity: "opacity-15",
     position:
       "right-0 w-[50%] [mask-image:linear-gradient(to_right,transparent,black_40%)]",
+    overlay:
+      "bg-gradient-to-r from-black/75 via-black/45 via-60% to-black/5",
   },
 };
 
@@ -54,16 +56,17 @@ export function HeroBackground({
         )}
         aria-hidden="true"
       >
-        <div className={cn("absolute top-0 h-full", config.position)}>
-          <Image
-            src={backgroundImage}
-            alt=""
-            fill
-            className={cn("object-cover", config.imageOpacity)}
-            sizes="100vw"
-            priority
-          />
-        </div>
+        {/* Full-width vivid image */}
+        <Image
+          src={backgroundImage}
+          alt=""
+          fill
+          className="object-cover"
+          sizes="100vw"
+          priority
+        />
+        {/* Dark gradient overlay for text readability */}
+        <div className={cn("absolute inset-0", config.overlay)} />
       </div>
     );
   }

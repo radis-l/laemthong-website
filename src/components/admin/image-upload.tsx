@@ -236,8 +236,8 @@ export function ImageUpload({
 
   const showDropzone = multiple ? !atLimit : urls.length === 0;
 
-  // Compute aspect class for preview (static strings for Tailwind JIT)
-  const aspectClass = aspectRatio === 1 ? "aspect-square" : "aspect-[4/3]";
+  // Aspect ratio style for preview containers (dynamic to support any ratio)
+  const aspectStyle = { aspectRatio: String(aspectRatio) };
 
   // DnD sensors for drag-to-reorder
   const sensors = useSensors(
@@ -279,7 +279,7 @@ export function ImageUpload({
                   url={url}
                   isPrimary={index === 0}
                   showPrimaryBadge={showPrimaryBadge}
-                  aspectClass={aspectClass}
+                  aspectRatio={aspectRatio}
                   multiple={multiple}
                   onRemove={handleRemove}
                 />
@@ -291,18 +291,18 @@ export function ImageUpload({
         <div
           className={cn(
             "grid gap-3",
-            multiple ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4" : ""
+            multiple ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4" : "max-w-xs"
           )}
         >
           {urls.map((url, index) => (
             <div
               key={url}
               className={cn(
-                "group relative overflow-hidden rounded-lg border bg-muted",
-                multiple ? "aspect-square" : "max-w-xs",
-                !multiple && aspectClass,
+                "group relative overflow-hidden rounded-lg ring-1 ring-border bg-white",
+                multiple && "aspect-square",
                 showPrimaryBadge && index === 0 && "ring-2 ring-primary"
               )}
+              style={multiple ? undefined : aspectStyle}
             >
               <Image
                 src={url}

@@ -18,7 +18,8 @@ function createImage(url: string): Promise<HTMLImageElement> {
 
 export async function cropImage(
   imageSrc: string,
-  pixelCrop: PixelCrop
+  pixelCrop: PixelCrop,
+  options?: { stretchToFill?: boolean }
 ): Promise<Blob> {
   const image = await createImage(imageSrc);
   const canvas = document.createElement("canvas");
@@ -37,65 +38,77 @@ export async function cropImage(
   canvas.width = outW;
   canvas.height = outH;
 
-  // Fill with white to handle areas outside the source image.
-  // react-easy-crop can return negative x/y when objectFit="contain"
-  // and the crop area extends beyond the image bounds.
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, outW, outH);
-
   const natW = image.naturalWidth;
   const natH = image.naturalHeight;
 
-  // Clamp source rectangle to actual image bounds
-  let sx = pixelCrop.x;
-  let sy = pixelCrop.y;
-  let sw = pixelCrop.width;
-  let sh = pixelCrop.height;
-  let dx = 0;
-  let dy = 0;
-  let dw = pixelCrop.width;
-  let dh = pixelCrop.height;
+  if (options?.stretchToFill) {
+    // Fill mode: clamp source to image bounds, stretch to fill entire canvas.
+    // The stretch is imperceptible (~1-2px over 1600px) and eliminates white gaps
+    // caused by float→int rounding in react-easy-crop coordinates.
+    const sx = Math.max(0, pixelCrop.x);
+    const sy = Math.max(0, pixelCrop.y);
+    const sw = Math.min(pixelCrop.width, natW - sx);
+    const sh = Math.min(pixelCrop.height, natH - sy);
 
-  if (sx < 0) {
-    const clip = -sx;
-    dx += clip;
-    dw -= clip;
-    sw -= clip;
-    sx = 0;
-  }
-  if (sy < 0) {
-    const clip = -sy;
-    dy += clip;
-    dh -= clip;
-    sh -= clip;
-    sy = 0;
-  }
-  if (sx + sw > natW) {
-    const excess = sx + sw - natW;
-    sw -= excess;
-    dw -= excess;
-  }
-  if (sy + sh > natH) {
-    const excess = sy + sh - natH;
-    sh -= excess;
-    dh -= excess;
-  }
+    if (sw > 0 && sh > 0) {
+      ctx.drawImage(image, sx, sy, sw, sh, 0, 0, outW, outH);
+    }
+  } else {
+    // Fit mode: white-fill background with proportional clamping.
+    // react-easy-crop can return negative x/y when objectFit="contain"
+    // and the crop area extends beyond the image bounds.
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, outW, outH);
 
-  // Scale destination to match output canvas size
-  const outputScale = outW / pixelCrop.width;
+    let sx = pixelCrop.x;
+    let sy = pixelCrop.y;
+    let sw = pixelCrop.width;
+    let sh = pixelCrop.height;
+    let dx = 0;
+    let dy = 0;
+    let dw = pixelCrop.width;
+    let dh = pixelCrop.height;
 
-  if (sw > 0 && sh > 0) {
-    ctx.drawImage(
-      image,
-      sx,
-      sy,
-      sw,
-      sh,
-      dx * outputScale,
-      dy * outputScale,
-      dw * outputScale,
-      dh * outputScale
-    );
+    if (sx < 0) {
+      const clip = -sx;
+      dx += clip;
+      dw -= clip;
+      sw -= clip;
+      sx = 0;
+    }
+    if (sy < 0) {
+      const clip = -sy;
+      dy += clip;
+      dh -= clip;
+      sh -= clip;
+      sy = 0;
+    }
+    if (sx + sw > natW) {
+      const excess = sx + sw - natW;
+      sw -= excess;
+      dw -= excess;
+    }
+    if (sy + sh > natH) {
+      const excess = sy + sh - natH;
+      sh -= excess;
+      dh -= excess;
+    }
+
+    const outputScale = outW / pixelCrop.width;
+
+    if (sw > 0 && sh > 0) {
+      ctx.drawImage(
+        image,
+        sx,
+        sy,
+        sw,
+        sh,
+        dx * outputScale,
+        dy * outputScale,
+        dw * outputScale,
+        dh * outputScale
+      );
+    }
   }
 
   return new Promise((resolve, reject) => {

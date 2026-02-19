@@ -41,7 +41,7 @@ export function ServicesSection({ pageImages }: Props) {
                 <Link href={`/services/${service.slug}`} className="group block">
                   <div className="overflow-hidden rounded-lg border border-background/10 transition-all duration-300 hover:border-primary/40">
                     {/* Image */}
-                    <div className="relative aspect-[3/2] overflow-hidden">
+                    <div className="relative aspect-[4/3] overflow-hidden">
                       {serviceImage ? (
                         <Image
                           src={serviceImage}
@@ -51,7 +51,7 @@ export function ServicesSection({ pageImages }: Props) {
                           sizes="(max-width: 768px) 50vw, 25vw"
                         />
                       ) : (
-                        <PlaceholderImage variant="service" aspect="aspect-[3/2]" />
+                        <PlaceholderImage variant="service" aspect="aspect-[4/3]" />
                       )}
                     </div>
                     {/* Red accent line */}

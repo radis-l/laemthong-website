@@ -35,8 +35,8 @@ const HOME_SLOTS: ImageSlot[] = [
     key: "home-hero",
     label: "Hero Background",
     hint: "Displayed behind the main heading on the homepage as a background image.",
-    aspectRatio: 16 / 9,
-    aspectRatioLabel: "16:9 landscape",
+    aspectRatio: 21 / 9,
+    aspectRatioLabel: "21:9 ultrawide",
   },
 ];
 
@@ -45,8 +45,8 @@ const ABOUT_SLOTS: ImageSlot[] = [
     key: "hero-about",
     label: "Hero Background",
     hint: "Background image for the About page hero banner.",
-    aspectRatio: 16 / 9,
-    aspectRatioLabel: "16:9 landscape",
+    aspectRatio: 21 / 9,
+    aspectRatioLabel: "21:9 ultrawide",
     group: "hero",
   },
   {
@@ -96,8 +96,8 @@ const PRODUCTS_SLOTS: ImageSlot[] = [
     key: "hero-products",
     label: "Hero Background",
     hint: "Background image for the Products page hero banner.",
-    aspectRatio: 16 / 9,
-    aspectRatioLabel: "16:9 landscape",
+    aspectRatio: 21 / 9,
+    aspectRatioLabel: "21:9 ultrawide",
   },
 ];
 
@@ -106,8 +106,8 @@ const BRANDS_SLOTS: ImageSlot[] = [
     key: "hero-brands",
     label: "Hero Background",
     hint: "Background image for the Brands page hero banner.",
-    aspectRatio: 16 / 9,
-    aspectRatioLabel: "16:9 landscape",
+    aspectRatio: 21 / 9,
+    aspectRatioLabel: "21:9 ultrawide",
   },
 ];
 
@@ -116,8 +116,8 @@ const SERVICES_SLOTS: ImageSlot[] = [
     key: "hero-services",
     label: "Hero Background",
     hint: "Background image for the Services listing page hero banner.",
-    aspectRatio: 16 / 9,
-    aspectRatioLabel: "16:9 landscape",
+    aspectRatio: 21 / 9,
+    aspectRatioLabel: "21:9 ultrawide",
     group: "hero",
   },
   {
@@ -159,8 +159,8 @@ const CONTACT_SLOTS: ImageSlot[] = [
     key: "hero-contact",
     label: "Hero Background",
     hint: "Background image for the Contact page hero banner.",
-    aspectRatio: 16 / 9,
-    aspectRatioLabel: "16:9 landscape",
+    aspectRatio: 21 / 9,
+    aspectRatioLabel: "21:9 ultrawide",
   },
 ];
 

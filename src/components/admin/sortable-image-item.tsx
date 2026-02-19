@@ -11,7 +11,7 @@ interface SortableImageItemProps {
   url: string;
   isPrimary: boolean;
   showPrimaryBadge: boolean;
-  aspectClass: string;
+  aspectRatio: number;
   multiple: boolean;
   onRemove: (url: string) => void;
 }
@@ -21,7 +21,7 @@ export function SortableImageItem({
   url,
   isPrimary,
   showPrimaryBadge,
-  aspectClass,
+  aspectRatio,
   multiple,
   onRemove,
 }: SortableImageItemProps) {
@@ -37,6 +37,7 @@ export function SortableImageItem({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    ...(multiple ? {} : { aspectRatio: String(aspectRatio) }),
   };
 
   return (
@@ -44,9 +45,8 @@ export function SortableImageItem({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "group relative overflow-hidden rounded-lg border bg-muted",
-        multiple ? "aspect-square" : "max-w-xs",
-        !multiple && aspectClass,
+        "group relative overflow-hidden rounded-lg ring-1 ring-border bg-white",
+        multiple && "aspect-square",
         showPrimaryBadge && isPrimary && "ring-2 ring-primary",
         isDragging && "z-10 opacity-80 shadow-lg"
       )}

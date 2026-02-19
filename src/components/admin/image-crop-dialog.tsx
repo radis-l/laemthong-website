@@ -153,7 +153,10 @@ export function ImageCropDialog({
     if (!croppedAreaPixels) return;
     setIsCropping(true);
     try {
-      const blob = await cropImage(imageSrc, croppedAreaPixels);
+      const isFillMode = zoom >= coverZoom - 0.01;
+      const blob = await cropImage(imageSrc, croppedAreaPixels, {
+        stretchToFill: isFillMode,
+      });
       onCrop(blob);
     } catch {
       onCancel();

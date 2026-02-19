@@ -21,7 +21,7 @@ const navItems = [
   { key: "contact", href: "/contact" },
 ] as const;
 
-export function SiteHeader() {
+export function SiteHeader({ logoUrl }: { logoUrl?: string | null }) {
   const t = useTranslations("nav");
   const tCommon = useTranslations("common");
   const pathname = usePathname();
@@ -40,7 +40,7 @@ export function SiteHeader() {
       )}
     >
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
-        <Logo variant={isDarkHero ? "light" : "default"} />
+        <Logo variant={isDarkHero ? "light" : "default"} imageUrl={logoUrl} />
 
         {/* Desktop nav */}
         <nav className="hidden items-center gap-6 lg:flex">

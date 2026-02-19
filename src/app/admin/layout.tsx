@@ -17,6 +17,9 @@ export const metadata: Metadata = {
     default: "Admin | Laemthong Syndicate",
   },
   robots: { index: false, follow: false },
+  icons: {
+    icon: "/api/favicon",
+  },
 };
 
 export default function AdminRootLayout({ children }: { children: ReactNode }) {

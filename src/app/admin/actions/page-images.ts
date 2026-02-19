@@ -19,6 +19,9 @@ export async function upsertPageImageAction(
   }
 
   revalidatePath("/", "layout");
+  if (key === "site-favicon") {
+    revalidatePath("/api/favicon");
+  }
   return { success: true };
 }
 
@@ -34,5 +37,8 @@ export async function deletePageImageAction(
   }
 
   revalidatePath("/", "layout");
+  if (key === "site-favicon") {
+    revalidatePath("/api/favicon");
+  }
   return { success: true };
 }

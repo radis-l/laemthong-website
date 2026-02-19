@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
@@ -12,8 +12,17 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Package, Tags, Building2, ImageIcon } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { LayoutDashboard, Package, Tags, Building2, ImageIcon, ChevronRight } from "lucide-react";
+import { TABS } from "@/data/page-image-slots";
 
 const navItems = [
   { title: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -22,12 +31,11 @@ const navItems = [
   { title: "Categories", href: "/admin/categories", icon: Tags },
 ];
 
-const siteItems = [
-  { title: "Page Images", href: "/admin/page-images", icon: ImageIcon },
-];
-
 export function AdminSidebar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const isPageImages = pathname.startsWith("/admin/page-images");
+  const activeSection = searchParams.get("section") || TABS[0].value;
 
   return (
     <Sidebar>
@@ -66,19 +74,37 @@ export function AdminSidebar() {
           <SidebarGroupLabel>Site</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {siteItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname.startsWith(item.href)}
-                  >
-                    <Link href={item.href}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
+              <Collapsible defaultOpen={isPageImages} className="group/collapsible">
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton isActive={isPageImages}>
+                      <ImageIcon className="h-4 w-4" />
+                      <span>Page Images</span>
+                      <ChevronRight className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {TABS.map((tab) => {
+                        const Icon = tab.icon;
+                        return (
+                          <SidebarMenuSubItem key={tab.value}>
+                            <SidebarMenuSubButton
+                              asChild
+                              isActive={isPageImages && activeSection === tab.value}
+                            >
+                              <Link href={`/admin/page-images?section=${tab.value}`}>
+                                <Icon className="h-3.5 w-3.5" />
+                                <span>{tab.title}</span>
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        );
+                      })}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
                 </SidebarMenuItem>
-              ))}
+              </Collapsible>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

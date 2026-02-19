@@ -10,6 +10,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { HeaderThemeProvider } from "@/components/layout/header-theme-context";
 import { Toaster } from "@/components/ui/sonner";
+import { getPageImage } from "@/lib/db";
 import "../globals.css";
 
 const font = IBM_Plex_Sans_Thai({
@@ -53,6 +54,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     images: ["/images/og-default.png"],
   },
+  icons: {
+    icon: "/api/favicon",
+  },
 };
 
 export function generateStaticParams() {
@@ -72,7 +76,10 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   setRequestLocale(locale);
 
-  const messages = (await import(`../../../messages/${locale}.json`)).default;
+  const [messages, logoUrl] = await Promise.all([
+    import(`../../../messages/${locale}.json`).then((m) => m.default),
+    getPageImage("site-logo"),
+  ]);
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -92,9 +99,9 @@ export default async function LocaleLayout({ children, params }: Props) {
               >
                 Skip to content
               </a>
-              <SiteHeader />
+              <SiteHeader logoUrl={logoUrl} />
               <main id="main" className="flex-1 pt-20">{children}</main>
-              <SiteFooter locale={locale} />
+              <SiteFooter locale={locale} logoUrl={logoUrl} />
             </div>
           </HeaderThemeProvider>
           <Toaster />

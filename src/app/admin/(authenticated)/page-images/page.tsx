@@ -1,12 +1,20 @@
 import type { Metadata } from "next";
 import { adminGetAllPageImages } from "@/lib/db/admin";
 import { PageImagesForm } from "@/components/admin/page-images-form";
+import { TABS } from "@/data/page-image-slots";
 
 export const metadata: Metadata = {
   title: "Page Images",
 };
 
-export default async function AdminPageImagesPage() {
+type Props = {
+  searchParams: Promise<{ section?: string }>;
+};
+
+export default async function AdminPageImagesPage({ searchParams }: Props) {
+  const { section } = await searchParams;
+  const activeSection = TABS.some((t) => t.value === section) ? section! : TABS[0].value;
+
   const rows = await adminGetAllPageImages();
 
   const images = new Map<string, string>();
@@ -24,7 +32,7 @@ export default async function AdminPageImagesPage() {
         </p>
       </div>
 
-      <PageImagesForm images={images} />
+      <PageImagesForm images={images} activeSection={activeSection} />
     </div>
   );
 }

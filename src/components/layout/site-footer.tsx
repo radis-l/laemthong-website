@@ -6,7 +6,7 @@ import { getCachedCategories } from "@/lib/db/cached";
 import { COMPANY } from "@/lib/constants";
 import type { Locale } from "@/data/types";
 
-export async function SiteFooter({ locale }: { locale: string }) {
+export async function SiteFooter({ locale, logoUrl }: { locale: string; logoUrl?: string | null }) {
   const t = await getTranslations({ locale, namespace: "footer" });
   const tNav = await getTranslations({ locale, namespace: "nav" });
   const tCommon = await getTranslations({ locale, namespace: "common" });
@@ -25,7 +25,7 @@ export async function SiteFooter({ locale }: { locale: string }) {
           <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
             {/* Company info */}
             <div className="lg:col-span-1">
-              <Logo />
+              <Logo imageUrl={logoUrl} />
               <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
                 {t("description")}
               </p>

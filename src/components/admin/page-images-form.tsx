@@ -3,12 +3,6 @@
 import { useState, useCallback } from "react";
 import { ImageUpload } from "@/components/admin/image-upload";
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
-import {
   upsertPageImageAction,
   deletePageImageAction,
 } from "@/app/admin/actions/page-images";
@@ -17,12 +11,15 @@ import { TABS, SLOT_ICONS, type ImageSlot } from "@/data/page-image-slots";
 
 interface PageImagesFormProps {
   images: Map<string, string>;
+  activeSection: string;
 }
 
-export function PageImagesForm({ images }: PageImagesFormProps) {
+export function PageImagesForm({ images, activeSection }: PageImagesFormProps) {
   const [imageMap, setImageMap] = useState<Map<string, string>>(
     () => new Map(images)
   );
+
+  const tab = TABS.find((t) => t.value === activeSection) ?? TABS[0];
 
   const handleChange = useCallback(
     async (key: string, url: string | string[]) => {
@@ -53,10 +50,6 @@ export function PageImagesForm({ images }: PageImagesFormProps) {
     },
     []
   );
-
-  function countUploaded(slots: ImageSlot[]): number {
-    return slots.filter((s) => imageMap.has(s.key)).length;
-  }
 
   function renderSlot(slot: ImageSlot) {
     const SlotIcon = SLOT_ICONS[slot.key];
@@ -122,42 +115,13 @@ export function PageImagesForm({ images }: PageImagesFormProps) {
   }
 
   return (
-    <Tabs defaultValue="home">
-      <TabsList>
-        {TABS.map((tab) => {
-          const uploaded = countUploaded(tab.slots);
-          const total = tab.slots.length;
-          const Icon = tab.icon;
-          return (
-            <TabsTrigger key={tab.value} value={tab.value} className="gap-2">
-              <Icon className="h-4 w-4" />
-              {tab.title}
-              <span className="text-xs text-muted-foreground">
-                {uploaded}/{total}
-              </span>
-            </TabsTrigger>
-          );
-        })}
-      </TabsList>
-
-      {TABS.map((tab) => (
-        <TabsContent
-          key={tab.value}
-          value={tab.value}
-          forceMount
-          className="data-[state=inactive]:hidden pt-4"
-        >
-          <div className="rounded-lg border bg-card">
-            <div className="border-b px-6 py-4">
-              <p className="text-sm text-muted-foreground">
-                {tab.description}
-              </p>
-            </div>
-
-            <div className="p-6">{renderSlots(tab.slots)}</div>
-          </div>
-        </TabsContent>
-      ))}
-    </Tabs>
+    <div className="rounded-lg border bg-card">
+      <div className="border-b px-6 py-4">
+        <p className="text-sm text-muted-foreground">
+          {tab.description}
+        </p>
+      </div>
+      <div className="p-6">{renderSlots(tab.slots)}</div>
+    </div>
   );
 }

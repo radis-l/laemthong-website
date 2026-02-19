@@ -9,6 +9,8 @@ import {
   Building2,
   Phone,
   PanelTop,
+  Palette,
+  Globe,
 } from "lucide-react";
 
 export interface ImageSlot {
@@ -27,6 +29,25 @@ export interface TabSection {
   icon: typeof Home;
   slots: ImageSlot[];
 }
+
+// ── Branding slots (site-wide) ────────────────────────────────────
+
+const BRANDING_SLOTS: ImageSlot[] = [
+  {
+    key: "site-logo",
+    label: "Site Logo",
+    hint: "Company logo displayed in the site header and footer. Replaces the default icon. Use a square image with transparent or white background.",
+    aspectRatio: 1 / 1,
+    aspectRatioLabel: "1:1 square",
+  },
+  {
+    key: "site-favicon",
+    label: "Favicon",
+    hint: "Small icon shown in browser tabs and bookmarks. Use a simple, recognizable icon at least 64x64 pixels.",
+    aspectRatio: 1 / 1,
+    aspectRatioLabel: "1:1 square",
+  },
+];
 
 // ── Slots grouped by destination page ──────────────────────────────
 
@@ -168,6 +189,13 @@ const CONTACT_SLOTS: ImageSlot[] = [
 
 export const TABS: TabSection[] = [
   {
+    value: "branding",
+    title: "Branding",
+    description: "Company logo and favicon used across the entire site.",
+    icon: Palette,
+    slots: BRANDING_SLOTS,
+  },
+  {
     value: "home",
     title: "Home",
     description: "Images displayed on the homepage.",
@@ -212,6 +240,8 @@ export const TABS: TabSection[] = [
 ];
 
 export const SLOT_ICONS: Record<string, typeof MessageSquare> = {
+  "site-logo": Palette,
+  "site-favicon": Globe,
   "service-consulting": MessageSquare,
   "service-calibration": Ruler,
   "service-repair": Wrench,

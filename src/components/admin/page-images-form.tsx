@@ -71,6 +71,8 @@ export function PageImagesForm({ images, activeSection }: PageImagesFormProps) {
           entitySlug={slot.key}
           aspectRatio={slot.aspectRatio}
           aspectRatioLabel={slot.aspectRatioLabel}
+          recommendedPx={slot.recommendedPx}
+          maxPreviewWidth={slot.maxPreviewWidth}
         />
       </div>
     );

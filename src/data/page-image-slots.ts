@@ -19,6 +19,8 @@ export interface ImageSlot {
   hint: string;
   aspectRatio: number;
   aspectRatioLabel: string;
+  recommendedPx?: string;
+  maxPreviewWidth?: number;
   group?: "hero" | "content";
 }
 
@@ -39,13 +41,16 @@ const BRANDING_SLOTS: ImageSlot[] = [
     hint: "Company logo displayed in the site header and footer. Replaces the default icon. Use a square image with transparent or white background.",
     aspectRatio: 1 / 1,
     aspectRatioLabel: "1:1 square",
+    recommendedPx: "256 × 256 px",
   },
   {
     key: "site-favicon",
     label: "Favicon",
-    hint: "Small icon shown in browser tabs and bookmarks. Use a simple, recognizable icon at least 64x64 pixels.",
+    hint: "Small icon shown in browser tabs and bookmarks.",
     aspectRatio: 1 / 1,
     aspectRatioLabel: "1:1 square",
+    recommendedPx: "64 × 64 px",
+    maxPreviewWidth: 96,
   },
 ];
 
@@ -58,6 +63,7 @@ const HOME_SLOTS: ImageSlot[] = [
     hint: "Displayed behind the main heading on the homepage as a background image.",
     aspectRatio: 21 / 9,
     aspectRatioLabel: "21:9 ultrawide",
+    recommendedPx: "1920 × 823 px",
   },
 ];
 
@@ -68,6 +74,7 @@ const ABOUT_SLOTS: ImageSlot[] = [
     hint: "Background image for the About page hero banner.",
     aspectRatio: 21 / 9,
     aspectRatioLabel: "21:9 ultrawide",
+    recommendedPx: "1920 × 823 px",
     group: "hero",
   },
   {
@@ -76,6 +83,7 @@ const ABOUT_SLOTS: ImageSlot[] = [
     hint: "Shown alongside the company history text on the About page.",
     aspectRatio: 1 / 1,
     aspectRatioLabel: "1:1 square",
+    recommendedPx: "600 × 600 px",
     group: "content",
   },
   {
@@ -84,6 +92,7 @@ const ABOUT_SLOTS: ImageSlot[] = [
     hint: "First card image in the 'Why Choose Us' section.",
     aspectRatio: 4 / 3,
     aspectRatioLabel: "4:3 landscape",
+    recommendedPx: "800 × 600 px",
     group: "content",
   },
   {
@@ -92,6 +101,7 @@ const ABOUT_SLOTS: ImageSlot[] = [
     hint: "Second card image in the 'Why Choose Us' section.",
     aspectRatio: 4 / 3,
     aspectRatioLabel: "4:3 landscape",
+    recommendedPx: "800 × 600 px",
     group: "content",
   },
   {
@@ -100,6 +110,7 @@ const ABOUT_SLOTS: ImageSlot[] = [
     hint: "Third card image in the 'Why Choose Us' section.",
     aspectRatio: 4 / 3,
     aspectRatioLabel: "4:3 landscape",
+    recommendedPx: "800 × 600 px",
     group: "content",
   },
   {
@@ -108,6 +119,7 @@ const ABOUT_SLOTS: ImageSlot[] = [
     hint: "Fourth card image in the 'Why Choose Us' section.",
     aspectRatio: 4 / 3,
     aspectRatioLabel: "4:3 landscape",
+    recommendedPx: "800 × 600 px",
     group: "content",
   },
 ];
@@ -119,6 +131,7 @@ const PRODUCTS_SLOTS: ImageSlot[] = [
     hint: "Background image for the Products page hero banner.",
     aspectRatio: 21 / 9,
     aspectRatioLabel: "21:9 ultrawide",
+    recommendedPx: "1920 × 823 px",
   },
 ];
 
@@ -129,6 +142,7 @@ const BRANDS_SLOTS: ImageSlot[] = [
     hint: "Background image for the Brands page hero banner.",
     aspectRatio: 21 / 9,
     aspectRatioLabel: "21:9 ultrawide",
+    recommendedPx: "1920 × 823 px",
   },
 ];
 
@@ -139,6 +153,7 @@ const SERVICES_SLOTS: ImageSlot[] = [
     hint: "Background image for the Services listing page hero banner.",
     aspectRatio: 21 / 9,
     aspectRatioLabel: "21:9 ultrawide",
+    recommendedPx: "1920 × 823 px",
     group: "hero",
   },
   {
@@ -147,6 +162,7 @@ const SERVICES_SLOTS: ImageSlot[] = [
     hint: "Image for the Consulting service card and detail page.",
     aspectRatio: 4 / 3,
     aspectRatioLabel: "4:3 landscape",
+    recommendedPx: "800 × 600 px",
     group: "content",
   },
   {
@@ -155,6 +171,7 @@ const SERVICES_SLOTS: ImageSlot[] = [
     hint: "Image for the Calibration service card and detail page.",
     aspectRatio: 4 / 3,
     aspectRatioLabel: "4:3 landscape",
+    recommendedPx: "800 × 600 px",
     group: "content",
   },
   {
@@ -163,6 +180,7 @@ const SERVICES_SLOTS: ImageSlot[] = [
     hint: "Image for the Repair service card and detail page.",
     aspectRatio: 4 / 3,
     aspectRatioLabel: "4:3 landscape",
+    recommendedPx: "800 × 600 px",
     group: "content",
   },
   {
@@ -171,6 +189,7 @@ const SERVICES_SLOTS: ImageSlot[] = [
     hint: "Image for the Training service card and detail page.",
     aspectRatio: 4 / 3,
     aspectRatioLabel: "4:3 landscape",
+    recommendedPx: "800 × 600 px",
     group: "content",
   },
 ];
@@ -182,6 +201,7 @@ const CONTACT_SLOTS: ImageSlot[] = [
     hint: "Background image for the Contact page hero banner.",
     aspectRatio: 21 / 9,
     aspectRatioLabel: "21:9 ultrawide",
+    recommendedPx: "1920 × 823 px",
   },
 ];
 

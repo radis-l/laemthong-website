@@ -39,6 +39,8 @@ interface ImageUploadProps {
   maxFiles?: number;
   aspectRatio?: number;
   aspectRatioLabel?: string;
+  recommendedPx?: string;
+  maxPreviewWidth?: number;
   onUploadStateChange?: (isUploading: boolean) => void;
   reorderable?: boolean;
   showPrimaryBadge?: boolean;
@@ -54,6 +56,8 @@ export function ImageUpload({
   maxFiles = 10,
   aspectRatio = 4 / 3,
   aspectRatioLabel,
+  recommendedPx,
+  maxPreviewWidth,
   onUploadStateChange,
   reorderable = false,
   showPrimaryBadge = false,
@@ -291,8 +295,11 @@ export function ImageUpload({
         <div
           className={cn(
             "grid gap-3",
-            multiple ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4" : "max-w-xs"
+            multiple
+              ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
+              : !maxPreviewWidth && "max-w-xs"
           )}
+          style={!multiple && maxPreviewWidth ? { maxWidth: maxPreviewWidth } : undefined}
         >
           {urls.map((url, index) => (
             <div
@@ -309,7 +316,7 @@ export function ImageUpload({
                 alt=""
                 fill
                 className="object-cover"
-                sizes={multiple ? "200px" : "320px"}
+                sizes={multiple ? "200px" : `${maxPreviewWidth ?? 320}px`}
               />
               {showPrimaryBadge && index === 0 && (
                 <span className="absolute left-1.5 top-1.5 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
@@ -364,9 +371,11 @@ export function ImageUpload({
                   ? "Click or drag to upload"
                   : "Enter a slug first to enable upload"}
               </p>
-              {aspectRatioLabel && (
+              {(aspectRatioLabel || recommendedPx) && (
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Required aspect ratio: {aspectRatioLabel}
+                  {aspectRatioLabel && <>Aspect ratio: {aspectRatioLabel}</>}
+                  {aspectRatioLabel && recommendedPx && " · "}
+                  {recommendedPx && <>Recommended: {recommendedPx}</>}
                 </p>
               )}
               <p className="mt-1 text-xs text-muted-foreground/70">

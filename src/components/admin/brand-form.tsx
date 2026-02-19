@@ -132,6 +132,7 @@ export function BrandForm({ brand }: BrandFormProps) {
         entitySlug={currentSlug}
         aspectRatio={1}
         aspectRatioLabel="1:1 square"
+        recommendedPx="400 × 400 px"
       />
 
       <BilingualTextarea

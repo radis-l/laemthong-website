@@ -27,7 +27,6 @@ export interface Category {
   slug: string;
   name: LocalizedString;
   description: LocalizedString;
-  image: string;
   productCount?: number;
   sortOrder: number;
 }
@@ -64,7 +63,6 @@ export interface DbCategory {
   slug: string;
   name: LocalizedString;
   description: LocalizedString;
-  image: string;
   sort_order: number;
   updated_at: string;
 }

@@ -7,7 +7,7 @@ import {
   adminUpdateCategory,
   adminDeleteCategory,
 } from "@/lib/db/admin";
-import { deleteImageFolder, migrateImagesOnSlugChange } from "@/lib/storage";
+import { deleteImageFolder } from "@/lib/storage";
 import { handleActionError } from "@/lib/db/errors";
 import { getNextSortOrder } from "@/lib/db/sort-order";
 import { revalidateEntity } from "@/lib/revalidation";
@@ -24,7 +24,6 @@ export async function createCategoryAction(
     nameEn: formData.get("nameEn"),
     descriptionTh: formData.get("descriptionTh"),
     descriptionEn: formData.get("descriptionEn"),
-    image: formData.get("image") || undefined,
     sortOrder: formData.get("sortOrder"),
   });
 
@@ -46,7 +45,6 @@ export async function createCategoryAction(
         th: validated.data.descriptionTh,
         en: validated.data.descriptionEn,
       },
-      image: validated.data.image || "",
       sort_order: sortOrder,
     });
   } catch (error) {
@@ -74,7 +72,6 @@ export async function updateCategoryAction(
     nameEn: formData.get("nameEn"),
     descriptionTh: formData.get("descriptionTh"),
     descriptionEn: formData.get("descriptionEn"),
-    image: formData.get("image") || undefined,
     sortOrder: formData.get("sortOrder"),
   });
 
@@ -84,13 +81,6 @@ export async function updateCategoryAction(
 
   const slug = validated.data.slug;
 
-  // Handle image migration if slug changed
-  let image = validated.data.image || "";
-  const migrated = await migrateImagesOnSlugChange("categories", originalSlug, slug, image);
-  if (typeof migrated === "string") {
-    image = migrated;
-  }
-
   // Build update object
   const updateData: Parameters<typeof adminUpdateCategory>[1] = {
     slug: slug,
@@ -99,7 +89,6 @@ export async function updateCategoryAction(
       th: validated.data.descriptionTh,
       en: validated.data.descriptionEn,
     },
-    image: image,
   };
 
   if (validated.data.sortOrder !== undefined) {

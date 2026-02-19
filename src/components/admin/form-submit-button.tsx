@@ -3,12 +3,12 @@ import { Loader2 } from "lucide-react";
 
 type Props = {
   isPending: boolean;
-  isUploading: boolean;
+  isUploading?: boolean;
   isEditing: boolean;
   entityName: string;
 };
 
-export function FormSubmitButton({ isPending, isUploading, isEditing, entityName }: Props) {
+export function FormSubmitButton({ isPending, isUploading = false, isEditing, entityName }: Props) {
   return (
     <Button type="submit" disabled={isPending || isUploading}>
       {isPending ? (

@@ -4,7 +4,6 @@ import { useActionState, useEffect, useState } from "react";
 import { FormErrorAlert } from "./form-error-alert";
 import { BilingualInput } from "./bilingual-input";
 import { BilingualTextarea } from "./bilingual-textarea";
-import { ImageUpload } from "./image-upload";
 import { SlugInput } from "./slug-input";
 import {
   createCategoryAction,
@@ -31,9 +30,6 @@ export function CategoryForm({ category }: CategoryFormProps) {
     FormData
   >(action, {});
 
-  const [image, setImage] = useState<string>(category?.image ?? "");
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
-
   const { slug: currentSlug, setSlug: setCurrentSlug, isCustomSlug, setIsCustomSlug, handleNameChange } = useFormSlug({
     initialSlug: category?.slug ?? "",
     initialName: category?.name.en ?? "",
@@ -42,11 +38,8 @@ export function CategoryForm({ category }: CategoryFormProps) {
 
   // Dirty state tracking for unsaved changes warning
   const [initialSlug] = useState(category?.slug ?? "");
-  const [initialImage] = useState(category?.image ?? "");
 
-  const isDirty =
-    currentSlug !== initialSlug ||
-    image !== initialImage;
+  const isDirty = currentSlug !== initialSlug;
 
   useUnsavedChanges(isDirty);
   const { setIsDirty } = useUnsavedChangesContext();
@@ -64,7 +57,6 @@ export function CategoryForm({ category }: CategoryFormProps) {
         <input type="hidden" name="originalSlug" value={category.slug} />
       )}
       <input type="hidden" name="slug" value={currentSlug} />
-      <input type="hidden" name="image" value={image} />
 
       <FormErrorAlert message={state.message} errors={state.errors} />
 
@@ -86,8 +78,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
         slug={currentSlug}
         onSlugChange={setCurrentSlug}
         isEditing={isEditing}
-        tooltipText='The URL-friendly version of the name. Used in web addresses (e.g., "hydraulic-systems" → /categories/hydraulic-systems). Auto-generated from the English name unless customized.'
-        editWarning="Changing the slug will migrate category images to the new URL path"
+        tooltipText='The URL-friendly version of the name. Used in web addresses (e.g., "hydraulic-systems" → /products?category=hydraulic-systems). Auto-generated from the English name unless customized.'
         error={state.errors?.slug?.[0]}
       />
 
@@ -101,21 +92,9 @@ export function CategoryForm({ category }: CategoryFormProps) {
         errorEn={state.errors?.descriptionEn?.[0]}
       />
 
-      <ImageUpload
-        label="Category Image"
-        value={image}
-        onChange={(url) => setImage(url as string)}
-        onUploadStateChange={setIsUploadingImage}
-        folder="categories"
-        entitySlug={currentSlug}
-        aspectRatio={4 / 3}
-        aspectRatioLabel="4:3 landscape"
-      />
-
       <div className="flex gap-3">
         <FormSubmitButton
           isPending={isPending}
-          isUploading={isUploadingImage}
           isEditing={isEditing}
           entityName="Category"
         />

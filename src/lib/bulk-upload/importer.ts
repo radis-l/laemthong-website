@@ -84,7 +84,6 @@ export async function* importProducts(
             en: slugToTitle(result.row.data.categorySlug),
           },
           description: { th: "", en: "" },
-          image: "",
           sort_order: 999,
         });
       }
@@ -222,7 +221,6 @@ export async function* importImagesOnly(
             slug: categorySlug,
             name: { th: "ยังไม่จัดหมวดหมู่", en: "Uncategorized" },
             description: { th: "", en: "" },
-            image: "",
             sort_order: 999,
           });
         }

@@ -13,7 +13,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Pencil, Loader2 } from "lucide-react";
-import { TableThumbnail } from "@/components/admin/table-thumbnail";
 import { DeleteDialog } from "@/components/admin/delete-dialog";
 import { EmptyTableState } from "@/components/admin/empty-table-state";
 import { deleteCategoryAction } from "@/app/admin/actions/categories";
@@ -91,7 +90,6 @@ export function CategoriesTable({ categories }: CategoriesTableProps) {
             >
               <TableRow>
                 <TableHead className="w-10"></TableHead>
-                <TableHead className="w-12"></TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead className="w-24 text-right">Actions</TableHead>
               </TableRow>
@@ -119,9 +117,6 @@ export function CategoriesTable({ categories }: CategoriesTableProps) {
                       id={cat.slug}
                       disabled={isFiltering || isPending}
                     >
-                      <TableCell>
-                        <TableThumbnail src={cat.image} alt={cat.name.en} />
-                      </TableCell>
                       <TableCell>
                         <div className="space-y-1">
                           <div className="font-medium">{cat.name.en}</div>

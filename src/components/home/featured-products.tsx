@@ -46,7 +46,7 @@ export function FeaturedProducts({ products }: Props) {
                 href={`/products/${product.slug}`}
                 className="group"
               >
-                <div className="overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg">
+                <div className="overflow-hidden rounded-lg border border-border bg-card transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg">
                   <div className="relative aspect-[4/3] overflow-hidden bg-muted/50">
                     {product.images[0]?.startsWith("http") ? (
                       <Image
@@ -64,7 +64,7 @@ export function FeaturedProducts({ products }: Props) {
                     )}
                   </div>
                   <div className="relative h-px w-full bg-border">
-                    <div className="absolute left-0 top-0 h-full w-0 bg-primary transition-all duration-300 group-hover:w-full" />
+                    <div className="absolute left-0 top-0 h-full w-full origin-left scale-x-0 bg-primary transition-transform duration-300 group-hover:scale-x-100" />
                   </div>
                   <div className="px-5 py-4">
                     <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">

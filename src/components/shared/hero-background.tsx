@@ -64,6 +64,7 @@ export function HeroBackground({
           className="object-cover"
           sizes="100vw"
           priority
+          quality={60}
         />
         {/* Dark gradient overlay for text readability */}
         <div className={cn("absolute inset-0", config.overlay)} />

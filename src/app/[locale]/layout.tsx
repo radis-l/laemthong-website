@@ -15,7 +15,7 @@ import "../globals.css";
 
 const font = IBM_Plex_Sans_Thai({
   subsets: ["thai", "latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-sans",
   display: "swap",
 });
@@ -83,12 +83,7 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <head>
-        <link
-          rel="preconnect"
-          href="https://efcdooqatevjdyjhhmoc.supabase.co"
-        />
-      </head>
+      <head />
       <body className={`${font.variable} font-sans antialiased`}>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <HeaderThemeProvider>

@@ -28,7 +28,7 @@ export function UspSection() {
                 <div className="mt-1.5 text-sm leading-relaxed text-background/70">
                   {t(`${key}Desc` as `${typeof key}Desc`)}
                 </div>
-                <div className="mt-3 h-px w-8 bg-primary transition-all duration-300 group-hover:w-12" />
+                <div className="mt-3 h-px w-12 origin-left scale-x-[0.667] bg-primary transition-transform duration-300 group-hover:scale-x-100" />
               </div>
             </AnimateOnScroll>
           ))}

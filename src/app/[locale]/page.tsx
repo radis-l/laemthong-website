@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import { setRequestLocale } from "next-intl/server";
 import { HeroSection } from "@/components/home/hero-section";
 import { UspSection } from "@/components/home/usp-section";
 import { FeaturedProducts } from "@/components/home/featured-products";
-import { BrandShowcase } from "@/components/home/brand-showcase";
 import { CtaSection } from "@/components/home/cta-section";
 import { ServicesSection } from "@/components/home/services-section";
 import { JsonLd } from "@/components/shared/json-ld";
 import { getFeaturedProducts, getAllBrands, getCompanyInfo, getPageImage, getPageImages } from "@/lib/db";
+
+const BrandShowcase = dynamic(
+  () => import("@/components/home/brand-showcase").then((m) => m.BrandShowcase),
+);
 import {
   getPageUrl,
   getAlternateLanguages,

@@ -30,7 +30,7 @@ export function AnimateOnScroll({
     <div
       ref={ref}
       className={cn(
-        "transition-all duration-500 ease-out",
+        "transition-[opacity,transform] duration-500 ease-out",
         isInView
           ? "opacity-100 translate-x-0 translate-y-0"
           : cn("opacity-0", directionClasses[direction]),

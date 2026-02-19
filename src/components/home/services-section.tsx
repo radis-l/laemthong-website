@@ -39,7 +39,7 @@ export function ServicesSection({ pageImages }: Props) {
             return (
               <AnimateOnScroll key={service.slug} delay={index * STAGGER_DELAY}>
                 <Link href={`/services/${service.slug}`} className="group block">
-                  <div className="overflow-hidden rounded-lg border border-background/10 transition-all duration-300 hover:border-primary/40">
+                  <div className="overflow-hidden rounded-lg border border-background/10 transition-[border-color] duration-300 hover:border-primary/40">
                     {/* Image */}
                     <div className="relative aspect-[4/3] overflow-hidden">
                       {serviceImage ? (
@@ -56,7 +56,7 @@ export function ServicesSection({ pageImages }: Props) {
                     </div>
                     {/* Red accent line */}
                     <div className="relative h-px w-full bg-background/10">
-                      <div className="absolute left-0 top-0 h-full w-0 bg-primary transition-all duration-300 group-hover:w-full" />
+                      <div className="absolute left-0 top-0 h-full w-full origin-left scale-x-0 bg-primary transition-transform duration-300 group-hover:scale-x-100" />
                     </div>
                     {/* Text */}
                     <div className="p-4 md:p-5">

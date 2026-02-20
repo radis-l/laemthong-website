@@ -81,10 +81,6 @@ export function QuickCreateCategoryDialog({
             compact
           />
 
-          {/* Minimal description - required by schema */}
-          <input type="hidden" name="descriptionTh" value="Created via quick-add" />
-          <input type="hidden" name="descriptionEn" value="Created via quick-add" />
-
           {state.message && (
             <p className="text-xs text-destructive">{state.message}</p>
           )}

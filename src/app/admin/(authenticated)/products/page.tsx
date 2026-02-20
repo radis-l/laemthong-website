@@ -6,9 +6,11 @@ import {
   adminGetAllCategories,
   type AdminProductsQuery,
 } from "@/lib/db/admin";
+import { createSupabaseAdminClient } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Plus, Upload } from "lucide-react";
 import { ProductsTable } from "@/components/admin/products-table";
+import { ManageCategoriesSheet } from "@/components/admin/manage-categories-sheet";
 
 export const metadata: Metadata = {
   title: "Products",
@@ -35,6 +37,18 @@ export default async function AdminProductsPage({ searchParams }: Props) {
     adminGetAllCategories(),
   ]);
 
+  // Compute product counts per category for the sheet
+  const supabase = createSupabaseAdminClient();
+  const categoriesWithCounts = await Promise.all(
+    categories.map(async (cat) => {
+      const { count } = await supabase
+        .from("products")
+        .select("*", { count: "exact", head: true })
+        .eq("category_slug", cat.slug);
+      return { ...cat, productCount: count ?? 0 };
+    })
+  );
+
   const brandEntries: [string, string][] = brands.map((b) => [b.slug, b.name]);
   const categoryEntries: [string, string][] = categories.map((c) => [
     c.slug,
@@ -51,6 +65,7 @@ export default async function AdminProductsPage({ searchParams }: Props) {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <ManageCategoriesSheet categories={categoriesWithCounts} />
           <Button variant="outline" asChild>
             <Link href="/admin/bulk-upload">
               <Upload className="mr-2 h-4 w-4" />

@@ -49,7 +49,7 @@ export default async function AdminDashboardPage() {
       title: "Categories",
       count: counts.categories,
       icon: Tags,
-      href: "/admin/categories",
+      href: "/admin/products",
     },
   ];
 

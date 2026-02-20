@@ -64,7 +64,9 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     const cat = await getCategoryBySlug(category);
     if (cat) {
       title = `${cat.name[loc]} — ${t("title")}`;
-      description = cat.description[loc] || description;
+      description = loc === "th"
+        ? `เลือกซื้อ${cat.name.th} — สินค้าอุตสาหกรรมคุณภาพจากแบรนด์ชั้นนำ จัดจำหน่ายโดย แหลมทอง`
+        : `Browse ${cat.name.en} — quality industrial products from leading brands, distributed by Laemthong.`;
       pagePath = `/products?category=${category}`;
     }
   } else if (brand) {

@@ -127,7 +127,7 @@ export function ProductBasicInfoTab({
                 })()}
               </SelectValue>
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent position="popper">
               {categoriesList.map((cat) => (
                 <SelectItem key={cat.slug} value={cat.slug}>
                   {cat.name.en}
@@ -197,7 +197,7 @@ export function ProductBasicInfoTab({
                 })()}
               </SelectValue>
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent position="popper">
               {brandsList.map((b) => (
                 <SelectItem key={b.slug} value={b.slug}>
                   <div className="flex items-center gap-2">

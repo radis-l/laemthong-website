@@ -22,8 +22,6 @@ export async function createCategoryAction(
     slug: formData.get("slug"),
     nameTh: formData.get("nameTh"),
     nameEn: formData.get("nameEn"),
-    descriptionTh: formData.get("descriptionTh"),
-    descriptionEn: formData.get("descriptionEn"),
     sortOrder: formData.get("sortOrder"),
   });
 
@@ -41,23 +39,20 @@ export async function createCategoryAction(
     newCategory = await adminCreateCategory({
       slug: validated.data.slug,
       name: { th: validated.data.nameTh, en: validated.data.nameEn },
-      description: {
-        th: validated.data.descriptionTh,
-        en: validated.data.descriptionEn,
-      },
+      description: { th: "", en: "" },
       sort_order: sortOrder,
     });
   } catch (error) {
     return handleActionError(error, "category", "create");
   }
 
-  revalidateEntity("/admin/categories");
+  revalidateEntity("/admin/products");
 
   if (skipRedirect) {
     return { success: true, category: newCategory };
   }
 
-  redirect("/admin/categories");
+  redirect("/admin/products");
 }
 
 export async function updateCategoryAction(
@@ -65,13 +60,12 @@ export async function updateCategoryAction(
   formData: FormData
 ): Promise<CategoryActionState> {
   const originalSlug = formData.get("originalSlug") as string;
+  const skipRedirect = formData.get("_skipRedirect") === "true";
 
   const validated = categorySchema.safeParse({
     slug: formData.get("slug"),
     nameTh: formData.get("nameTh"),
     nameEn: formData.get("nameEn"),
-    descriptionTh: formData.get("descriptionTh"),
-    descriptionEn: formData.get("descriptionEn"),
     sortOrder: formData.get("sortOrder"),
   });
 
@@ -81,14 +75,10 @@ export async function updateCategoryAction(
 
   const slug = validated.data.slug;
 
-  // Build update object
   const updateData: Parameters<typeof adminUpdateCategory>[1] = {
     slug: slug,
     name: { th: validated.data.nameTh, en: validated.data.nameEn },
-    description: {
-      th: validated.data.descriptionTh,
-      en: validated.data.descriptionEn,
-    },
+    description: { th: "", en: "" },
   };
 
   if (validated.data.sortOrder !== undefined) {
@@ -101,8 +91,13 @@ export async function updateCategoryAction(
     return handleActionError(error, "category", "update");
   }
 
-  revalidateEntity("/admin/categories");
-  redirect("/admin/categories");
+  revalidateEntity("/admin/products");
+
+  if (skipRedirect) {
+    return { success: true };
+  }
+
+  redirect("/admin/products");
 }
 
 export async function deleteCategoryAction(
@@ -115,6 +110,6 @@ export async function deleteCategoryAction(
     return handleActionError(error, "category", "delete");
   }
 
-  revalidateEntity("/admin/categories");
+  revalidateEntity("/admin/products");
   return { success: true };
 }

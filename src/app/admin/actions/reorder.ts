@@ -27,7 +27,7 @@ export async function reorderBrands(slugs: string[]) {
 }
 
 export async function reorderCategories(slugs: string[]) {
-  return reorderEntities("categories", slugs, "/admin/categories");
+  return reorderEntities("categories", slugs, "/admin/products");
 }
 
 export async function reorderProducts(slugs: string[]) {

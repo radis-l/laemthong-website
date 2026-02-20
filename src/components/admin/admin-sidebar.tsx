@@ -21,14 +21,13 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { LayoutDashboard, Package, Tags, Building2, ImageIcon, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Package, Building2, ImageIcon, ChevronRight } from "lucide-react";
 import { TABS } from "@/data/page-image-slots";
 
 const navItems = [
   { title: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { title: "Products", href: "/admin/products", icon: Package },
   { title: "Brands", href: "/admin/brands", icon: Building2 },
-  { title: "Categories", href: "/admin/categories", icon: Tags },
 ];
 
 export function AdminSidebar() {

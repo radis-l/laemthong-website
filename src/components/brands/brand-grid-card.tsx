@@ -7,9 +7,9 @@ type Props = {
 
 export function BrandGridCard({ brand }: Props) {
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:-translate-y-0.5 hover:border-foreground/15 hover:shadow-md">
+    <div className="overflow-hidden rounded-lg border border-border bg-card">
       {/* Logo area */}
-      <div className="relative flex aspect-square items-center justify-center overflow-hidden bg-muted/30 p-10">
+      <div className="relative flex aspect-square items-center justify-center overflow-hidden p-10">
         {brand.logo?.startsWith("http") ? (
           <BrandLogo src={brand.logo} alt={brand.name} name={brand.name} />
         ) : (

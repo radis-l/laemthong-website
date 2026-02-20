@@ -20,7 +20,7 @@ export async function uploadImage(
   const path = `${folder}/${entitySlug}/${safeName}.${ext}`;
 
   const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
-    cacheControl: "3600",
+    cacheControl: "31536000",
     upsert: true,
     contentType: file.type,
   });

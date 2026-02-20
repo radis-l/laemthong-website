@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import Image from "next/image";
+import { FadeImage } from "@/components/shared/fade-image";
 import { CheckCircle2, ArrowRight } from "lucide-react";
 import { CtaContactSection } from "@/components/shared/cta-contact-section";
 import { TrustStrip } from "@/components/shared/trust-strip";
@@ -95,11 +95,11 @@ export default async function ServicesPage({ params }: Props) {
                       {/* Service image */}
                       <div className="relative aspect-[4/3] overflow-hidden">
                         {serviceImage ? (
-                          <Image
+                          <FadeImage
                             src={serviceImage}
                             alt={t(`${service.slug}.title`)}
                             fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            className="object-cover transition-[opacity,transform] duration-300 group-hover:scale-105"
                             sizes="(max-width: 768px) 100vw, 50vw"
                           />
                         ) : (

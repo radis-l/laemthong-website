@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import AutoScroll from "embla-carousel-auto-scroll";
-import Image from "next/image";
+import { FadeImage } from "@/components/shared/fade-image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { AnimateOnScroll } from "@/components/shared/animate-on-scroll";
@@ -87,12 +87,13 @@ export function BrandShowcase({ brands }: Props) {
                 >
                   <div className="relative flex h-16 w-24 items-center justify-center md:h-20 md:w-32">
                     {brand.logo?.startsWith("http") ? (
-                      <Image
+                      <FadeImage
                         src={brand.logo}
                         alt={brand.name}
                         fill
                         sizes="128px"
                         className="object-contain"
+                        quality={85}
                       />
                     ) : (
                       <span className="text-2xl font-bold text-foreground">

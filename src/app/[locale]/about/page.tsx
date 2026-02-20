@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
-import Image from "next/image";
+import { FadeImage } from "@/components/shared/fade-image";
 import { Building2 } from "lucide-react";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { PlaceholderImage } from "@/components/shared/placeholder-image";
@@ -113,12 +113,13 @@ export default async function AboutPage({ params }: Props) {
             </div>
             <div className="overflow-hidden rounded-lg">
               {historyImage ? (
-                <Image
+                <FadeImage
                   src={historyImage}
                   alt={t("historyTitle")}
                   width={600}
                   height={600}
                   className="aspect-square w-full object-cover"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                 />
               ) : (
                 <PlaceholderImage
@@ -207,12 +208,13 @@ export default async function AboutPage({ params }: Props) {
                 <div className="group">
                   <div className="mb-4 overflow-hidden rounded-lg border transition-colors group-hover:border-primary">
                     {image ? (
-                      <Image
+                      <FadeImage
                         src={image}
                         alt={t(`${key}Title`)}
                         width={400}
                         height={300}
-                        className="aspect-[4/3] w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="aspect-[4/3] w-full object-cover transition-[opacity,transform] duration-300 group-hover:scale-105"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                       />
                     ) : (
                       <PlaceholderImage

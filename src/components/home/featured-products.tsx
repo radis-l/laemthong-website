@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { FadeImage } from "@/components/shared/fade-image";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { SectionHeading } from "@/components/shared/section-heading";
@@ -49,12 +49,13 @@ export function FeaturedProducts({ products }: Props) {
                 <div className="overflow-hidden rounded-lg border border-border bg-card transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg">
                   <div className="relative aspect-[4/3] overflow-hidden bg-muted/50">
                     {product.images[0]?.startsWith("http") ? (
-                      <Image
+                      <FadeImage
                         src={product.images[0]}
                         alt={product.name[locale]}
                         fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="object-cover transition-[opacity,transform] duration-300 group-hover:scale-105"
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        quality={70}
                       />
                     ) : (
                       <PlaceholderImage

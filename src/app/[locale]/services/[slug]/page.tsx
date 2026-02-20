@@ -6,7 +6,7 @@ import { CheckCircle2 } from "lucide-react";
 import { CtaContactSection } from "@/components/shared/cta-contact-section";
 import { BreadcrumbBar } from "@/components/shared/breadcrumb-bar";
 import { SectionHeading } from "@/components/shared/section-heading";
-import Image from "next/image";
+import { FadeImage } from "@/components/shared/fade-image";
 import { PlaceholderImage } from "@/components/shared/placeholder-image";
 import { JsonLd } from "@/components/shared/json-ld";
 import { getPageImages } from "@/lib/db";
@@ -112,12 +112,14 @@ export default async function ServiceDetailPage({ params }: Props) {
           <div className="mb-8 lg:hidden">
             <div className="overflow-hidden rounded-lg border">
               {serviceImage ? (
-                <Image
+                <FadeImage
                   src={serviceImage}
                   alt={t(`${slug}.title`)}
                   width={800}
                   height={600}
                   className="aspect-[4/3] w-full object-cover"
+                  sizes="100vw"
+                  priority
                 />
               ) : (
                 <PlaceholderImage variant="service" aspect="aspect-[4/3]" />
@@ -137,12 +139,14 @@ export default async function ServiceDetailPage({ params }: Props) {
             <div className="hidden lg:block">
               <div className="overflow-hidden rounded-lg border">
                 {serviceImage ? (
-                  <Image
+                  <FadeImage
                     src={serviceImage}
                     alt={t(`${slug}.title`)}
                     width={600}
                     height={450}
                     className="aspect-[4/3] w-full object-cover"
+                    sizes="480px"
+                    priority
                   />
                 ) : (
                   <PlaceholderImage variant="service" aspect="aspect-[4/3]" />
@@ -235,11 +239,11 @@ export default async function ServiceDetailPage({ params }: Props) {
                 >
                   <div className="relative aspect-[4/3] overflow-hidden">
                     {otherImage ? (
-                      <Image
+                      <FadeImage
                         src={otherImage}
                         alt={t(`${other.slug}.title`)}
                         fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="object-cover transition-[opacity,transform] duration-300 group-hover:scale-105"
                         sizes="(max-width: 640px) 100vw, 33vw"
                       />
                     ) : (

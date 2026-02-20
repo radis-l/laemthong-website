@@ -29,6 +29,13 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { ImageFolder } from "@/lib/storage";
 
+const MAX_DIMENSIONS: Record<ImageFolder, number> = {
+  brands: 512,
+  products: 1200,
+  categories: 1200,
+  pages: 1600,
+};
+
 interface ImageUploadProps {
   value: string | string[];
   onChange: (value: string | string[]) => void;
@@ -419,6 +426,7 @@ export function ImageUpload({
           open={!!cropSrc}
           imageSrc={cropSrc}
           aspectRatio={aspectRatio}
+          maxDimension={MAX_DIMENSIONS[folder]}
           onCrop={handleCrop}
           onCancel={handleCropCancel}
         />

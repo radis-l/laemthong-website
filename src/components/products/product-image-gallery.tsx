@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import { FadeImage } from "@/components/shared/fade-image";
 import { PlaceholderImage } from "@/components/shared/placeholder-image";
 import { cn } from "@/lib/utils";
 
@@ -39,13 +39,14 @@ export function ProductImageGallery({
       {/* Main image */}
       <div className="relative overflow-hidden rounded-lg border bg-muted">
         <div className="relative aspect-[4/3]">
-          <Image
+          <FadeImage
             src={displayImage}
             alt={productName}
             fill
             className="object-cover"
             sizes="(max-width: 1024px) 100vw, 50vw"
             priority
+            quality={80}
           />
           {allImages.length > 1 && (
             <div className="absolute bottom-3 right-3 rounded-full bg-foreground/70 px-2.5 py-1 text-xs font-medium text-background backdrop-blur-sm">
@@ -72,12 +73,13 @@ export function ProductImageGallery({
                   : "opacity-70 hover:opacity-100",
               )}
             >
-              <Image
+              <FadeImage
                 src={url}
                 alt={`${productName} - ${i + 1}`}
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 25vw, 12vw"
+                quality={60}
               />
             </button>
           ))}

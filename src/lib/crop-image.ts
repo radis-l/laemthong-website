@@ -5,7 +5,7 @@ type PixelCrop = {
   height: number;
 };
 
-const MAX_DIMENSION = 1600;
+const DEFAULT_MAX_DIMENSION = 1600;
 
 function createImage(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -19,7 +19,7 @@ function createImage(url: string): Promise<HTMLImageElement> {
 export async function cropImage(
   imageSrc: string,
   pixelCrop: PixelCrop,
-  options?: { stretchToFill?: boolean }
+  options?: { stretchToFill?: boolean; maxDimension?: number }
 ): Promise<Blob> {
   const image = await createImage(imageSrc);
   const canvas = document.createElement("canvas");
@@ -29,8 +29,9 @@ export async function cropImage(
   let outH = pixelCrop.height;
 
   // Resize if larger than max dimension
-  if (outW > MAX_DIMENSION || outH > MAX_DIMENSION) {
-    const scale = MAX_DIMENSION / Math.max(outW, outH);
+  const maxDim = options?.maxDimension ?? DEFAULT_MAX_DIMENSION;
+  if (outW > maxDim || outH > maxDim) {
+    const scale = maxDim / Math.max(outW, outH);
     outW = Math.round(outW * scale);
     outH = Math.round(outH * scale);
   }

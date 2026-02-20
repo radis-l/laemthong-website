@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { FadeImage } from "@/components/shared/fade-image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ArrowRight } from "lucide-react";
@@ -43,11 +43,11 @@ export function ServicesSection({ pageImages }: Props) {
                     {/* Image */}
                     <div className="relative aspect-[4/3] overflow-hidden">
                       {serviceImage ? (
-                        <Image
+                        <FadeImage
                           src={serviceImage}
                           alt={tServices(`${service.slug}.title`)}
                           fill
-                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          className="object-cover transition-[opacity,transform] duration-300 group-hover:scale-105"
                           sizes="(max-width: 768px) 50vw, 25vw"
                         />
                       ) : (

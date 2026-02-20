@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { FadeImage } from "@/components/shared/fade-image";
 import { Link } from "@/i18n/navigation";
 import { PlaceholderImage } from "@/components/shared/placeholder-image";
 import { ChevronRight } from "lucide-react";
@@ -24,12 +24,13 @@ export function ProductCard({ product, locale, categoryName, variant = "grid", p
       >
         <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-md bg-muted/50">
           {product.images[0]?.startsWith("http") ? (
-            <Image
+            <FadeImage
               src={product.images[0]}
               alt={product.name[locale]}
               fill
               className="object-cover"
               sizes="80px"
+              quality={70}
             />
           ) : (
             <PlaceholderImage
@@ -67,13 +68,14 @@ export function ProductCard({ product, locale, categoryName, variant = "grid", p
       <div className="overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg">
         <div className="relative aspect-[4/3] overflow-hidden bg-muted/50">
           {product.images[0]?.startsWith("http") ? (
-            <Image
+            <FadeImage
               src={product.images[0]}
               alt={product.name[locale]}
               fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              className="object-cover transition-[opacity,transform] duration-300 group-hover:scale-105"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
               priority={priority}
+              quality={70}
             />
           ) : (
             <PlaceholderImage

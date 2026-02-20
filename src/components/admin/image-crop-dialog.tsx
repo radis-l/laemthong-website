@@ -25,6 +25,7 @@ interface ImageCropDialogProps {
   open: boolean;
   imageSrc: string;
   aspectRatio: number;
+  maxDimension?: number;
   onCrop: (blob: Blob) => void;
   onCancel: () => void;
 }
@@ -33,6 +34,7 @@ export function ImageCropDialog({
   open,
   imageSrc,
   aspectRatio,
+  maxDimension,
   onCrop,
   onCancel,
 }: ImageCropDialogProps) {
@@ -156,6 +158,7 @@ export function ImageCropDialog({
       const isFillMode = zoom >= coverZoom - 0.01;
       const blob = await cropImage(imageSrc, croppedAreaPixels, {
         stretchToFill: isFillMode,
+        maxDimension,
       });
       onCrop(blob);
     } catch {

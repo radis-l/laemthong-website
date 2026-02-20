@@ -74,7 +74,7 @@ export function AdminSidebar() {
           <SidebarGroupLabel>Site</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <Collapsible defaultOpen={isPageImages} className="group/collapsible">
+              <Collapsible defaultOpen className="group/collapsible">
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton isActive={isPageImages}>

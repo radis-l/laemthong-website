@@ -66,8 +66,12 @@ export async function createProductAction(
         if (newUrls.length > 0) {
           images = newUrls;
         }
-      } catch (error) {
-        console.error("Failed to move images from temp folder:", error);
+      } catch {
+        return {
+          errors: {
+            images: ["Failed to finalize uploaded images. Please try again or re-upload."],
+          },
+        };
       }
     }
   }

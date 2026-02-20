@@ -3,7 +3,11 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase";
-import { loginSchema } from "@/lib/validations/auth";
+import {
+  loginSchema,
+  setupPasswordSchema,
+  changePasswordSchema,
+} from "@/lib/validations/auth";
 
 import type { ActionState } from "./types";
 
@@ -35,6 +39,84 @@ export async function loginAction(
   }
 
   redirect("/admin");
+}
+
+export async function setupPasswordAction(
+  _prevState: AuthFormState,
+  formData: FormData
+): Promise<AuthFormState> {
+  const validated = setupPasswordSchema.safeParse({
+    password: formData.get("password"),
+    confirmPassword: formData.get("confirmPassword"),
+  });
+
+  if (!validated.success) {
+    return { errors: validated.error.flatten().fieldErrors };
+  }
+
+  const cookieStore = await cookies();
+  const supabase = createSupabaseServerClient(cookieStore);
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { message: "Your invite link has expired. Please request a new invite." };
+  }
+
+  const { error } = await supabase.auth.updateUser({
+    password: validated.data.password,
+  });
+
+  if (error) {
+    return { message: "Failed to set password. Please try again." };
+  }
+
+  redirect("/admin");
+}
+
+export async function changePasswordAction(
+  _prevState: AuthFormState,
+  formData: FormData
+): Promise<AuthFormState> {
+  const validated = changePasswordSchema.safeParse({
+    currentPassword: formData.get("currentPassword"),
+    newPassword: formData.get("newPassword"),
+    confirmPassword: formData.get("confirmPassword"),
+  });
+
+  if (!validated.success) {
+    return { errors: validated.error.flatten().fieldErrors };
+  }
+
+  const cookieStore = await cookies();
+  const supabase = createSupabaseServerClient(cookieStore);
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user || !user.email) {
+    return { message: "Session expired. Please sign in again." };
+  }
+
+  // Verify current password
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: validated.data.currentPassword,
+  });
+  if (signInError) {
+    return { errors: { currentPassword: ["Current password is incorrect"] } };
+  }
+
+  // Update to new password
+  const { error } = await supabase.auth.updateUser({
+    password: validated.data.newPassword,
+  });
+  if (error) {
+    return { message: "Failed to update password. Please try again." };
+  }
+
+  return { success: true, message: "Password updated successfully" };
 }
 
 export async function logoutAction(): Promise<void> {

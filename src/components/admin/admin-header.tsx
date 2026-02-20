@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -7,12 +8,16 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User, ExternalLink } from "lucide-react";
+import { KeyRound, LogOut, User, ExternalLink } from "lucide-react";
 import { logoutAction } from "@/app/admin/actions/auth";
+import { ChangePasswordDialog } from "@/components/admin/change-password-dialog";
 
 export function AdminHeader({ email }: { email?: string }) {
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+
   return (
     <header className="flex h-14 items-center gap-3 border-b bg-background px-4">
       <SidebarTrigger />
@@ -36,6 +41,11 @@ export function AdminHeader({ email }: { email?: string }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          <DropdownMenuItem onSelect={() => setPasswordDialogOpen(true)}>
+            <KeyRound className="mr-2 h-4 w-4" />
+            Change Password
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <form action={logoutAction}>
               <button type="submit" className="flex w-full items-center gap-2">
@@ -46,6 +56,10 @@ export function AdminHeader({ email }: { email?: string }) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <ChangePasswordDialog
+        open={passwordDialogOpen}
+        onOpenChange={setPasswordDialogOpen}
+      />
     </header>
   );
 }

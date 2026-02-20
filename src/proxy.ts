@@ -36,10 +36,11 @@ export async function proxy(request: NextRequest) {
   // Admin routes — protect with Supabase Auth
   if (pathname.startsWith("/admin")) {
     const isLoginPage = pathname === "/admin/login";
+    const isSetupPage = pathname === "/admin/setup-password";
     const response = NextResponse.next();
     const user = await getSupabaseUser(request, response);
 
-    if (!user && !isLoginPage) {
+    if (!user && !isLoginPage && !isSetupPage) {
       const loginUrl = new URL("/admin/login", request.url);
       return NextResponse.redirect(loginUrl);
     }

@@ -14,6 +14,7 @@ import {
 import { KeyRound, LogOut, User, ExternalLink } from "lucide-react";
 import { logoutAction } from "@/app/admin/actions/auth";
 import { ChangePasswordDialog } from "@/components/admin/change-password-dialog";
+import { ThemeToggle } from "@/components/admin/theme-toggle";
 
 export function AdminHeader({ email }: { email?: string }) {
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
@@ -31,6 +32,7 @@ export function AdminHeader({ email }: { email?: string }) {
       >
         View site <ExternalLink className="ml-1 inline h-3 w-3" />
       </a>
+      <ThemeToggle />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="sm" className="gap-2">

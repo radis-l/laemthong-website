@@ -18,36 +18,38 @@ export function Logo({ className, variant = "default", imageUrl }: Props) {
         <Image
           src={imageUrl}
           alt="Laemthong Syndicate"
-          width={40}
+          width={160}
           height={40}
-          className="h-10 w-10 rounded-md object-contain"
-          sizes="40px"
+          className="h-10 w-auto object-contain"
+          sizes="160px"
         />
       ) : (
-        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-foreground">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            className="h-6 w-6 text-primary-foreground"
-            stroke="currentColor"
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M12 2L2 7l10 5 10-5-10-5z" />
-            <path d="M2 17l10 5 10-5" />
-            <path d="M2 12l10 5 10-5" />
-          </svg>
-        </div>
+        <>
+          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-foreground">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              className="h-6 w-6 text-primary-foreground"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 2L2 7l10 5 10-5-10-5z" />
+              <path d="M2 17l10 5 10-5" />
+              <path d="M2 12l10 5 10-5" />
+            </svg>
+          </div>
+          <div className="flex flex-col">
+            <span className={cn("text-base font-bold leading-tight tracking-tight", textColor)}>
+              LAEMTHONG
+            </span>
+            <span className={cn("text-xs font-medium uppercase tracking-widest", subTextColor)}>
+              Syndicate
+            </span>
+          </div>
+        </>
       )}
-      <div className="flex flex-col">
-        <span className={cn("text-base font-bold leading-tight tracking-tight", textColor)}>
-          LAEMTHONG
-        </span>
-        <span className={cn("text-xs font-medium uppercase tracking-widest", subTextColor)}>
-          Syndicate
-        </span>
-      </div>
     </Link>
   );
 }

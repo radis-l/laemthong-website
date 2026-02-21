@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { BilingualInput } from "./bilingual-input";
 import { BilingualTextarea } from "./bilingual-textarea";
-import { QuickCreateCategoryDialog } from "./quick-create-category-dialog";
+import { ManageCategoriesDialog } from "./manage-categories-dialog";
 import { QuickCreateBrandDialog } from "./quick-create-brand-dialog";
 import Image from "next/image";
 import type { DbBrand, DbCategory } from "@/data/types";
@@ -137,7 +137,7 @@ export function ProductBasicInfoTab({
               <SelectItem value="__create_new__" className="text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Plus className="h-4 w-4" />
-                  <span>Add New Category</span>
+                  <span>Manage Categories</span>
                 </div>
               </SelectItem>
             </SelectContent>
@@ -150,12 +150,18 @@ export function ProductBasicInfoTab({
           <p className="text-xs text-muted-foreground">
             The product category for organization and filtering
           </p>
-          <QuickCreateCategoryDialog
+          <ManageCategoriesDialog
             open={categoryDialogOpen}
             onOpenChange={setCategoryDialogOpen}
-            onSuccess={(newCat) => {
+            categories={categoriesList}
+            selectedSlug={categorySlug}
+            onCreated={(newCat) => {
               setCategoriesList([...categoriesList, newCat]);
               onCategorySlugChange(newCat.slug);
+            }}
+            onDeleted={(deletedSlug) => {
+              setCategoriesList(categoriesList.filter((c) => c.slug !== deletedSlug));
+              if (categorySlug === deletedSlug) onCategorySlugChange("");
             }}
           />
         </div>

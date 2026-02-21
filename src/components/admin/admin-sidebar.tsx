@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import {
@@ -40,8 +41,14 @@ export function AdminSidebar() {
     <Sidebar>
       <SidebarHeader className="border-b px-4 py-3">
         <Link href="/admin" className="flex items-center gap-2">
-          <span className="text-lg font-bold text-primary">LT</span>
-          <span className="text-sm font-semibold">Admin</span>
+          <Image
+            src="/logo.webp"
+            alt="Laemthong Syndicate"
+            width={120}
+            height={28}
+            className="h-7 w-auto object-contain"
+          />
+          <span className="text-sm font-semibold text-muted-foreground">Admin</span>
         </Link>
       </SidebarHeader>
       <SidebarContent>

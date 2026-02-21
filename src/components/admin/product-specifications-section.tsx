@@ -91,6 +91,7 @@ export function ProductSpecificationsSection({
 
       {specifications.length > 0 && (
         <DndContext
+          id="product-specifications"
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}

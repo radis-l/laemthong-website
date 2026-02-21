@@ -75,6 +75,7 @@ export function BrandsTable({ brands }: BrandsTableProps) {
 
       <div className="rounded-xl border">
         <DndContext
+          id="brands-table"
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}

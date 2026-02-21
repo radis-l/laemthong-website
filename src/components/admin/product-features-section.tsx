@@ -75,6 +75,7 @@ export function ProductFeaturesSection({
 
       {features.length > 0 && (
         <DndContext
+          id="product-features"
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}

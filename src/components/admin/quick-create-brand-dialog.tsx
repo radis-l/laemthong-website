@@ -11,9 +11,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ImageUpload } from "./image-upload";
+import { SlugInput } from "./slug-input";
 import { createBrandAction } from "@/app/admin/actions/brands";
 import type { BrandActionState } from "@/app/admin/actions/types";
-import { slugify } from "@/lib/utils";
+import { useFormSlug } from "@/hooks/use-form-slug";
 import { toast } from "sonner";
 import type { DbBrand } from "@/data/types";
 
@@ -28,9 +29,10 @@ export function QuickCreateBrandDialog({
   onOpenChange,
   onSuccess,
 }: QuickCreateBrandDialogProps) {
-  const [slug, setSlug] = useState("");
   const [name, setName] = useState("");
   const [logo, setLogo] = useState("");
+  const { slug, setSlug, isCustomSlug, setIsCustomSlug, handleNameChange } =
+    useFormSlug({ initialSlug: "", initialName: "", isEditing: false });
   const [state, formAction, isPending] = useActionState<BrandActionState, FormData>(
     createBrandAction,
     {}
@@ -42,9 +44,10 @@ export function QuickCreateBrandDialog({
       onSuccess(state.brand);
       onOpenChange(false);
       // Reset form
-      setSlug("");
       setName("");
       setLogo("");
+      setSlug("");
+      setIsCustomSlug(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.success, state.brand]);
@@ -56,42 +59,37 @@ export function QuickCreateBrandDialog({
           <DialogTitle>Quick Add Brand</DialogTitle>
         </DialogHeader>
         <form action={formAction} className="space-y-4">
+          <input type="hidden" name="slug" value={slug} />
           <input type="hidden" name="logo" value={logo} />
           <input type="hidden" name="sortOrder" value="0" />
           <input type="hidden" name="website" value="" />
           <input type="hidden" name="_skipRedirect" value="true" />
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label>Slug *</Label>
-              <Input
-                name="slug"
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                placeholder="brand-name"
-                required
-              />
-              {state.errors?.slug && (
-                <p className="text-xs text-destructive">{state.errors.slug[0]}</p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label>Name *</Label>
-              <Input
-                name="name"
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                  setSlug(slugify(e.target.value));
-                }}
-                placeholder="Brand Name"
-                required
-              />
-              {state.errors?.name && (
-                <p className="text-xs text-destructive">{state.errors.name[0]}</p>
-              )}
-            </div>
+          <div className="space-y-2">
+            <Label>Name *</Label>
+            <Input
+              name="name"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                handleNameChange(e.target.value);
+              }}
+              placeholder="Brand Name"
+              required
+            />
+            {state.errors?.name && (
+              <p className="text-xs text-destructive">{state.errors.name[0]}</p>
+            )}
           </div>
+
+          <SlugInput
+            compact
+            isCustomSlug={isCustomSlug}
+            onToggleCustom={setIsCustomSlug}
+            slug={slug}
+            onSlugChange={setSlug}
+            error={state.errors?.slug?.[0]}
+          />
 
           <div className="space-y-2">
             <Label>Country *</Label>
@@ -108,6 +106,8 @@ export function QuickCreateBrandDialog({
             folder="brands"
             entitySlug={slug || `temp-${Date.now()}`}
             aspectRatio={1}
+            aspectRatioLabel="1:1 square"
+            recommendedPx="400 × 400 px"
           />
 
           {/* Minimal descriptions - required by schema */}

@@ -277,6 +277,7 @@ export function ImageUpload({
       {/* Preview grid */}
       {urls.length > 0 && reorderable && multiple ? (
         <DndContext
+          id="image-upload"
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}

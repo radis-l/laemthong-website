@@ -81,6 +81,7 @@ export function ProductDocumentsSection({
 
       {documents.length > 0 && (
         <DndContext
+          id="product-documents"
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}

@@ -10,6 +10,7 @@ export async function SiteFooter({ locale, logoUrl }: { locale: string; logoUrl?
   const t = await getTranslations({ locale, namespace: "footer" });
   const tNav = await getTranslations({ locale, namespace: "nav" });
   const tCommon = await getTranslations({ locale, namespace: "common" });
+  const tContact = await getTranslations({ locale, namespace: "contact" });
 
   const categories = await getCachedCategories();
   const footerCategories = categories.slice(0, 6);
@@ -100,7 +101,7 @@ export async function SiteFooter({ locale, logoUrl }: { locale: string; logoUrl?
                 <li className="flex items-start gap-2.5">
                   <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">
-                    {COMPANY.address}
+                    {tContact("addressValue")}
                   </span>
                 </li>
               </ul>

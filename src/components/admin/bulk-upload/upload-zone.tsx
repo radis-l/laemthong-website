@@ -1,10 +1,20 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { Upload, FileText, FolderArchive, Download } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import {
+  Upload,
+  FileText,
+  FolderArchive,
+  Download,
+  AlertTriangle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { exportProductsAction } from "@/app/admin/(authenticated)/bulk-upload/actions";
+import {
+  downloadTemplateAction,
+  exportProductsAction,
+  getProductCountAction,
+} from "@/app/admin/(authenticated)/bulk-upload/actions";
 
 type UploadZoneProps = {
   onFilesSelected: (csvFile: File | null, zipFile: File | null) => void;
@@ -14,6 +24,11 @@ export function UploadZone({ onFilesSelected }: UploadZoneProps) {
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [zipFile, setZipFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [productCount, setProductCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    getProductCountAction().then(setProductCount);
+  }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -55,17 +70,28 @@ export function UploadZone({ onFilesSelected }: UploadZoneProps) {
     }
   };
 
-  const handleDownloadProducts = async () => {
-    const { csv, isTemplate } = await exportProductsAction();
+  const downloadCsv = (csv: string, filename: string) => {
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = isTemplate ? "products-template.csv" : "products-export.csv";
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadTemplate = async () => {
+    const { csv } = await downloadTemplateAction();
+    downloadCsv(csv, "products-template.csv");
+  };
+
+  const handleExportProducts = async () => {
+    const { csv } = await exportProductsAction();
+    if (csv) {
+      downloadCsv(csv, "products-export.csv");
+    }
   };
 
   const formatFileSize = (bytes: number) => {
@@ -76,6 +102,16 @@ export function UploadZone({ onFilesSelected }: UploadZoneProps) {
 
   return (
     <div className="space-y-6">
+      {/* Quick Start */}
+      <div className="rounded-lg border bg-muted/50 p-4 text-sm">
+        <p className="font-medium">Quick Start</p>
+        <p className="text-muted-foreground mt-1">
+          Click <strong>Download Template</strong> to get a CSV with the
+          expected format and example rows. Fill it in, upload here, and
+          preview before importing.
+        </p>
+      </div>
+
       {/* CSV Upload */}
       <div>
         <label className="block text-sm font-medium mb-2">
@@ -160,14 +196,27 @@ export function UploadZone({ onFilesSelected }: UploadZoneProps) {
 
       {/* Actions */}
       <div className="flex items-center justify-between gap-4">
-        <Button
-          variant="outline"
-          onClick={handleDownloadProducts}
-          className="gap-2"
-        >
-          <Download className="h-4 w-4" />
-          Download Product List
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={handleDownloadTemplate}
+            className="gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Download Template
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleExportProducts}
+            disabled={productCount === 0}
+            className="gap-2"
+          >
+            <Download className="h-4 w-4" />
+            {productCount !== null && productCount > 0
+              ? `Export Products (${productCount})`
+              : "Export Products"}
+          </Button>
+        </div>
 
         <Button
           onClick={handleSubmit}
@@ -180,33 +229,140 @@ export function UploadZone({ onFilesSelected }: UploadZoneProps) {
       </div>
 
       {/* Instructions */}
-      <div className="text-sm text-muted-foreground space-y-2 border-t pt-4">
-        <p className="font-medium">Upload Options:</p>
-        <ul className="list-disc list-inside space-y-1 ml-2">
-          <li>Upload <strong>CSV only</strong> to add/update products without images</li>
-          <li>Upload <strong>ZIP only</strong> to add images to existing products (or create new ones with placeholder data)</li>
-          <li>Upload <strong>both</strong> to add/update products with images</li>
-        </ul>
-        <p className="font-medium mt-4">CSV Format:</p>
-        <ul className="list-disc list-inside space-y-1 ml-2">
-          <li>Headers: slug, category_slug, brand_slug, name_th, name_en, etc.</li>
-          <li>One product per row</li>
-          <li>Slugs must be lowercase with hyphens (e.g., &quot;product-name&quot;)</li>
-        </ul>
-        <p className="font-medium mt-4">Specifications &amp; Features (optional):</p>
-        <ul className="list-disc list-inside space-y-1 ml-2">
-          <li>spec_labels_th, spec_labels_en &mdash; Pipe-separated specification labels</li>
-          <li>spec_values_th, spec_values_en &mdash; Pipe-separated specification values</li>
-          <li>features_th, features_en &mdash; Pipe-separated feature descriptions</li>
-          <li>Use | (pipe) to separate items, e.g. &quot;Weight|Voltage|Power&quot;</li>
-          <li>All spec columns must have the same number of items</li>
-        </ul>
-        <p className="font-medium mt-4">ZIP Structure:</p>
-        <ul className="list-disc list-inside space-y-1 ml-2">
-          <li>products/[slug]/1.jpg, 2.jpg, 3.jpg &mdash; Product images (first = primary thumbnail)</li>
-          <li>Supported formats: JPG, PNG, WebP, AVIF, SVG</li>
-          <li>Slug folders match products by slug (e.g., products/my-product/)</li>
-        </ul>
+      <div className="text-sm text-muted-foreground space-y-4 border-t pt-4">
+        <div>
+          <p className="font-medium text-foreground">How It Works</p>
+          <p className="mt-1">
+            1. Upload files &rarr; 2. Preview &amp; validate &rarr; 3. Import
+          </p>
+        </div>
+
+        <div>
+          <p className="font-medium text-foreground">Upload Scenarios</p>
+          <ul className="list-disc list-inside space-y-1 ml-2 mt-1">
+            <li>
+              <strong>CSV only</strong> &mdash; add or update product data
+              without images
+            </li>
+            <li>
+              <strong>ZIP only</strong> &mdash; add images to existing products.
+              New slugs create placeholder products (uncategorized/unbranded)
+            </li>
+            <li>
+              <strong>CSV + ZIP</strong> &mdash; add or update products with
+              images together
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <p className="font-medium text-foreground">
+            CSV Columns &mdash; Required
+          </p>
+          <div className="mt-1 rounded border bg-muted/30 p-3 font-mono text-xs leading-relaxed">
+            slug &mdash; Unique ID (lowercase letters, numbers, dashes only)
+            <br />
+            name_th, name_en &mdash; Product name
+            <br />
+            short_description_th, short_description_en
+            <br />
+            description_th, description_en
+            <br />
+            category_slug &mdash; Must exist or will be auto-created
+            <br />
+            brand_slug &mdash; Must exist or will be auto-created
+          </div>
+        </div>
+
+        <div>
+          <p className="font-medium text-foreground">
+            CSV Columns &mdash; Optional
+          </p>
+          <div className="mt-1 rounded border bg-muted/30 p-3 font-mono text-xs leading-relaxed">
+            featured &mdash; &quot;true&quot; or &quot;1&quot; to feature
+            (default: false)
+            <br />
+            sort_order &mdash; Display order, 0 or higher (default: 0)
+            <br />
+            spec_labels_th, spec_labels_en &mdash; Pipe-separated spec labels
+            <br />
+            spec_values_th, spec_values_en &mdash; Pipe-separated spec values
+            <br />
+            features_th, features_en &mdash; Pipe-separated feature list
+          </div>
+          <p className="mt-2">
+            Use <code className="text-xs bg-muted px-1 py-0.5 rounded">|</code>{" "}
+            (pipe) to separate items, e.g.{" "}
+            <code className="text-xs bg-muted px-1 py-0.5 rounded">
+              Weight|Voltage|Power
+            </code>
+            . All spec columns must have the same number of items. Features must
+            also match between Thai and English if both are provided.
+          </p>
+        </div>
+
+        <div>
+          <p className="font-medium text-foreground">ZIP Structure</p>
+          <div className="mt-1 rounded border bg-muted/30 p-3 font-mono text-xs leading-relaxed whitespace-pre">
+{`products/
+├── [slug-a]/                 ← one folder per product slug
+│   ├── image-1.jpg           ← image-1 = thumbnail
+│   ├── image-2.jpg
+│   └── image-3.png
+└── [slug-b]/                 ← another product
+    ├── image-1.jpg
+    └── image-2.jpg`}
+          </div>
+          <ul className="list-disc list-inside space-y-1 ml-2 mt-2">
+            <li>
+              Each product gets its own folder named by its slug
+            </li>
+            <li>
+              Add multiple images per product (image-1, image-2, image-3, ...)
+            </li>
+            <li>
+              image-1 is always the thumbnail; numbering sets display order
+            </li>
+            <li>
+              Formats: JPG, PNG, WebP, AVIF, SVG (max 5 MB each)
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <p className="font-medium text-foreground">
+            Import Options{" "}
+            <span className="font-normal text-muted-foreground">
+              (shown on preview step)
+            </span>
+          </p>
+          <ul className="list-disc list-inside space-y-1 ml-2 mt-1">
+            <li>
+              <strong>Overwrite existing</strong> &mdash; updates products with
+              matching slugs. When off, duplicates are skipped.
+            </li>
+            <li>
+              <strong>Skip errors</strong> &mdash; imports valid rows even if
+              some have errors
+            </li>
+          </ul>
+        </div>
+
+        <div className="flex gap-2 rounded-lg border border-yellow-200 bg-yellow-50 p-3 dark:border-yellow-800 dark:bg-yellow-950">
+          <AlertTriangle className="h-4 w-4 shrink-0 text-yellow-600 mt-0.5" />
+          <div>
+            <p className="font-medium text-yellow-900 dark:text-yellow-100">
+              Auto-creation
+            </p>
+            <p className="mt-0.5 text-yellow-800 dark:text-yellow-200">
+              Unknown <code className="text-xs bg-yellow-100 dark:bg-yellow-900 px-1 py-0.5 rounded">category_slug</code> or{" "}
+              <code className="text-xs bg-yellow-100 dark:bg-yellow-900 px-1 py-0.5 rounded">brand_slug</code> values
+              will auto-create placeholder entries. Double-check spelling to
+              avoid unintended entries. ZIP-only uploads with new slugs create
+              products as &quot;Uncategorized&quot; / &quot;Unbranded&quot;.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

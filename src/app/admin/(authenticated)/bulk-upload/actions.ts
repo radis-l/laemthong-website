@@ -105,78 +105,78 @@ function csvEscapeRow(values: string[]): string {
     .join(",");
 }
 
+const CSV_HEADERS = [
+  "slug",
+  "category_slug",
+  "brand_slug",
+  "name_th",
+  "name_en",
+  "short_description_th",
+  "short_description_en",
+  "description_th",
+  "description_en",
+  "featured",
+  "sort_order",
+  "spec_labels_th",
+  "spec_labels_en",
+  "spec_values_th",
+  "spec_values_en",
+  "features_th",
+  "features_en",
+];
+
+export async function downloadTemplateAction(): Promise<{ csv: string }> {
+  const row1 = csvEscapeRow([
+    "example-product-1",
+    "welding-machines",
+    "lincoln-electric",
+    "ชื่อผลิตภัณฑ์",
+    "Product Name",
+    "คำอธิบายสั้น",
+    "Short description here",
+    "คำอธิบายยาว",
+    "Long description here",
+    "false",
+    "1",
+    "น้ำหนัก|แรงดันไฟฟ้า|กำลังไฟ",
+    "Weight|Voltage|Power",
+    "50 กก.|220V|3000 วัตต์",
+    "50 kg|220V|3000 W",
+    "ประหยัดพลังงาน|ทนทาน",
+    "Energy efficient|Durable",
+  ]);
+
+  const row2 = csvEscapeRow([
+    "example-product-2",
+    "cutting-equipment",
+    "harris",
+    "ชื่อสินค้า",
+    "Another Product",
+    "รายละเอียดย่อ",
+    "Brief details",
+    "รายละเอียดเต็ม",
+    "Full details",
+    "true",
+    "2",
+    "",
+    "",
+    "",
+    "",
+    "ใช้งานง่าย",
+    "Easy to use",
+  ]);
+
+  return { csv: `${CSV_HEADERS.join(",")}\n${row1}\n${row2}` };
+}
+
 export async function exportProductsAction(): Promise<{
-  csv: string;
-  isTemplate: boolean;
+  csv: string | null;
+  count: number;
 }> {
   const products = await adminGetAllProducts();
 
-  const headers = [
-    "slug",
-    "category_slug",
-    "brand_slug",
-    "name_th",
-    "name_en",
-    "short_description_th",
-    "short_description_en",
-    "description_th",
-    "description_en",
-    "featured",
-    "sort_order",
-    "spec_labels_th",
-    "spec_labels_en",
-    "spec_values_th",
-    "spec_values_en",
-    "features_th",
-    "features_en",
-  ];
-
   if (products.length === 0) {
-    // Fallback: template with example rows
-    const row1 = csvEscapeRow([
-      "example-product-1",
-      "welding-machines",
-      "lincoln-electric",
-      "ชื่อผลิตภัณฑ์",
-      "Product Name",
-      "คำอธิบายสั้น",
-      "Short description here",
-      "คำอธิบายยาว",
-      "Long description here",
-      "false",
-      "1",
-      "น้ำหนัก|แรงดันไฟฟ้า|กำลังไฟ",
-      "Weight|Voltage|Power",
-      "50 กก.|220V|3000 วัตต์",
-      "50 kg|220V|3000 W",
-      "ประหยัดพลังงาน|ทนทาน",
-      "Energy efficient|Durable",
-    ]);
-
-    const row2 = csvEscapeRow([
-      "example-product-2",
-      "cutting-equipment",
-      "harris",
-      "ชื่อสินค้า",
-      "Another Product",
-      "รายละเอียดย่อ",
-      "Brief details",
-      "รายละเอียดเต็ม",
-      "Full details",
-      "true",
-      "2",
-      "",
-      "",
-      "",
-      "",
-      "ใช้งานง่าย",
-      "Easy to use",
-    ]);
-
-    return {
-      csv: `${headers.join(",")}\n${row1}\n${row2}`,
-      isTemplate: true,
-    };
+    return { csv: null, count: 0 };
   }
 
   const rows = products.map((p) => {
@@ -208,7 +208,12 @@ export async function exportProductsAction(): Promise<{
   });
 
   return {
-    csv: [headers.join(","), ...rows].join("\n"),
-    isTemplate: false,
+    csv: [CSV_HEADERS.join(","), ...rows].join("\n"),
+    count: products.length,
   };
+}
+
+export async function getProductCountAction(): Promise<number> {
+  const products = await adminGetAllProducts();
+  return products.length;
 }

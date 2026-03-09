@@ -82,11 +82,11 @@ export function InquiriesTable({ inquiries, currentPage, totalPages }: Props) {
                 <TableCell className="text-xs text-muted-foreground">
                   {formatDate(inquiry.created_at)}
                 </TableCell>
-                <TableCell className="font-medium">{inquiry.name}</TableCell>
-                <TableCell className="hidden md:table-cell text-muted-foreground">
+                <TableCell className="font-medium max-w-[160px] truncate">{inquiry.name}</TableCell>
+                <TableCell className="hidden md:table-cell text-muted-foreground max-w-[160px] truncate">
                   {inquiry.company}
                 </TableCell>
-                <TableCell className="hidden lg:table-cell text-muted-foreground">
+                <TableCell className="hidden lg:table-cell text-muted-foreground max-w-[200px] truncate">
                   {inquiry.email}
                 </TableCell>
                 <TableCell className="hidden xl:table-cell">
@@ -150,7 +150,7 @@ export function InquiriesTable({ inquiries, currentPage, totalPages }: Props) {
           {selected && (
             <>
               <SheetHeader>
-                <SheetTitle>{selected.name}</SheetTitle>
+                <SheetTitle className="truncate">{selected.name}</SheetTitle>
                 <SheetDescription>
                   {formatDate(selected.created_at)}
                 </SheetDescription>

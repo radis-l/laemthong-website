@@ -194,16 +194,16 @@ export function PreviewTable({
                       <XCircle className="h-5 w-5 text-red-600" />
                     )}
                   </td>
-                  <td className="px-4 py-3 text-sm font-mono">
+                  <td className="px-4 py-3 text-sm font-mono max-w-[150px] truncate">
                     {row.row.data.slug}
                   </td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="px-4 py-3 text-sm max-w-[180px] truncate">
                     {row.row.data.nameEn || row.row.data.nameTh}
                   </td>
-                  <td className="px-4 py-3 text-sm font-mono text-muted-foreground">
+                  <td className="px-4 py-3 text-sm font-mono text-muted-foreground max-w-[120px] truncate">
                     {row.row.data.categorySlug}
                   </td>
-                  <td className="px-4 py-3 text-sm font-mono text-muted-foreground">
+                  <td className="px-4 py-3 text-sm font-mono text-muted-foreground max-w-[120px] truncate">
                     {row.row.data.brandSlug}
                   </td>
                   <td className="px-4 py-3 text-sm">
@@ -459,8 +459,8 @@ function ImageOnlyPreview({
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-sm font-mono">{row.slug}</td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="px-4 py-3 text-sm font-mono max-w-[150px] truncate">{row.slug}</td>
+                  <td className="px-4 py-3 text-sm max-w-[180px] truncate">
                     {row.productName || (
                       <span className="text-muted-foreground italic">
                         Will be created

@@ -257,27 +257,27 @@ export function ProductsTable({
                           alt={product.name.en}
                         />
                       </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{product.name.en}</span>
-                          <span className="text-xs text-muted-foreground tabular-nums">
+                      <TableCell className="max-w-[200px]">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="font-medium truncate">{product.name.en}</span>
+                          <span className="text-xs text-muted-foreground tabular-nums shrink-0">
                             #{product.sort_order}
                           </span>
                           {product.featured && (
-                            <span className="inline-flex items-center gap-1 text-xs text-primary">
+                            <span className="inline-flex items-center gap-1 text-xs text-primary shrink-0">
                               <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                               Featured
                             </span>
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">
+                      <TableCell className="max-w-[140px]">
+                        <Badge variant="secondary" className="truncate max-w-full">
                           {categoryMap.get(product.category_slug) ??
                             product.category_slug}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="text-muted-foreground max-w-[140px] truncate">
                         {brandMap.get(product.brand_slug) ?? product.brand_slug}
                       </TableCell>
                       <TableCell className="text-right">

@@ -123,7 +123,7 @@ export function BrandsTable({ brands }: BrandsTableProps) {
                       </TableCell>
                       <TableCell>
                         <div className="space-y-1">
-                          <div className="font-medium">{brand.name}</div>
+                          <div className="font-medium truncate">{brand.name}</div>
                           <div className="text-xs text-muted-foreground tabular-nums">
                             {brand.productCount} products • #{brand.sort_order}
                           </div>

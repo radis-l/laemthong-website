@@ -80,7 +80,7 @@ export function ManageCategoriesDialog({
                   key={cat.slug}
                   className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm"
                 >
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex-1 truncate">
                     <span className="font-medium">{cat.name.en}</span>
                     <span className="ml-1.5 text-muted-foreground">
                       {cat.name.th}

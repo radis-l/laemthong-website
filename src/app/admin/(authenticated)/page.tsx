@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, Building2, Tags, Plus, Upload, ImageIcon } from "lucide-react";
+import { Package, Building2, Tags, MessageSquare, Plus, Upload, ImageIcon } from "lucide-react";
 import { createSupabaseClient } from "@/lib/supabase";
 
 export const metadata: Metadata = {
@@ -10,15 +10,17 @@ export const metadata: Metadata = {
 
 async function getCounts() {
   const supabase = createSupabaseClient();
-  const [products, brands, categories] = await Promise.all([
+  const [products, brands, categories, inquiries] = await Promise.all([
     supabase.from("products").select("slug", { count: "exact", head: true }),
     supabase.from("brands").select("slug", { count: "exact", head: true }),
     supabase.from("categories").select("slug", { count: "exact", head: true }),
+    supabase.from("contact_inquiries").select("id", { count: "exact", head: true }),
   ]);
   return {
     products: products.count ?? 0,
     brands: brands.count ?? 0,
     categories: categories.count ?? 0,
+    inquiries: inquiries.count ?? 0,
   };
 }
 
@@ -51,6 +53,12 @@ export default async function AdminDashboardPage() {
       icon: Tags,
       href: "/admin/products",
     },
+    {
+      title: "Inquiries",
+      count: counts.inquiries,
+      icon: MessageSquare,
+      href: "/admin/inquiries",
+    },
   ];
 
   return (
@@ -62,7 +70,7 @@ export default async function AdminDashboardPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((card) => (
           <Link key={card.title} href={card.href}>
             <Card className="transition-colors hover:bg-muted/50">

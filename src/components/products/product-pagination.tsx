@@ -1,6 +1,7 @@
 "use client";
 
 import { useFilterNavigation } from "./products-filter-context";
+import { buildProductsUrl } from "@/lib/url-builders";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 type BaseParams = {
@@ -17,17 +18,6 @@ type Props = {
   previousLabel: string;
   nextLabel: string;
 };
-
-function buildProductsUrl(params: BaseParams & { page?: number }): string {
-  const sp = new URLSearchParams();
-  if (params.category) sp.set("category", params.category);
-  if (params.brand) sp.set("brand", params.brand);
-  if (params.q) sp.set("q", params.q);
-  if (params.page && params.page > 1) sp.set("page", String(params.page));
-  if (params.view && params.view !== "grid") sp.set("view", params.view);
-  const qs = sp.toString();
-  return `/products${qs ? `?${qs}` : ""}`;
-}
 
 function getPageNumbers(current: number, total: number): (number | "...")[] {
   if (total <= 7) {

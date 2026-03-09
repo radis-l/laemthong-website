@@ -16,6 +16,8 @@ type Props = {
 export function BrandShowcase({ brands }: Props) {
   const t = useTranslations("home");
 
+  if (brands.length === 0) return null;
+
   const duplicated = [...brands, ...brands];
 
   const [emblaRef, emblaApi] = useEmblaCarousel(

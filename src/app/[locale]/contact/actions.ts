@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { saveContactInquiry } from "@/lib/db";
+import { sendInquiryNotification } from "@/lib/email";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -53,6 +54,16 @@ export async function submitContactForm(
   } catch {
     return { message: "Failed to save inquiry. Please try again." };
   }
+
+  // Fire-and-forget email notification — don't block form response
+  sendInquiryNotification({
+    name: validated.data.name,
+    email: validated.data.email,
+    company: validated.data.company,
+    phone: validated.data.phone || undefined,
+    productInterest: validated.data.productInterest || undefined,
+    message: validated.data.message,
+  }).catch(() => {});
 
   return { success: true };
 }

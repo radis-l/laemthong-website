@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useFilterNavigation } from "./products-filter-context";
+import { buildProductsUrl } from "@/lib/url-builders";
 import { X } from "lucide-react";
 
 type Dimension = "category" | "brand";
@@ -22,21 +23,6 @@ interface ProductFilterBarProps {
     clearAll: string;
   };
   toolbar?: React.ReactNode;
-}
-
-function buildProductsUrl(params: {
-  category?: string;
-  brand?: string;
-  q?: string;
-  view?: string;
-}): string {
-  const sp = new URLSearchParams();
-  if (params.category) sp.set("category", params.category);
-  if (params.brand) sp.set("brand", params.brand);
-  if (params.q) sp.set("q", params.q);
-  if (params.view && params.view !== "grid") sp.set("view", params.view);
-  const qs = sp.toString();
-  return `/products${qs ? `?${qs}` : ""}`;
 }
 
 export function ProductFilterBar({
@@ -79,7 +65,9 @@ export function ProductFilterBar({
           <button
             type="button"
             role="tab"
+            id="tab-category"
             aria-selected={activeTab === "category"}
+            aria-controls="tabpanel-filters"
             onClick={() => setActiveTab("category")}
             className="group relative pb-3 pr-5"
           >
@@ -108,7 +96,9 @@ export function ProductFilterBar({
           <button
             type="button"
             role="tab"
+            id="tab-brand"
             aria-selected={activeTab === "brand"}
+            aria-controls="tabpanel-filters"
             onClick={() => setActiveTab("brand")}
             className="group relative pb-3 pr-5"
           >
@@ -209,7 +199,7 @@ export function ProductFilterBar({
       </div>
 
       {/* Pills row */}
-      <div role="tabpanel" className="flex items-center gap-2 overflow-x-auto pt-4 pb-2 sm:flex-wrap sm:overflow-visible sm:pb-0">
+      <div role="tabpanel" id="tabpanel-filters" aria-labelledby={`tab-${activeTab}`} className="flex items-center gap-2 overflow-x-auto pt-4 pb-2 sm:flex-wrap sm:overflow-visible sm:pb-0">
         {activeTab === "category" ? (
           <>
             <button

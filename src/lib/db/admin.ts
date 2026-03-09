@@ -262,3 +262,70 @@ export async function adminDeletePageImage(key: string): Promise<void> {
     .eq("key", key);
   if (error) throw error;
 }
+
+// ─── Contact Inquiries ──────────────────────────────────────────────────────
+
+export interface ContactInquiryRow {
+  id: string;
+  name: string;
+  email: string;
+  company: string;
+  phone: string | null;
+  product_interest: string | null;
+  message: string;
+  created_at: string;
+}
+
+export interface AdminInquiriesResult {
+  inquiries: ContactInquiryRow[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export async function adminGetContactInquiries(
+  page = 1,
+  pageSize = 20,
+): Promise<AdminInquiriesResult> {
+  const supabase = createSupabaseAdminClient();
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  const { data, error, count } = await supabase
+    .from("contact_inquiries")
+    .select("*", { count: "exact" })
+    .order("created_at", { ascending: false })
+    .range(from, to);
+
+  if (error) {
+    return { inquiries: [], total: 0, page, pageSize, totalPages: 0 };
+  }
+
+  const total = count ?? 0;
+  return {
+    inquiries: data as ContactInquiryRow[],
+    total,
+    page,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize),
+  };
+}
+
+export async function adminGetContactInquiryCount(): Promise<number> {
+  const supabase = createSupabaseAdminClient();
+  const { count, error } = await supabase
+    .from("contact_inquiries")
+    .select("id", { count: "exact", head: true });
+  if (error) return 0;
+  return count ?? 0;
+}
+
+export async function adminDeleteContactInquiry(id: string): Promise<void> {
+  const supabase = createSupabaseAdminClient();
+  const { error } = await supabase
+    .from("contact_inquiries")
+    .delete()
+    .eq("id", id);
+  if (error) throw error;
+}

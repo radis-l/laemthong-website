@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import { getFilteredProducts, getCategoryBySlug, getBrandBySlug, getPageImage } from "@/lib/db";
-import { getCachedCategories, getCachedBrands } from "@/lib/db/cached";
+import { getCategoryBySlug, getBrandBySlug, getPageImage } from "@/lib/db";
+import { getCachedCategories, getCachedBrands, getCachedFilteredProducts } from "@/lib/db/cached";
 import { ProductCard } from "@/components/products/product-card";
 import { ProductSearch } from "@/components/products/product-search";
 import { ProductFilterBar } from "@/components/products/product-filter-bar";
@@ -105,11 +105,12 @@ export default async function ProductsPage({ params, searchParams }: Props) {
   const t = await getTranslations({ locale, namespace: "products" });
   const loc = locale as Locale;
 
-  const pageNum = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+  const MAX_PAGE = 100;
+  const pageNum = Math.min(MAX_PAGE, Math.max(1, parseInt(pageParam ?? "1", 10) || 1));
   const view = viewParam === "list" ? "list" : "grid";
 
   const [result, categories, brands, heroImage] = await Promise.all([
-    getFilteredProducts({
+    getCachedFilteredProducts({
       category,
       brand,
       search: q,
@@ -122,7 +123,8 @@ export default async function ProductsPage({ params, searchParams }: Props) {
     getPageImage("hero-products"),
   ]);
 
-  const { products, total, totalPages } = result;
+  const { products, total, totalPages: rawTotalPages } = result;
+  const totalPages = Math.min(MAX_PAGE, rawTotalPages);
 
   const categoryMap = new Map(categories.map((c) => [c.slug, c]));
   const activeCategory = category ? categoryMap.get(category) : undefined;
@@ -236,6 +238,11 @@ export default async function ProductsPage({ params, searchParams }: Props) {
                     previousLabel={t("previousPage")}
                     nextLabel={t("nextPage")}
                   />
+                  {rawTotalPages > MAX_PAGE && (
+                    <p className="mt-4 text-center text-xs text-muted-foreground">
+                      {t("useFiltersHint")}
+                    </p>
+                  )}
                 </>
               ) : (
                 <div className="flex flex-col items-center py-20 text-center">

@@ -79,7 +79,8 @@ export async function getFilteredProducts(filter: ProductFilter = {}): Promise<P
   if (brand) query = query.eq("brand_slug", brand);
 
   if (search) {
-    const pattern = `%${search}%`;
+    const escaped = search.replace(/[%_\\]/g, "\\$&");
+    const pattern = `%${escaped}%`;
     query = query.or(
       `name->>th.ilike.${pattern},name->>en.ilike.${pattern},short_description->>th.ilike.${pattern},short_description->>en.ilike.${pattern}`
     );

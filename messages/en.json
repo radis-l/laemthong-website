@@ -84,7 +84,8 @@
     "viewList": "List view",
     "page": "Page",
     "previousPage": "Previous",
-    "nextPage": "Next"
+    "nextPage": "Next",
+    "useFiltersHint": "Use search or filters to find specific products"
   },
   "brands": {
     "title": "Brands We Carry",

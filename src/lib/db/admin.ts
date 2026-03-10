@@ -182,14 +182,38 @@ export async function adminGetProducts(
   };
 }
 
-export async function adminGetAllProducts(): Promise<DbProduct[]> {
+export async function adminGetProductCount(): Promise<number> {
   const supabase = createSupabaseAdminClient();
-  const { data, error } = await supabase
+  const { count, error } = await supabase
     .from("products")
-    .select("*")
-    .order("sort_order");
-  if (error) return [];
-  return data as DbProduct[];
+    .select("slug", { count: "exact", head: true });
+  if (error) return 0;
+  return count ?? 0;
+}
+
+export async function adminGetProductsForExport(
+  batchSize = 500
+): Promise<DbProduct[]> {
+  const supabase = createSupabaseAdminClient();
+  const allProducts: DbProduct[] = [];
+  let from = 0;
+
+  while (true) {
+    const { data, error } = await supabase
+      .from("products")
+      .select(
+        "slug,category_slug,brand_slug,name,short_description,description,specifications,features,featured,sort_order"
+      )
+      .order("sort_order")
+      .range(from, from + batchSize - 1);
+
+    if (error || !data || data.length === 0) break;
+    allProducts.push(...(data as DbProduct[]));
+    if (data.length < batchSize) break;
+    from += batchSize;
+  }
+
+  return allProducts;
 }
 
 export async function adminGetProductBySlug(

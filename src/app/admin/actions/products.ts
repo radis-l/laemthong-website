@@ -7,6 +7,7 @@ import {
   adminUpdateProduct,
   adminDeleteProduct,
 } from "@/lib/db/admin";
+import { createSupabaseAdminClient } from "@/lib/supabase";
 import { deleteImageFolder, moveImageFolder, migrateImagesOnSlugChange } from "@/lib/storage";
 import { handleActionError } from "@/lib/db/errors";
 import { getNextSortOrder } from "@/lib/db/sort-order";
@@ -210,23 +211,18 @@ export async function deleteProductAction(
 export async function bulkDeleteProductsAction(
   slugs: string[]
 ): Promise<{ success: boolean; deleted: number; message?: string }> {
-  let deleted = 0;
+  const supabase = createSupabaseAdminClient();
+  const { error } = await supabase.from("products").delete().in("slug", slugs);
 
-  for (const slug of slugs) {
-    try {
-      await adminDeleteProduct(slug);
-      deleteImageFolder("products", slug).catch(() => {});
-      deleted++;
-    } catch {
-      // Continue deleting others even if one fails
-    }
+  if (error) {
+    return { success: false, deleted: 0, message: error.message };
   }
+
+  // Parallel image cleanup (fire-and-forget)
+  Promise.allSettled(
+    slugs.map((slug) => deleteImageFolder("products", slug))
+  );
 
   revalidateEntity("/admin/products");
-
-  if (deleted === 0) {
-    return { success: false, deleted: 0, message: "Failed to delete any products." };
-  }
-
-  return { success: true, deleted };
+  return { success: true, deleted: slugs.length };
 }

@@ -21,9 +21,13 @@ type Props = {
 export default async function AdminProductsPage({ searchParams }: Props) {
   const params = await searchParams;
 
+  const ALLOWED_PAGE_SIZES = [20, 50, 100];
+  const rawPageSize = params.pageSize ? Number(params.pageSize) : 20;
+  const pageSize = ALLOWED_PAGE_SIZES.includes(rawPageSize) ? rawPageSize : 20;
+
   const query: AdminProductsQuery = {
     page: params.page ? Number(params.page) : 1,
-    pageSize: 20,
+    pageSize,
     search: typeof params.search === "string" ? params.search : undefined,
     category: typeof params.category === "string" ? params.category : undefined,
     brand: typeof params.brand === "string" ? params.brand : undefined,

@@ -1,8 +1,16 @@
 "use client";
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useTransition } from "react";
+import { useCallback, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationControlsProps {
@@ -11,6 +19,8 @@ interface PaginationControlsProps {
   total: number;
   pageSize: number;
 }
+
+const PAGE_SIZES = [20, 50, 100];
 
 export function PaginationControls({
   currentPage,
@@ -22,14 +32,17 @@ export function PaginationControls({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const [jumpValue, setJumpValue] = useState("");
 
-  const goToPage = useCallback(
-    (page: number) => {
+  const updateParams = useCallback(
+    (updates: Record<string, string | null>) => {
       const params = new URLSearchParams(searchParams.toString());
-      if (page <= 1) {
-        params.delete("page");
-      } else {
-        params.set("page", String(page));
+      for (const [key, value] of Object.entries(updates)) {
+        if (value === null) {
+          params.delete(key);
+        } else {
+          params.set(key, value);
+        }
       }
       startTransition(() => {
         router.replace(`${pathname}?${params.toString()}`);
@@ -38,7 +51,33 @@ export function PaginationControls({
     [router, pathname, searchParams]
   );
 
-  if (totalPages <= 1) return null;
+  const goToPage = useCallback(
+    (page: number) => {
+      updateParams({ page: page <= 1 ? null : String(page) });
+    },
+    [updateParams]
+  );
+
+  const handlePageSizeChange = useCallback(
+    (value: string) => {
+      const newSize = Number(value);
+      updateParams({
+        pageSize: newSize === 20 ? null : String(newSize),
+        page: null, // Reset to page 1
+      });
+    },
+    [updateParams]
+  );
+
+  const handleJump = useCallback(() => {
+    const page = Number(jumpValue);
+    if (page >= 1 && page <= totalPages) {
+      goToPage(page);
+      setJumpValue("");
+    }
+  }, [jumpValue, totalPages, goToPage]);
+
+  if (totalPages <= 1 && pageSize === 20) return null;
 
   const from = (currentPage - 1) * pageSize + 1;
   const to = Math.min(currentPage * pageSize, total);
@@ -63,9 +102,26 @@ export function PaginationControls({
 
   return (
     <div className="flex items-center justify-between">
-      <p className="text-sm text-muted-foreground">
-        Showing {from}–{to} of {total.toLocaleString()}
-      </p>
+      <div className="flex items-center gap-3">
+        <p className="text-sm text-muted-foreground">
+          Showing {from}–{to} of {total.toLocaleString()}
+        </p>
+        <Select
+          value={String(pageSize)}
+          onValueChange={handlePageSizeChange}
+        >
+          <SelectTrigger className="h-8 w-[70px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {PAGE_SIZES.map((size) => (
+              <SelectItem key={size} value={String(size)}>
+                {size}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       <div className="flex items-center gap-1">
         <Button
@@ -111,6 +167,24 @@ export function PaginationControls({
           <ChevronRight className="h-4 w-4" />
           <span className="sr-only">Next page</span>
         </Button>
+
+        {totalPages > 7 && (
+          <div className="ml-2 flex items-center gap-1">
+            <Input
+              type="number"
+              min={1}
+              max={totalPages}
+              placeholder="Go to"
+              value={jumpValue}
+              onChange={(e) => setJumpValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleJump();
+              }}
+              className="h-8 w-[70px] text-sm"
+              disabled={isPending}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -9,16 +9,15 @@ async function reorderEntities(
   adminPath: string
 ) {
   const supabase = createSupabaseAdminClient();
+  const sortOrders = slugs.map((_, i) => (i + 1) * 10);
 
-  for (const [index, slug] of slugs.entries()) {
-    const { error } = await supabase
-      .from(table)
-      .update({ sort_order: (index + 1) * 10 })
-      .eq("slug", slug);
+  const { error } = await supabase.rpc("batch_reorder", {
+    p_table: table,
+    p_slugs: slugs,
+    p_sort_orders: sortOrders,
+  });
 
-    if (error) throw error;
-  }
-
+  if (error) throw error;
   revalidateEntity(adminPath);
 }
 

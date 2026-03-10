@@ -3,7 +3,7 @@
 import { parseProductCSV } from "@/lib/bulk-upload/csv-parser";
 import { extractImagesFromZip } from "@/lib/bulk-upload/zip-handler";
 import { validateProductRows, validateImageOnlyRows } from "@/lib/bulk-upload/validator";
-import { adminGetAllProducts } from "@/lib/db/admin";
+import { adminGetProductsForExport, adminGetProductCount } from "@/lib/db/admin";
 import type {
   ClientValidationResult,
   ImageOnlyValidationResult,
@@ -173,7 +173,7 @@ export async function exportProductsAction(): Promise<{
   csv: string | null;
   count: number;
 }> {
-  const products = await adminGetAllProducts();
+  const products = await adminGetProductsForExport();
 
   if (products.length === 0) {
     return { csv: null, count: 0 };
@@ -214,6 +214,5 @@ export async function exportProductsAction(): Promise<{
 }
 
 export async function getProductCountAction(): Promise<number> {
-  const products = await adminGetAllProducts();
-  return products.length;
+  return adminGetProductCount();
 }

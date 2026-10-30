@@ -1,5 +1,7 @@
 "use server";
 
+import { requireAdmin } from "@/lib/auth";
+import { logActivity } from "@/lib/activity";
 import { redirect } from "next/navigation";
 import { productSchema } from "@/lib/validations/product";
 import {
@@ -29,6 +31,8 @@ export async function createProductAction(
   _prevState: ActionState,
   formData: FormData
 ): Promise<ActionState> {
+  const user = await requireAdmin();
+
   const validated = productSchema.safeParse({
     slug: formData.get("slug") || undefined,
     nameTh: formData.get("nameTh"),
@@ -111,6 +115,7 @@ export async function createProductAction(
   }
 
   revalidateEntity("/admin/products");
+  await logActivity(user, { action: "create", entity: "product", entityId: slug, summary: `Created product "${validated.data.nameEn}"` });
   redirect("/admin/products");
 }
 
@@ -118,6 +123,8 @@ export async function updateProductAction(
   _prevState: ActionState,
   formData: FormData
 ): Promise<ActionState> {
+  const user = await requireAdmin();
+
   const originalSlug = formData.get("originalSlug") as string;
 
   const validated = productSchema.safeParse({
@@ -191,12 +198,15 @@ export async function updateProductAction(
   }
 
   revalidateEntity("/admin/products");
+  await logActivity(user, { action: "update", entity: "product", entityId: slug, summary: `Updated product "${validated.data.nameEn}"` });
   redirect("/admin/products");
 }
 
 export async function deleteProductAction(
   slug: string
 ): Promise<ActionState> {
+  const user = await requireAdmin();
+
   try {
     await adminDeleteProduct(slug);
     deleteImageFolder("products", slug).catch(() => {});
@@ -205,12 +215,15 @@ export async function deleteProductAction(
   }
 
   revalidateEntity("/admin/products");
+  await logActivity(user, { action: "delete", entity: "product", entityId: slug, summary: `Deleted product "${slug}"` });
   return { success: true };
 }
 
 export async function bulkDeleteProductsAction(
   slugs: string[]
 ): Promise<{ success: boolean; deleted: number; message?: string }> {
+  const user = await requireAdmin();
+
   const supabase = createSupabaseAdminClient();
   const { error } = await supabase.from("products").delete().in("slug", slugs);
 
@@ -224,5 +237,6 @@ export async function bulkDeleteProductsAction(
   );
 
   revalidateEntity("/admin/products");
+  await logActivity(user, { action: "bulk_delete", entity: "product", summary: `Deleted ${slugs.length} products: ${slugs.slice(0, 20).join(", ")}${slugs.length > 20 ? ", …" : ""}` });
   return { success: true, deleted: slugs.length };
 }

@@ -1,5 +1,15 @@
 import { createSupabaseAdminClient } from "@/lib/supabase";
-import type { DbBrand, DbCategory, DbProduct, DbPageImage } from "@/data/types";
+import { getRole, mustChangePassword, type AdminRole } from "@/lib/admin-roles";
+import { SERVICE_COLUMNS } from "@/lib/db/services";
+import { INQUIRY_STATUSES, type InquiryStatus } from "@/lib/inquiry-status";
+import type {
+  DbBrand,
+  DbCategory,
+  DbProduct,
+  DbPageImage,
+  DbCompanyInfo,
+  DbService,
+} from "@/data/types";
 
 // ─── Brands ──────────────────────────────────────────────────────────────────
 
@@ -287,6 +297,105 @@ export async function adminDeletePageImage(key: string): Promise<void> {
   if (error) throw error;
 }
 
+// ─── Services ───────────────────────────────────────────────────────────────
+
+export async function adminGetAllServices(): Promise<DbService[]> {
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("services")
+    .select(SERVICE_COLUMNS)
+    .order("sort_order", { ascending: true });
+  if (error) throw error;
+  return data as DbService[];
+}
+
+export async function adminGetServiceBySlug(slug: string): Promise<DbService | null> {
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("services")
+    .select(SERVICE_COLUMNS)
+    .eq("slug", slug)
+    .maybeSingle();
+  if (error) throw error;
+  return data as DbService | null;
+}
+
+export type ServiceWrite = Omit<DbService, "updated_at" | "icon">;
+
+export async function adminCreateService(values: ServiceWrite): Promise<void> {
+  const supabase = createSupabaseAdminClient();
+  const { error } = await supabase.from("services").insert({ ...values, icon: "wrench" });
+  if (error) throw error;
+}
+
+export async function adminUpdateService(
+  originalSlug: string,
+  values: Partial<ServiceWrite>
+): Promise<void> {
+  const supabase = createSupabaseAdminClient();
+  const { error } = await supabase
+    .from("services")
+    .update({ ...values, updated_at: new Date().toISOString() })
+    .eq("slug", originalSlug);
+  if (error) throw error;
+}
+
+export async function adminDeleteService(slug: string): Promise<void> {
+  const supabase = createSupabaseAdminClient();
+  const { error } = await supabase.from("services").delete().eq("slug", slug);
+  if (error) throw error;
+}
+
+// ─── Site Content (text overrides) ──────────────────────────────────────────
+
+export async function adminGetSiteContent(
+  keys: string[]
+): Promise<Record<string, { th?: string; en?: string }>> {
+  if (keys.length === 0) return {};
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase.from("site_content").select("key, value").in("key", keys);
+  if (error) throw error;
+  return Object.fromEntries((data ?? []).map((r) => [r.key, r.value]));
+}
+
+export async function adminSaveSiteContent(
+  upserts: { key: string; value: { th?: string; en?: string } }[],
+  deletes: string[],
+  userId: string
+): Promise<void> {
+  const supabase = createSupabaseAdminClient();
+  if (upserts.length > 0) {
+    const now = new Date().toISOString();
+    const { error } = await supabase
+      .from("site_content")
+      .upsert(upserts.map((u) => ({ ...u, updated_at: now, updated_by: userId })));
+    if (error) throw error;
+  }
+  if (deletes.length > 0) {
+    const { error } = await supabase.from("site_content").delete().in("key", deletes);
+    if (error) throw error;
+  }
+}
+
+// ─── Company Info (singleton row id = 1) ────────────────────────────────────
+
+export async function adminGetCompanyInfo(): Promise<DbCompanyInfo | null> {
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase.from("company_info").select("*").eq("id", 1).maybeSingle();
+  if (error) throw error;
+  return data as DbCompanyInfo | null;
+}
+
+export async function adminSaveCompanyInfo(
+  values: Omit<DbCompanyInfo, "id">
+): Promise<void> {
+  const supabase = createSupabaseAdminClient();
+  const { error } = await supabase
+    .from("company_info")
+    .upsert({ id: 1, ...values, updated_at: new Date().toISOString() });
+  if (error) throw error;
+}
+
 // ─── Contact Inquiries ──────────────────────────────────────────────────────
 
 export interface ContactInquiryRow {
@@ -298,6 +407,10 @@ export interface ContactInquiryRow {
   product_interest: string | null;
   message: string;
   created_at: string;
+  /** Missing until the admin_cms migration has run — treat as "new". */
+  status?: InquiryStatus;
+  note?: string | null;
+  updated_at?: string | null;
 }
 
 export interface AdminInquiriesResult {
@@ -311,14 +424,15 @@ export interface AdminInquiriesResult {
 export async function adminGetContactInquiries(
   page = 1,
   pageSize = 20,
+  status?: InquiryStatus,
 ): Promise<AdminInquiriesResult> {
   const supabase = createSupabaseAdminClient();
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
-  const { data, error, count } = await supabase
-    .from("contact_inquiries")
-    .select("*", { count: "exact" })
+  let q = supabase.from("contact_inquiries").select("*", { count: "exact" });
+  if (status) q = q.eq("status", status);
+  const { data, error, count } = await q
     .order("created_at", { ascending: false })
     .range(from, to);
 
@@ -334,6 +448,33 @@ export async function adminGetContactInquiries(
     pageSize,
     totalPages: Math.ceil(total / pageSize),
   };
+}
+
+/** Count per status; all zero if the status column doesn't exist yet. */
+export async function adminGetInquiryStatusCounts(): Promise<Record<InquiryStatus, number>> {
+  const supabase = createSupabaseAdminClient();
+  const counts = await Promise.all(
+    INQUIRY_STATUSES.map(async (status) => {
+      const { count, error } = await supabase
+        .from("contact_inquiries")
+        .select("id", { count: "exact", head: true })
+        .eq("status", status);
+      return [status, error ? 0 : count ?? 0] as const;
+    })
+  );
+  return Object.fromEntries(counts) as Record<InquiryStatus, number>;
+}
+
+export async function adminUpdateInquiry(
+  id: string,
+  values: { status: InquiryStatus; note: string | null }
+): Promise<void> {
+  const supabase = createSupabaseAdminClient();
+  const { error } = await supabase
+    .from("contact_inquiries")
+    .update({ ...values, updated_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw error;
 }
 
 export async function adminGetContactInquiryCount(): Promise<number> {
@@ -352,4 +493,189 @@ export async function adminDeleteContactInquiry(id: string): Promise<void> {
     .delete()
     .eq("id", id);
   if (error) throw error;
+}
+
+// ─── SAP Stock ──────────────────────────────────────────────────────────────
+
+export interface SapStockRow {
+  item_code: string;
+  item_name: string;
+  on_hand: number;
+  available: number;
+  synced_at: string;
+}
+
+export interface SapStockListRow extends SapStockRow {
+  /** A product exists whose slug equals item_code. */
+  matched: boolean;
+}
+
+export interface AdminSapStockQuery {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+}
+
+export interface AdminSapStockResult {
+  items: SapStockListRow[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  lastSyncedAt: string | null;
+}
+
+const SAP_STOCK_COLUMNS = "item_code, item_name, on_hand, available, synced_at";
+
+export async function adminGetSapStock(
+  query: AdminSapStockQuery = {}
+): Promise<AdminSapStockResult> {
+  const { page = 1, pageSize = 20, search } = query;
+  const supabase = createSupabaseAdminClient();
+
+  let q = supabase.from("sap_stock").select(SAP_STOCK_COLUMNS, { count: "exact" });
+
+  if (search) {
+    const term = `%${search}%`;
+    q = q.or(`item_code.ilike.${term},item_name.ilike.${term}`);
+  }
+
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  const [{ data, error, count }, { data: latest }] = await Promise.all([
+    q.order("item_code", { ascending: true }).range(from, to),
+    supabase
+      .from("sap_stock")
+      .select("synced_at")
+      .order("synced_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+
+  if (error) {
+    return { items: [], total: 0, page, pageSize, totalPages: 0, lastSyncedAt: null };
+  }
+
+  const rows = data as SapStockRow[];
+
+  // One lookup for the whole page: which item codes already exist as product slugs
+  const matchedSlugs = new Set<string>();
+  if (rows.length > 0) {
+    const { data: products } = await supabase
+      .from("products")
+      .select("slug")
+      .in("slug", rows.map((r) => r.item_code));
+    for (const p of products ?? []) matchedSlugs.add(p.slug);
+  }
+
+  const total = count ?? 0;
+  return {
+    items: rows.map((r) => ({ ...r, matched: matchedSlugs.has(r.item_code) })),
+    total,
+    page,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize),
+    lastSyncedAt: latest?.synced_at ?? null,
+  };
+}
+
+export async function adminGetSapStockByCode(
+  itemCode: string
+): Promise<SapStockRow | null> {
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("sap_stock")
+    .select(SAP_STOCK_COLUMNS)
+    .eq("item_code", itemCode)
+    .maybeSingle();
+  if (error || !data) return null;
+  return data as SapStockRow;
+}
+
+export interface SapProductInfo {
+  /** SAP item whose code equals the product slug. */
+  match: SapStockRow | null;
+  /** Other SAP items with exactly the same name as `match`. */
+  sameName: SapStockRow[];
+}
+
+export async function adminGetSapInfoForSlug(slug: string): Promise<SapProductInfo> {
+  const match = await adminGetSapStockByCode(slug);
+  if (!match) return { match: null, sameName: [] };
+
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("sap_stock")
+    .select(SAP_STOCK_COLUMNS)
+    .eq("item_name", match.item_name)
+    .neq("item_code", slug)
+    .order("item_code", { ascending: true });
+
+  return { match, sameName: error ? [] : (data as SapStockRow[]) };
+}
+
+// ─── Admin Users (Supabase Auth: auth.users) ────────────────────────────────
+
+export interface AdminUserRow {
+  id: string;
+  email: string;
+  role: AdminRole;
+  mustChangePassword: boolean;
+  lastSignInAt: string | null;
+  createdAt: string;
+}
+
+export async function adminListUsers(): Promise<AdminUserRow[]> {
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase.auth.admin.listUsers({ perPage: 200 });
+  if (error) throw error;
+
+  return data.users
+    .map((u) => ({
+      id: u.id,
+      email: u.email ?? "",
+      role: getRole(u),
+      mustChangePassword: mustChangePassword(u),
+      lastSignInAt: u.last_sign_in_at ?? null,
+      createdAt: u.created_at,
+    }))
+    .sort((a, b) => a.email.localeCompare(b.email));
+}
+
+// ─── Activity Log ───────────────────────────────────────────────────────────
+
+export interface ActivityRow {
+  id: number;
+  created_at: string;
+  user_email: string | null;
+  action: string;
+  entity: string;
+  entity_id: string | null;
+  summary: string | null;
+}
+
+export async function adminGetActivity(query: {
+  page?: number;
+  pageSize?: number;
+  entity?: string;
+  userEmail?: string;
+}): Promise<{ rows: ActivityRow[]; total: number; page: number; pageSize: number; totalPages: number }> {
+  const { page = 1, pageSize = 50, entity, userEmail } = query;
+  const supabase = createSupabaseAdminClient();
+
+  let q = supabase
+    .from("activity_log")
+    .select("id, created_at, user_email, action, entity, entity_id, summary", { count: "exact" });
+  if (entity) q = q.eq("entity", entity);
+  if (userEmail) q = q.eq("user_email", userEmail);
+
+  const from = (page - 1) * pageSize;
+  const { data, error, count } = await q
+    .order("created_at", { ascending: false })
+    .range(from, from + pageSize - 1);
+
+  if (error) return { rows: [], total: 0, page, pageSize, totalPages: 0 };
+  const total = count ?? 0;
+  return { rows: data as ActivityRow[], total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
 }

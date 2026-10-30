@@ -53,6 +53,36 @@ export interface CompanyInfo {
   lineId?: string;
   mapUrl: string;
   coordinates: { lat: number; lng: number };
+  businessHours: LocalizedString;
+  stats: CompanyStats;
+}
+
+export interface ServiceStep {
+  title: LocalizedString;
+  description: LocalizedString;
+}
+
+export interface Service {
+  slug: string;
+  title: LocalizedString;
+  shortDescription: LocalizedString;
+  description: LocalizedString;
+  features: LocalizedString[];
+  expertise: LocalizedString[];
+  processSteps: ServiceStep[];
+  metaTitle: LocalizedString;
+  metaDescription: LocalizedString;
+  isPrimary: boolean;
+  imageUrl: string | null;
+  sortOrder: number;
+  updatedAt?: string;
+}
+
+export interface CompanyStats {
+  years: number;
+  brands: number;
+  products: number;
+  clients: number;
 }
 
 // ========================================
@@ -106,6 +136,25 @@ export interface DbCompanyInfo {
   line_id: string | null;
   map_url: string;
   coordinates: { lat: number; lng: number };
+  business_hours?: LocalizedString;
+  stats?: Partial<CompanyStats>;
+}
+
+export interface DbService {
+  slug: string;
+  title: LocalizedString;
+  short_description: LocalizedString;
+  description: LocalizedString;
+  icon: string;
+  features: LocalizedString[];
+  expertise: LocalizedString[];
+  process_steps: ServiceStep[];
+  meta_title: LocalizedString;
+  meta_description: LocalizedString;
+  is_primary: boolean;
+  image_url: string | null;
+  sort_order: number;
+  updated_at: string;
 }
 
 export interface DbPageImage {

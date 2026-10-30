@@ -17,8 +17,10 @@ import { BilingualInput } from "./bilingual-input";
 import { BilingualTextarea } from "./bilingual-textarea";
 import { ManageCategoriesDialog } from "./manage-categories-dialog";
 import { QuickCreateBrandDialog } from "./quick-create-brand-dialog";
+import { SapStockPanel } from "./sap-stock-panel";
 import Image from "next/image";
 import type { DbBrand, DbCategory } from "@/data/types";
+import type { SapProductInfo } from "@/lib/db/admin";
 
 interface ProductBasicInfoTabProps {
   product?: {
@@ -26,6 +28,10 @@ interface ProductBasicInfoTabProps {
     short_description: { th: string; en: string };
     slug: string;
   };
+  /** Pre-fills both TH and EN short description for new products (still editable). */
+  defaultShortDescription?: string;
+  /** SAP B1 stock for this slug; omit to hide the panel. */
+  sapInfo?: SapProductInfo;
   isEditing: boolean;
   slug: string;
   onSlugChange: (slug: string) => void;
@@ -45,6 +51,8 @@ interface ProductBasicInfoTabProps {
 
 export function ProductBasicInfoTab({
   product,
+  defaultShortDescription,
+  sapInfo,
   isEditing,
   slug,
   onSlugChange,
@@ -92,12 +100,14 @@ export function ProductBasicInfoTab({
         error={errors?.slug?.[0]}
       />
 
+      {sapInfo && <SapStockPanel info={sapInfo} />}
+
       <BilingualTextarea
         label="Short Description"
         nameTh="shortDescriptionTh"
         nameEn="shortDescriptionEn"
-        defaultValueTh={product?.short_description.th}
-        defaultValueEn={product?.short_description.en}
+        defaultValueTh={product?.short_description.th ?? defaultShortDescription}
+        defaultValueEn={product?.short_description.en ?? defaultShortDescription}
         required
         rows={2}
         errorTh={errors?.shortDescriptionTh?.[0]}
@@ -262,7 +272,8 @@ export function ProductBasicInfoTab({
           <Label htmlFor="featured">Featured product</Label>
         </div>
         <p className="text-xs text-muted-foreground">
-          Featured products appear in the homepage hero section
+          Shown in &quot;Featured Products&quot; on the home page, in the same order as the Products list.
+          Pick 3, 6 or 9 so the 3-column grid has full rows.
         </p>
       </div>
     </div>
